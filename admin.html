@@ -1,69 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Admin Panel</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
 
 <style>
 
 body{
-font-family:Inter;
-background:linear-gradient(160deg,#0b0f1c,#03050b);
+font-family:Arial;
+background:#0b0f1c;
 color:white;
 padding:40px;
 }
 
-.container{
-max-width:900px;
-margin:auto;
-}
-
 .card{
-background:rgba(18,25,45,0.6);
-backdrop-filter:blur(12px);
+background:#1a2238;
 padding:30px;
-border-radius:2rem;
-border:1px solid rgba(110,180,255,0.2);
-box-shadow:0 0 30px rgba(0,183,255,0.2);
-margin-bottom:30px;
-}
-
-h2{
-font-family:Poppins;
-background:linear-gradient(90deg,#ffffff,#7bc9ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:20px;
+border-radius:10px;
+max-width:700px;
+margin:auto;
 }
 
 input{
 width:100%;
-padding:12px;
+padding:10px;
 margin-bottom:10px;
-border:none;
-border-radius:10px;
-background:#101a33;
-color:white;
 }
 
 button{
-padding:12px 20px;
+padding:10px 20px;
+background:#00b7ff;
 border:none;
-border-radius:30px;
-background:linear-gradient(135deg,#00b7ff,#3e9cff);
 color:white;
 cursor:pointer;
 }
 
-.tenant{
+table{
+width:100%;
+margin-top:30px;
+}
+
+td,th{
 padding:10px;
-border-bottom:1px solid rgba(255,255,255,0.1);
+border-bottom:1px solid #333;
 }
 
 </style>
@@ -72,28 +52,34 @@ border-bottom:1px solid rgba(255,255,255,0.1);
 
 <body>
 
-<div class="container">
-
 <div class="card">
 
-<h2>Add Tenant</h2>
+<h2>Admin Dashboard</h2>
 
-<input id="tenantUID" placeholder="Tenant UID">
-<input id="tenantName" placeholder="Tenant Name">
-<input id="roomId" placeholder="Room Number">
-<input id="rentAmount" placeholder="Rent Amount">
+<h3>Add Tenant</h3>
 
-<button id="addTenantBtn">Add Tenant</button>
+<input id="name" placeholder="Tenant Name">
+<input id="room" placeholder="Room Number">
+<input id="rent" placeholder="Rent Amount">
 
-</div>
+<button id="addTenant">Add Tenant</button>
 
-<div class="card">
+<h3>Tenants List</h3>
 
-<h2>Tenant List</h2>
+<table>
 
-<div id="tenantList"></div>
+<thead>
+<tr>
+<th>Name</th>
+<th>Room</th>
+<th>Rent</th>
+<th>Status</th>
+</tr>
+</thead>
 
-</div>
+<tbody id="tenantTable"></tbody>
+
+</table>
 
 </div>
 
@@ -101,29 +87,30 @@ border-bottom:1px solid rgba(255,255,255,0.1);
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-import { getFirestore, doc, setDoc, getDocs, collection }
+import { getFirestore, collection, addDoc, getDocs }
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+
+apiKey: "YOUR_KEY",
 authDomain: "rent-management-system-86ccc.firebaseapp.com",
 projectId: "rent-management-system-86ccc",
-storageBucket: "rent-management-system-86ccc.appspot.com",
-messagingSenderId: "676999561040",
-appId: "1:676999561040:web:f1166d818a33c5a008f655"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
-document.getElementById("addTenantBtn").addEventListener("click", async ()=>{
+const tenantTable = document.getElementById("tenantTable");
 
-const uid = document.getElementById("tenantUID").value;
-const name = document.getElementById("tenantName").value;
-const room = document.getElementById("roomId").value;
-const rent = document.getElementById("rentAmount").value;
+document.getElementById("addTenant").addEventListener("click", async ()=>{
 
-await setDoc(doc(db,"tenants",uid),{
+const name = document.getElementById("name").value;
+const room = document.getElementById("room").value;
+const rent = document.getElementById("rent").value;
+
+await addDoc(collection(db,"tenants"),{
 
 name:name,
 roomId:room,
@@ -140,20 +127,23 @@ loadTenants();
 
 async function loadTenants(){
 
+tenantTable.innerHTML="";
+
 const querySnapshot = await getDocs(collection(db,"tenants"));
 
-const list = document.getElementById("tenantList");
-
-list.innerHTML="";
-
-querySnapshot.forEach((doc)=>{
+querySnapshot.forEach(doc=>{
 
 const data = doc.data();
 
-list.innerHTML += `
-<div class="tenant">
-${data.name} — Room ${data.roomId} — ₹${data.rent} — ${data.status}
-</div>
+tenantTable.innerHTML+=`
+
+<tr>
+<td>${data.name}</td>
+<td>${data.roomId}</td>
+<td>₹${data.rent}</td>
+<td>${data.status}</td>
+</tr>
+
 `;
 
 });
