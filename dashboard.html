@@ -102,7 +102,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+apiKey: "YOUR_KEY",
 authDomain: "rent-management-system-86ccc.firebaseapp.com",
 projectId: "rent-management-system-86ccc",
 storageBucket: "rent-management-system-86ccc.appspot.com",
@@ -116,42 +116,41 @@ const db = getFirestore(app);
 
 onAuthStateChanged(auth, async (user)=>{
 
-if(user){
+if(!user){
+window.location.href="login.html";
+return;
+}
 
-console.log("User UID:", user.uid);
+try{
 
-const docRef = doc(db,"tenant",user.uid);
-const docSnap = await getDoc(docRef);
+const tenantRef = doc(db,"tenants",user.uid);
+const tenantSnap = await getDoc(tenantRef);
 
-if(docSnap.exists()){
+if(!tenantSnap.exists()){
+document.getElementById("tenantName").innerText="Tenant data not found";
+return;
+}
 
-const data = docSnap.data();
+const data = tenantSnap.data();
 
 document.getElementById("tenantName").innerText="Tenant: "+data.name;
-document.getElementById("roomNumber").innerText="Room: "+data.room;
+document.getElementById("roomNumber").innerText="Room: "+data.roomId;
 document.getElementById("rentAmount").innerText="Rent Due: ₹"+data.rent;
 document.getElementById("paymentStatus").innerText="Status: "+data.status;
 
-}else{
+}catch(err){
 
-document.getElementById("tenantName").innerText="Tenant data not found";
-
-}
-
-}else{
-
-window.location.href="login.html";
+console.error(err);
+document.getElementById("tenantName").innerText="Error loading data";
 
 }
 
 });
 
 document.getElementById("logoutBtn").addEventListener("click",()=>{
-
 signOut(auth).then(()=>{
 window.location.href="login.html";
 });
-
 });
 
 </script>
@@ -160,4 +159,5 @@ window.location.href="login.html";
 
 
 </html>
+
 
