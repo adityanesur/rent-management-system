@@ -1,165 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Inter;
+            background: linear-gradient(160deg, #0b0f1c, #03050b);
+            color: white;
+            min-height: 100vh;
+            padding: 40px;
+            margin: 0;
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        .card {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(18, 25, 45, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 2rem;
+            border: 1px solid rgba(110, 180, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 183, 255, 0.2);
+        }
 
-<title>Tenant Dashboard</title>
+        h2 {
+            font-family: Poppins;
+            background: linear-gradient(90deg, #ffffff, #7bc9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
+        .stat {
+            margin-bottom: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(110, 180, 255, 0.1);
+        }
 
-<style>
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #00b7ff, #3e9cff);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-body{
-font-family:Inter;
-background:linear-gradient(160deg,#0b0f1c,#03050b);
-color:white;
-min-height:100vh;
-padding:40px;
-}
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.5);
+        }
 
-.card{
-
-max-width:600px;
-margin:auto;
-
-background:rgba(18,25,45,0.6);
-backdrop-filter:blur(12px);
-
-padding:40px;
-
-border-radius:2rem;
-
-border:1px solid rgba(110,180,255,0.2);
-
-box-shadow:0 0 30px rgba(0,183,255,0.2);
-}
-
-h2{
-
-font-family:Poppins;
-
-background:linear-gradient(90deg,#ffffff,#7bc9ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-margin-bottom:30px;
-}
-
-.stat{
-
-margin-bottom:20px;
-font-size:18px;
-
-}
-
-button{
-
-margin-top:20px;
-
-padding:12px 20px;
-
-border:none;
-
-border-radius:30px;
-
-background:linear-gradient(135deg,#00b7ff,#3e9cff);
-
-color:white;
-
-cursor:pointer;
-
-}
-
-</style>
-
+        .loading {
+            text-align: center;
+            color: #7bc9ff;
+            margin: 20px 0;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="card">
+        <h2>✨ Tenant Dashboard</h2>
+        <div id="loadingMessage" class="loading">Loading your data...</div>
+        <div id="content" style="display: none;">
+            <div class="stat" id="tenantName">Tenant: </div>
+            <div class="stat" id="roomNumber">Room: </div>
+            <div class="stat" id="rentAmount">Rent Due: </div>
+            <div class="stat" id="paymentStatus">Status: </div>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </div>
 
-<div class="card">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-<h2>Tenant Dashboard</h2>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+            authDomain: "rent-management-system-86ccc.firebaseapp.com",
+            projectId: "rent-management-system-86ccc",
+            storageBucket: "rent-management-system-86ccc.appspot.com",
+            messagingSenderId: "676999561040",
+            appId: "1:676999561040:web:f1166d818a33c5a008f655"
+        };
 
-<div class="stat" id="tenantName">Tenant: Loading...</div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-<div class="stat" id="roomNumber">Room: Loading...</div>
+        // Add a small delay to ensure auth state is fully initialized
+        setTimeout(() => {
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    console.log("No user found, redirecting to login...");
+                    window.location.href = "login.html";
+                    return;
+                }
 
-<div class="stat" id="rentAmount">Rent Due: Loading...</div>
+                try {
+                    console.log("User found:", user.uid);
+                    
+                    const tenantRef = doc(db, "tenants", user.uid);
+                    const tenantSnap = await getDoc(tenantRef);
 
-<div class="stat" id="paymentStatus">Status: Loading...</div>
+                    // Hide loading, show content
+                    document.getElementById("loadingMessage").style.display = "none";
+                    document.getElementById("content").style.display = "block";
 
-<button id="logoutBtn">Logout</button>
+                    if (!tenantSnap.exists()) {
+                        document.getElementById("tenantName").innerText = "Tenant: Data not found";
+                        return;
+                    }
 
-</div>
+                    const data = tenantSnap.data();
+                    
+                    document.getElementById("tenantName").innerText = "Tenant: " + (data.name || "Not set");
+                    document.getElementById("roomNumber").innerText = "Room: " + (data.roomId || "Not set");
+                    document.getElementById("rentAmount").innerText = "Rent Due: ₹" + (data.rent || "0");
+                    
+                    // Format status with emoji
+                    const status = data.status || "Unknown";
+                    let statusEmoji = "❓";
+                    if (status.toLowerCase().includes("paid")) statusEmoji = "✅";
+                    else if (status.toLowerCase().includes("pending")) statusEmoji = "⏳";
+                    else if (status.toLowerCase().includes("overdue")) statusEmoji = "⚠️";
+                    
+                    document.getElementById("paymentStatus").innerText = "Status: " + statusEmoji + " " + status;
 
-<script type="module">
+                } catch (err) {
+                    console.error("Error loading data:", err);
+                    document.getElementById("loadingMessage").innerHTML = "❌ Error loading data. Please try again.";
+                    document.getElementById("loadingMessage").style.color = "#ff6b6b";
+                }
+            });
+        }, 500); // 500ms delay to ensure auth is ready
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-authDomain: "rent-management-system-86ccc.firebaseapp.com",
-projectId: "rent-management-system-86ccc",
-storageBucket: "rent-management-system-86ccc.appspot.com",
-messagingSenderId: "676999561040",
-appId: "1:676999561040:web:f1166d818a33c5a008f655"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-onAuthStateChanged(auth, async (user)=>{
-
-if(!user){
-window.location.href="login.html";
-return;
-}
-
-try{
-
-const tenantRef = doc(db,"tenants",user.uid);
-const tenantSnap = await getDoc(tenantRef);
-
-if(!tenantSnap.exists()){
-document.getElementById("tenantName").innerText="Tenant data not found";
-return;
-}
-
-const data = tenantSnap.data();
-
-document.getElementById("tenantName").innerText="Tenant: "+data.name;
-document.getElementById("roomNumber").innerText="Room: "+data.roomId;
-document.getElementById("rentAmount").innerText="Rent Due: ₹"+data.rent;
-document.getElementById("paymentStatus").innerText="Status: "+data.status;
-
-}catch(err){
-
-console.error(err);
-document.getElementById("tenantName").innerText="Error loading data";
-
-}
-
-});
-
-document.getElementById("logoutBtn").addEventListener("click",()=>{
-signOut(auth).then(()=>{
-window.location.href="login.html";
-});
-});
-
-</script>
-
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
+            }).catch((error) => {
+                console.error("Logout error:", error);
+            });
+        });
+    </script>
 </body>
-
-
 </html>
-
-
-
-
