@@ -1,196 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Inter;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(160deg, #0b0f1c, #03050b);
+            color: white;
+            margin: 0;
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        .card {
+            width: 360px;
+            padding: 40px;
+            background: rgba(18, 25, 45, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(110, 180, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 183, 255, 0.2);
+        }
 
-<title>Tenant Login</title>
+        h2 {
+            font-family: Poppins;
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(90deg, #ffffff, #7bc9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(110, 180, 255, 0.3);
+            background: #101a33;
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
 
-<style>
+        input:focus {
+            outline: none;
+            border-color: #00b7ff;
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.3);
+        }
 
-body{
-font-family:Inter;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #00b7ff, #3e9cff);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-background:linear-gradient(160deg,#0b0f1c,#03050b);
-color:white;
-}
+        button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.5);
+        }
 
-.card{
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
 
-width:360px;
-padding:40px;
+        .success {
+            color: #5cff9d;
+        }
 
-background:rgba(18,25,45,0.6);
-backdrop-filter:blur(12px);
+        .error {
+            color: #ff6b6b;
+        }
 
-border-radius:2rem;
-border:1px solid rgba(110,180,255,0.2);
+        .info {
+            color: #7bc9ff;
+        }
 
-box-shadow:0 0 30px rgba(0,183,255,0.2);
-}
-
-h2{
-font-family:Poppins;
-text-align:center;
-margin-bottom:25px;
-background:linear-gradient(90deg,#ffffff,#7bc9ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-input{
-
-width:100%;
-padding:12px;
-margin-bottom:15px;
-
-border-radius:10px;
-border:none;
-
-background:#101a33;
-color:white;
-
-}
-
-button{
-
-width:100%;
-padding:12px;
-margin-top:10px;
-
-border:none;
-border-radius:30px;
-
-background:linear-gradient(135deg,#00b7ff,#3e9cff);
-color:white;
-
-cursor:pointer;
-}
-
-button:hover{
-transform:scale(1.03);
-}
-
-#message{
-
-margin-top:15px;
-text-align:center;
-font-size:14px;
-
-}
-
-.success{
-color:#5cff9d;
-}
-
-.error{
-color:#ff6b6b;
-}
-
-</style>
-
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="card">
+        <h2>🔐 Tenant Login</h2>
+        
+        <input id="email" type="email" placeholder="Email" value="test@example.com">
+        <input id="password" type="password" placeholder="Password" value="password123">
+        
+        <button id="signupBtn">Create Account</button>
+        <button id="loginBtn">Login</button>
+        
+        <div id="message"></div>
+    </div>
 
-<div class="card">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-<h2>Tenant Login</h2>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+            authDomain: "rent-management-system-86ccc.firebaseapp.com",
+            projectId: "rent-management-system-86ccc",
+            storageBucket: "rent-management-system-86ccc.appspot.com",
+            messagingSenderId: "676999561040",
+            appId: "1:676999561040:web:f1166d818a33c5a008f655"
+        };
 
-<input id="email" type="email" placeholder="Email">
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-<input id="password" type="password" placeholder="Password">
+        const message = document.getElementById("message");
+        const signupBtn = document.getElementById("signupBtn");
+        const loginBtn = document.getElementById("loginBtn");
 
-<button id="signupBtn">Create Account</button>
+        function setButtonsLoading(isLoading) {
+            signupBtn.disabled = isLoading;
+            loginBtn.disabled = isLoading;
+        }
 
-<button id="loginBtn">Login</button>
+        document.getElementById("signupBtn").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-<div id="message"></div>
+            if (!email || !password) {
+                message.innerHTML = "❌ Please enter email and password";
+                message.className = "error";
+                return;
+            }
 
-</div>
+            if (password.length < 6) {
+                message.innerHTML = "❌ Password must be at least 6 characters";
+                message.className = "error";
+                return;
+            }
 
-<script type="module">
+            message.innerHTML = "⏳ Creating account...";
+            message.className = "info";
+            setButtonsLoading(true);
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                message.innerHTML = "✅ Account created successfully! You can now login.";
+                message.className = "success";
+            } catch (error) {
+                console.error("Signup error:", error);
+                message.innerHTML = "❌ " + error.message;
+                message.className = "error";
+            } finally {
+                setButtonsLoading(false);
+            }
+        });
 
-const firebaseConfig = {
-apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-authDomain: "rent-management-system-86ccc.firebaseapp.com",
-projectId: "rent-management-system-86ccc",
-storageBucket: "rent-management-system-86ccc.appspot.com",
-messagingSenderId: "676999561040",
-appId: "1:676999561040:web:f1166d818a33c5a008f655"
-};
+        document.getElementById("loginBtn").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+            if (!email || !password) {
+                message.innerHTML = "❌ Please enter email and password";
+                message.className = "error";
+                return;
+            }
 
-const message = document.getElementById("message");
+            message.innerHTML = "⏳ Logging in...";
+            message.className = "info";
+            setButtonsLoading(true);
 
-document.getElementById("signupBtn").addEventListener("click", () => {
-
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-message.innerHTML="Creating account...";
-
-createUserWithEmailAndPassword(auth,email,password)
-
-.then(()=>{
-
-message.innerHTML="✅ Account created successfully";
-message.className="success";
-
-})
-
-.catch(error=>{
-
-message.innerHTML="❌ "+error.message;
-message.className="error";
-
-});
-
-});
-
-document.getElementById("loginBtn").addEventListener("click", () => {
-
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-message.innerHTML="Logging in...";
-
-signInWithEmailAndPassword(auth,email,password)
-
-.then(()=>{
-
-message.innerHTML="✅ Login successful";
-
-setTimeout(()=>{
-window.location.href="dashboard.html";
-},1000);
-
-})
-
-.catch(error=>{
-
-message.innerHTML="❌ "+error.message;
-message.className="error";
-
-});
-
-});
-
-</script>
-
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                message.innerHTML = "✅ Login successful! Redirecting...";
+                message.className = "success";
+                
+                // Small delay to ensure auth state is saved
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Login error:", error);
+                message.innerHTML = "❌ " + error.message;
+                message.className = "error";
+                setButtonsLoading(false);
+            }
+        });
+    </script>
 </body>
 </html>
