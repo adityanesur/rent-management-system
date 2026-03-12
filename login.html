@@ -1,69 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Tenant Login</title>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-  authDomain: "rent-management-system-86ccc.firebaseapp.com",
-  projectId: "rent-management-system-86ccc",
-  storageBucket: "rent-management-system-86ccc.firebasestorage.app",
-  messagingSenderId: "676999561040",
-  appId: "1:676999561040:web:f1166d818a33c5a008f655",
-  measurementId: "G-QLNBJE4H7E"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-window.signup = function(){
-
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-createUserWithEmailAndPassword(auth, email, password)
-.then((userCredential) => {
-
-alert("Account Created Successfully");
-
-})
-.catch((error) => {
-
-alert(error.message);
-
-});
-
-}
-
-window.login = function(){
-
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-signInWithEmailAndPassword(auth, email, password)
-.then((userCredential) => {
-
-alert("Login Successful");
-
-})
-.catch((error) => {
-
-alert(error.message);
-
-});
-
-}
-
-</script>
 
 </head>
 
@@ -72,19 +15,72 @@ alert(error.message);
 <h2>Tenant Login</h2>
 
 <input id="email" type="email" placeholder="Email">
-
 <br><br>
 
 <input id="password" type="password" placeholder="Password">
-
 <br><br>
 
-<button onclick="signup()">Sign Up</button>
+<button id="signupBtn">Sign Up</button>
+<button id="loginBtn">Login</button>
 
-<button onclick="login()">Login</button>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+  authDomain: "rent-management-system-86ccc.firebaseapp.com",
+  projectId: "rent-management-system-86ccc",
+  storageBucket: "rent-management-system-86ccc.appspot.com",
+  messagingSenderId: "676999561040",
+  appId: "1:676999561040:web:f1166d818a33c5a008f655"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+document.getElementById("signupBtn").addEventListener("click", () => {
+
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
+
+createUserWithEmailAndPassword(auth, email, password)
+.then(() => {
+
+alert("Account created successfully");
+
+})
+.catch((error) => {
+
+alert(error.message);
+
+});
+
+});
+
+document.getElementById("loginBtn").addEventListener("click", () => {
+
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
+
+signInWithEmailAndPassword(auth, email, password)
+.then(() => {
+
+alert("Login successful");
+
+})
+.catch((error) => {
+
+alert(error.message);
+
+});
+
+});
+
+</script>
 
 </body>
 
 </html>
-
-
