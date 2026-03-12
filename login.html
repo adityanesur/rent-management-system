@@ -110,96 +110,78 @@
         <div id="message"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
-        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+   <script type="module">
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-            authDomain: "rent-management-system-86ccc.firebaseapp.com",
-            projectId: "rent-management-system-86ccc",
-            storageBucket: "rent-management-system-86ccc.appspot.com",
-            messagingSenderId: "676999561040",
-            appId: "1:676999561040:web:f1166d818a33c5a008f655"
-        };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+import { getAuth, signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const message = document.getElementById("message");
-        const signupBtn = document.getElementById("signupBtn");
-        const loginBtn = document.getElementById("loginBtn");
+import { getFirestore, doc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        function setButtonsLoading(isLoading) {
-            signupBtn.disabled = isLoading;
-            loginBtn.disabled = isLoading;
-        }
+const firebaseConfig = {
+apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+authDomain: "rent-management-system-86ccc.firebaseapp.com",
+projectId: "rent-management-system-86ccc",
+storageBucket: "rent-management-system-86ccc.appspot.com",
+messagingSenderId: "676999561040",
+appId: "1:676999561040:web:f1166d818a33c5a008f655"
+};
 
-        document.getElementById("signupBtn").addEventListener("click", async () => {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-            if (!email || !password) {
-                message.innerHTML = "❌ Please enter email and password";
-                message.className = "error";
-                return;
-            }
+const message = document.getElementById("message");
 
-            if (password.length < 6) {
-                message.innerHTML = "❌ Password must be at least 6 characters";
-                message.className = "error";
-                return;
-            }
+document.getElementById("loginBtn").addEventListener("click", async ()=>{
 
-            message.innerHTML = "⏳ Creating account...";
-            message.className = "info";
-            setButtonsLoading(true);
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
 
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                message.innerHTML = "✅ Account created successfully! You can now login.";
-                message.className = "success";
-            } catch (error) {
-                console.error("Signup error:", error);
-                message.innerHTML = "❌ " + error.message;
-                message.className = "error";
-            } finally {
-                setButtonsLoading(false);
-            }
-        });
+message.innerHTML="Logging in...";
 
-        document.getElementById("loginBtn").addEventListener("click", async () => {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+try{
 
-            if (!email || !password) {
-                message.innerHTML = "❌ Please enter email and password";
-                message.className = "error";
-                return;
-            }
+const userCredential = await signInWithEmailAndPassword(auth,email,password);
 
-            message.innerHTML = "⏳ Logging in...";
-            message.className = "info";
-            setButtonsLoading(true);
+const uid = userCredential.user.uid;
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                message.innerHTML = "✅ Login successful! Redirecting...";
-                message.className = "success";
-                
-                // Small delay to ensure auth state is saved
-                setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 1500);
-                
-            } catch (error) {
-                console.error("Login error:", error);
-                message.innerHTML = "❌ " + error.message;
-                message.className = "error";
-                setButtonsLoading(false);
-            }
-        });
-    </script>
+console.log("Logged UID:",uid);
+
+const userDoc = await getDoc(doc(db,"users",uid));
+
+if(!userDoc.exists()){
+message.innerHTML="User role not found in database";
+return;
+}
+
+const role = userDoc.data().role;
+
+console.log("Role:",role);
+
+if(role === "admin"){
+
+window.location.href="admin.html";
+
+}
+
+else if(role === "tenant"){
+
+window.location.href="dashboard.html";
+
+}
+
+}catch(error){
+
+message.innerHTML="❌ "+error.message;
+
+}
+
+});
+
+</script>
 </body>
 </html>
+
