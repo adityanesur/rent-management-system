@@ -74,6 +74,7 @@
             <div class="stat" id="roomNumber">Room: </div>
             <div class="stat" id="rentAmount">Rent Due: </div>
             <div class="stat" id="paymentStatus">Status: </div>
+            <button id="payRentBtn">Pay Rent</button>
             <button id="logoutBtn">Logout</button>
         </div>
     </div>
@@ -150,7 +151,21 @@
                 console.error("Logout error:", error);
             });
         });
+        document.getElementById("payRentBtn").addEventListener("click", ()=>{
+
+const amount = document.getElementById("rentAmount").innerText.replace("Rent Due: ₹","");
+
+const upiID = "yourupi@upi";
+const name = "RentFlow";
+
+const upiLink =
+`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
+
+window.location.href = upiLink;
+
+});
     </script>
 </body>
 </html>
+
 
