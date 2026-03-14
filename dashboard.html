@@ -103,7 +103,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, addDoc, collection }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -191,34 +192,36 @@
             });
         });
         
-        document.getElementById("payRentBtn").addEventListener("click", () => {
-            // Get the rent amount from the display
-            const amountText = document.getElementById("rentAmount").innerText;
-            const amount = amountText.replace("Rent Due: ₹", "").trim();
-            
-            const upiID = "aditya@okaxis"; // replace with your UPI
-            const name = "RentFlow";
-            
-            // Create UPI deep link
-            const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
-            
-            // Check if on mobile device
-            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                // Mobile - try to open UPI app directly
-                window.location.href = upiLink;
-                
-                // Fallback if UPI app not installed
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        // Show QR code as fallback
-                        showQRCode(upiLink, amount);
-                    }
-                }, 2000);
-            } else {
-                // Desktop - show QR code
-                showQRCode(upiLink, amount);
-            }
-        });
+        document.getElementById("payRentBtn").addEventListener("click", async () => {
+
+const amount = document
+.getElementById("rentAmount")
+.innerText.replace("Rent Due: ₹","")
+.trim();
+
+const user = auth.currentUser;
+
+// Save payment record in Firestore
+await addDoc(collection(db,"payments"),{
+
+tenantId: user.uid,
+amount: Number(amount),
+date: new Date().toISOString(),
+status: "paid"
+
+});
+
+alert("Payment recorded");
+
+const upiID = "aditya@okaxis";
+const name = "RentFlow";
+
+const upiLink =
+`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
+
+window.location.href = upiLink;
+
+});
         
         function showQRCode(upiLink, amount) {
             const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
