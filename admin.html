@@ -58,7 +58,7 @@ border-bottom:1px solid #333;
 <button id="logoutBtn">Logout</button>
 
 <h3>Add Tenant</h3>
-<button onclick="openPayments()">View Payments</button>
+<button id="viewPaymentsBtn">View Payments</button>
 
 <input id="name" placeholder="Tenant Name">
 <input id="room" placeholder="Room Number">
@@ -86,7 +86,11 @@ border-bottom:1px solid #333;
 </div>
 
 <script type="module">
+document.getElementById("viewPaymentsBtn").addEventListener("click", () => {
 
+window.location.href = "admin-payments.html";
+
+});
 import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
