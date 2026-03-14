@@ -54,7 +54,7 @@ border-bottom:1px solid #333;
 
 <div class="card">
 <h3>📊 System Analytics</h3>
-
+<button id="generateRentBtn">Generate Monthly Rent</button>
 <div style="display:flex; gap:20px; margin-bottom:20px;">
 
 <div class="card" style="padding:15px;">
@@ -261,6 +261,32 @@ document.getElementById("pendingRent").innerText = "₹"+pendingRent;
 
 }
   loadAnalytics();
+  document.getElementById("generateRentBtn").addEventListener("click", async ()=>{
+
+const tenantsSnapshot = await getDocs(collection(db,"tenants"));
+
+const month = new Date().toLocaleString('default',{month:'long',year:'numeric'});
+
+tenantsSnapshot.forEach(async (docSnap)=>{
+
+const data = docSnap.data();
+
+await addDoc(collection(db,"rents"),{
+
+tenantId: docSnap.id,
+tenantName: data.name,
+room: data.roomId,
+amount: Number(data.rent),
+month: month,
+status: "pending"
+
+});
+
+});
+
+alert("Monthly rent generated for all tenants");
+
+});
 </script>
 
 </body>
