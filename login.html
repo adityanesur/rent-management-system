@@ -6,26 +6,47 @@
     <title>Tenant Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@400&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Inter;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(160deg, #0b0f1c, #03050b);
-            color: white;
-            margin: 0;
-        }
+       body{
+font-family:Inter;
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(160deg,#0b0f1c,#03050b);
+padding:20px;
+}
 
-        .card {
-            width: 360px;
-            padding: 40px;
-            background: rgba(18, 25, 45, 0.6);
-            backdrop-filter: blur(12px);
-            border-radius: 2rem;
-            border: 1px solid rgba(110, 180, 255, 0.2);
-            box-shadow: 0 0 30px rgba(0, 183, 255, 0.2);
-        }
+.card{
+width:100%;
+max-width:380px;
+padding:40px;
+background:rgba(18,25,45,0.6);
+backdrop-filter:blur(12px);
+border-radius:25px;
+border:1px solid rgba(110,180,255,0.2);
+box-shadow:0 0 25px rgba(0,183,255,.2);
+}
+
+input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border-radius:10px;
+border:1px solid rgba(110,180,255,0.3);
+background:#101a33;
+color:white;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:25px;
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+color:white;
+cursor:pointer;
+margin-top:10px;
+}
 
         h2 {
             font-family: Poppins;
@@ -36,17 +57,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(110, 180, 255, 0.3);
-            background: #101a33;
-            color: white;
-            box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
 
         input:focus {
             outline: none;
@@ -54,18 +64,6 @@
             box-shadow: 0 0 15px rgba(0, 183, 255, 0.3);
         }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
 
         button:hover {
             transform: scale(1.03);
