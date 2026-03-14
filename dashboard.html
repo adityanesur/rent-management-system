@@ -151,17 +151,39 @@
                 console.error("Logout error:", error);
             });
         });
-        document.getElementById("payRentBtn").addEventListener("click", ()=>{
+        
+        document.getElementById("payRentBtn").addEventListener("click", () => {
 
-const amount = document.getElementById("rentAmount").innerText.replace("Rent Due: ₹","");
+const amount = document.getElementById("rentAmount").innerText.replace("Rent Due: ₹","").trim();
 
-const upiID = "yourupi@upi";
+const upiID = "aditya@okaxis"; // replace with your UPI
 const name = "RentFlow";
 
-const upiLink =
-`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
+const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
 
+// detect mobile
+if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+
+// mobile → open UPI app
 window.location.href = upiLink;
+
+}else{
+
+// desktop → open QR payment page
+const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+
+const qrWindow = window.open("", "_blank");
+
+qrWindow.document.write(`
+<h2 style="font-family:Arial;text-align:center">Scan to Pay Rent</h2>
+<div style="text-align:center">
+<img src="${qrLink}">
+<p>Scan with Google Pay / PhonePe / Paytm</p>
+<p>Amount: ₹${amount}</p>
+</div>
+`);
+
+}
 
 });
     </script>
