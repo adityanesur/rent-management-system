@@ -123,9 +123,11 @@
 
                     const data = tenantSnap.data();
                     
-                    document.getElementById("tenantName").innerText = "Tenant: " + (data.name || "Not set");
-                    document.getElementById("roomNumber").innerText ="Room: " + JSON.stringify(data.room);
-                    document.getElementById("rentAmount").innerText = "Rent Due: ₹" + (data.rent || "0");
+                    const data = tenantSnap.data();
+
+                    document.getElementById("tenantName").innerText ="Tenant: " + (data.name ?? "Not set");
+                    document.getElementById("roomNumber").innerText ="Room: " + (data.room ?? "Not set");
+                    document.getElementById("rentAmount").innerText ="Rent Due: ₹" + (data.rent ?? "0");
                     
                     // Format status with emoji
                     const status = data.status || "Unknown";
