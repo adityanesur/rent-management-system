@@ -41,8 +41,14 @@
             border-bottom: 1px solid rgba(110, 180, 255, 0.1);
         }
 
-        button {
+        .button-group {
+            display: flex;
+            gap: 15px;
             margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
             padding: 12px 20px;
             border: none;
             border-radius: 30px;
@@ -58,10 +64,23 @@
             box-shadow: 0 0 20px rgba(0, 183, 255, 0.5);
         }
 
+        #logoutBtn {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+        }
+
         .loading {
             text-align: center;
             color: #7bc9ff;
             margin: 20px 0;
+        }
+
+        .error-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #ff6b6b;
         }
     </style>
 </head>
@@ -74,8 +93,10 @@
             <div class="stat" id="roomNumber">Room: </div>
             <div class="stat" id="rentAmount">Rent Due: </div>
             <div class="stat" id="paymentStatus">Status: </div>
-            <button id="payRentBtn">Pay Rent</button>
-            <button id="logoutBtn">Logout</button>
+            <div class="button-group">
+                <button id="payRentBtn">Pay Rent</button>
+                <button id="logoutBtn">Logout</button>
+            </div>
         </div>
     </div>
 
@@ -108,6 +129,7 @@
 
                 try {
                     console.log("User found:", user.uid);
+                    console.log("Fetching tenant data...");
                     
                     const tenantRef = doc(db, "tenants", user.uid);
                     const tenantSnap = await getDoc(tenantRef);
@@ -118,25 +140,40 @@
 
                     if (!tenantSnap.exists()) {
                         document.getElementById("tenantName").innerText = "Tenant: Data not found";
+                        document.getElementById("roomNumber").innerText = "Room: Not assigned";
+                        document.getElementById("rentAmount").innerText = "Rent Due: ₹0";
+                        document.getElementById("paymentStatus").innerText = "Status: No data";
                         return;
                     }
 
                     const data = tenantSnap.data();
+                    console.log("Tenant data:", data); // Debug: see what fields exist
                     
-                    const data = tenantSnap.data();
-
-                    document.getElementById("tenantName").innerText ="Tenant: " + (data.name ?? "Not set");
-                    document.getElementById("roomNumber").innerText ="Room: " + (data.room ?? "Not set");
-                    document.getElementById("rentAmount").innerText ="Rent Due: ₹" + (data.rent ?? "0");
+                    // FIXED: Using correct field names from Firestore
+                    // Your database has: name, rent, room, status
+                    document.getElementById("tenantName").innerText = "Tenant: " + (data.name || "Not set");
+                    document.getElementById("roomNumber").innerText = "Room: " + (data.room || "Not assigned");  // ← Changed from roomId to room
+                    document.getElementById("rentAmount").innerText = "Rent Due: ₹" + (data.rent || "0");
                     
                     // Format status with emoji
                     const status = data.status || "Unknown";
                     let statusEmoji = "❓";
-                    if (status.toLowerCase().includes("paid")) statusEmoji = "✅";
-                    else if (status.toLowerCase().includes("pending")) statusEmoji = "⏳";
-                    else if (status.toLowerCase().includes("overdue")) statusEmoji = "⚠️";
+                    let statusColor = "#ffffff";
                     
-                    document.getElementById("paymentStatus").innerText = "Status: " + statusEmoji + " " + status;
+                    if (status.toLowerCase().includes("paid")) {
+                        statusEmoji = "✅";
+                        statusColor = "#5cff9d";
+                    } else if (status.toLowerCase().includes("pending")) {
+                        statusEmoji = "⏳";
+                        statusColor = "#ffd700";
+                    } else if (status.toLowerCase().includes("overdue")) {
+                        statusEmoji = "⚠️";
+                        statusColor = "#ff6b6b";
+                    }
+                    
+                    const statusElement = document.getElementById("paymentStatus");
+                    statusElement.innerText = "Status: " + statusEmoji + " " + status;
+                    statusElement.style.color = statusColor;
 
                 } catch (err) {
                     console.error("Error loading data:", err);
@@ -144,7 +181,7 @@
                     document.getElementById("loadingMessage").style.color = "#ff6b6b";
                 }
             });
-        }, 500); // 500ms delay to ensure auth is ready
+        }, 500);
 
         document.getElementById("logoutBtn").addEventListener("click", () => {
             signOut(auth).then(() => {
@@ -155,41 +192,101 @@
         });
         
         document.getElementById("payRentBtn").addEventListener("click", () => {
-
-const amount = document.getElementById("rentAmount").innerText.replace("Rent Due: ₹","").trim();
-
-const upiID = "aditya@okaxis"; // replace with your UPI
-const name = "RentFlow";
-
-const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
-
-// detect mobile
-if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-
-// mobile → open UPI app
-window.location.href = upiLink;
-
-}else{
-
-// desktop → open QR payment page
-const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
-
-const qrWindow = window.open("", "_blank");
-
-qrWindow.document.write(`
-<h2 style="font-family:Arial;text-align:center">Scan to Pay Rent</h2>
-<div style="text-align:center">
-<img src="${qrLink}">
-<p>Scan with Google Pay / PhonePe / Paytm</p>
-<p>Amount: ₹${amount}</p>
-</div>
-`);
-
-}
-
-});
+            // Get the rent amount from the display
+            const amountText = document.getElementById("rentAmount").innerText;
+            const amount = amountText.replace("Rent Due: ₹", "").trim();
+            
+            const upiID = "aditya@okaxis"; // replace with your UPI
+            const name = "RentFlow";
+            
+            // Create UPI deep link
+            const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
+            
+            // Check if on mobile device
+            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                // Mobile - try to open UPI app directly
+                window.location.href = upiLink;
+                
+                // Fallback if UPI app not installed
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        // Show QR code as fallback
+                        showQRCode(upiLink, amount);
+                    }
+                }, 2000);
+            } else {
+                // Desktop - show QR code
+                showQRCode(upiLink, amount);
+            }
+        });
+        
+        function showQRCode(upiLink, amount) {
+            const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+            
+            const qrWindow = window.open("", "_blank");
+            
+            qrWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Pay Rent - QR Code</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', Arial, sans-serif;
+                            background: linear-gradient(160deg, #0b0f1c, #03050b);
+                            color: white;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .qr-container {
+                            background: rgba(18, 25, 45, 0.6);
+                            backdrop-filter: blur(12px);
+                            padding: 40px;
+                            border-radius: 2rem;
+                            border: 1px solid rgba(110, 180, 255, 0.2);
+                            text-align: center;
+                            max-width: 400px;
+                        }
+                        h2 {
+                            background: linear-gradient(90deg, #ffffff, #7bc9ff);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            margin-bottom: 20px;
+                        }
+                        img {
+                            border-radius: 20px;
+                            padding: 10px;
+                            background: white;
+                            margin: 20px 0;
+                        }
+                        .amount {
+                            font-size: 24px;
+                            color: #7bc9ff;
+                            margin: 10px 0;
+                        }
+                        .note {
+                            color: #888;
+                            font-size: 14px;
+                            margin-top: 20px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-container">
+                        <h2>✨ Scan to Pay Rent</h2>
+                        <img src="${qrLink}" alt="Payment QR Code">
+                        <div class="amount">Amount: ₹${amount}</div>
+                        <p>Scan with any UPI app:<br>Google Pay • PhonePe • Paytm</p>
+                        <div class="note">QR code expires in 15 minutes</div>
+                    </div>
+                </body>
+                </html>
+            `);
+        }
     </script>
 </body>
 </html>
-
-
