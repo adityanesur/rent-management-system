@@ -95,6 +95,7 @@
             <div class="stat" id="paymentStatus">Status: </div>
             <div class="button-group">
                 <button id="payRentBtn">Pay Rent</button>
+                <button id="downloadReceiptBtn">Download Receipt</button>
                 <button id="logoutBtn">Logout</button>
             </div>
             <h3>Payment History</h3>
@@ -114,7 +115,7 @@
 </table>
         </div>
     </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -334,6 +335,32 @@ historyTable.appendChild(row);
 });
 
 }
+        document.getElementById("downloadReceiptBtn").addEventListener("click", () => {
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+const tenantName = document.getElementById("tenantName").innerText.replace("Tenant: ","");
+const room = document.getElementById("roomNumber").innerText.replace("Room: ","");
+const amount = document.getElementById("rentAmount").innerText.replace("Rent Due: ","");
+const status = document.getElementById("paymentStatus").innerText.replace("Status: ","");
+
+const date = new Date().toLocaleDateString();
+
+doc.setFontSize(18);
+doc.text("Rent Receipt", 80, 20);
+
+doc.setFontSize(12);
+doc.text("Tenant Name : " + tenantName, 20, 50);
+doc.text("Room Number : " + room, 20, 60);
+doc.text("Amount Paid : " + amount, 20, 70);
+doc.text("Date        : " + date, 20, 80);
+doc.text("Status      : " + status, 20, 90);
+
+doc.save("rent_receipt.pdf");
+
+});
     </script>
 </body>
 </html>
