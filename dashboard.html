@@ -201,24 +201,25 @@ const amount = document
 
 const user = auth.currentUser;
 
-// Save payment record in Firestore
-await addDoc(collection(db,"payments"),{
-
-tenantId: user.uid,
-amount: Number(amount),
-date: new Date().toISOString(),
-status: "paid"
-
-});
-
-alert("Payment recorded");
-
 const upiID = "aditya@okaxis";
 const name = "RentFlow";
 
 const upiLink =
 `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
 
+// Save payment request first
+await addDoc(collection(db,"payments"),{
+
+tenantId: user.uid,
+amount: Number(amount),
+date: new Date(),
+status: "pending"
+
+});
+
+alert("Redirecting to UPI app to complete payment");
+
+// open UPI
 window.location.href = upiLink;
 
 });
