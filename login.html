@@ -95,9 +95,20 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        #homeBtn{
+		margin-top:10px;
+		background:transparent;
+		border:1px solid rgba(110,180,255,0.4);
+		color:#7bc9ff;
+		}
+
+		#homeBtn:hover{
+		background:rgba(0,183,255,0.1);
+		}
     </style>
 </head>
 <body>
+	
     <div class="card">
         <h2>🔐 Tenant Login</h2>
         
@@ -106,6 +117,9 @@
         
         <button id="signupBtn">Create Account</button>
         <button id="loginBtn">Login</button>
+        <a href="index.html">
+		<button id="homeBtn">⬅ Back to Home</button>
+		</a>
         
         <div id="message"></div>
     </div>
@@ -184,4 +198,3 @@ message.innerHTML="❌ "+error.message;
 </script>
 </body>
 </html>
-
