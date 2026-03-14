@@ -201,13 +201,13 @@ const amount = document
 
 const user = auth.currentUser;
 
-const upiID = "aditya@okaxis";
+const upiID = "adityanesur@ybl";  // replace this
 const name = "RentFlow";
 
 const upiLink =
 `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR`;
 
-// Save payment request first
+// Save payment request
 await addDoc(collection(db,"payments"),{
 
 tenantId: user.uid,
@@ -217,10 +217,8 @@ status: "pending"
 
 });
 
-alert("Redirecting to UPI app to complete payment");
-
-// open UPI
-window.location.href = upiLink;
+// Show QR code
+showQRCode(upiLink, amount);
 
 });
         
