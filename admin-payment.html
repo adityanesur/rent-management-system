@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Payments</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#0b0f1c;
+color:white;
+padding:40px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:30px;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #333;
+text-align:left;
+}
+
+button{
+padding:8px 15px;
+background:#00b7ff;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>💰 Tenant Payments</h2>
+
+<table id="paymentsTable">
+
+<thead>
+
+<tr>
+<th>Tenant ID</th>
+<th>Amount</th>
+<th>Date</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, updateDoc, doc } 
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "YOUR_KEY",
+authDomain: "YOUR_DOMAIN",
+projectId: "rent-management-system-86ccc",
+storageBucket: "rent-management-system-86ccc.appspot.com",
+messagingSenderId: "676999561040",
+appId: "YOUR_APP_ID"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+async function loadPayments(){
+
+const querySnapshot = await getDocs(collection(db,"payments"));
+
+const table = document.querySelector("#paymentsTable tbody");
+
+querySnapshot.forEach((docSnap)=>{
+
+const data = docSnap.data();
+
+const row = document.createElement("tr");
+
+row.innerHTML = `
+
+<td>${data.tenantId}</td>
+<td>₹${data.amount}</td>
+<td>${new Date(data.date).toLocaleString()}</td>
+<td>${data.status}</td>
+
+<td>
+
+${data.status === "pending" ? 
+`<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>` 
+: "✔"}
+
+</td>
+
+`;
+
+table.appendChild(row);
+
+});
+
+}
+
+
+window.markPaid = async function(id){
+
+const paymentRef = doc(db,"payments",id);
+
+await updateDoc(paymentRef,{
+status:"paid"
+});
+
+alert("Payment confirmed");
+
+location.reload();
+
+}
+
+
+loadPayments();
+
+</script>
+
+</body>
+
+</html>
