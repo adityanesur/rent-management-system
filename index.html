@@ -3,15 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentFlow | Smart Rent Management</title>
 
-<title>RentFlow | Smart Rent Collection</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
-
-/* ---------- GLOBAL ---------- */
 
 *{
 margin:0;
@@ -21,191 +17,110 @@ box-sizing:border-box;
 
 body{
 font-family:Inter,sans-serif;
-color:white;
 background:linear-gradient(160deg,#0b0f1c,#03050b);
+color:white;
 min-height:100vh;
-overflow-x:hidden;
 }
 
-/* glowing particles background */
-
-body::before{
-content:"";
-position:fixed;
-top:-20%;
-left:-20%;
-width:140%;
-height:140%;
-background:
-radial-gradient(circle at 30% 30%, rgba(0,183,255,0.18), transparent),
-radial-gradient(circle at 80% 60%, rgba(123,201,255,0.18), transparent),
-radial-gradient(circle at 70% 20%, rgba(150,120,255,0.15), transparent);
-filter:blur(120px);
-z-index:-1;
-}
-
-/* ---------- TYPOGRAPHY ---------- */
-
-h1,h2,h3{
-font-family:Poppins,sans-serif;
-letter-spacing:-0.02em;
-background:linear-gradient(90deg,#ffffff,#7bc9ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.hero h1{
-font-size:3.8rem;
-margin-bottom:1rem;
-}
-
-/* ---------- NAVBAR ---------- */
+/* NAVBAR */
 
 nav{
 display:flex;
 justify-content:space-between;
 align-items:center;
-
-padding:1rem 2rem;
-
+padding:20px 8%;
 background:rgba(18,25,45,0.6);
-backdrop-filter:blur(12px);
-
+backdrop-filter:blur(10px);
 border-bottom:1px solid rgba(110,180,255,0.2);
 }
 
 nav h2{
-font-size:1.4rem;
-}
-
-nav ul{
-display:flex;
-gap:2rem;
-list-style:none;
+font-family:Poppins;
+color:#7bc9ff;
 }
 
 nav a{
-text-decoration:none;
 color:#7bc9ff;
-transition:0.3s;
+text-decoration:none;
+margin-left:20px;
 }
 
-nav a:hover{
-text-shadow:0 0 10px #00b7ff;
-}
-
-/* ---------- HERO ---------- */
+/* HERO */
 
 .hero{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
 text-align:center;
 padding:120px 20px;
 }
 
+.hero h1{
+font-size:3rem;
+font-family:Poppins;
+margin-bottom:20px;
+background:linear-gradient(90deg,#fff,#7bc9ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
 .hero p{
-opacity:0.85;
+max-width:600px;
+opacity:.8;
 margin-bottom:40px;
 }
 
-/* ---------- BUTTON ---------- */
+/* BUTTON */
 
 .btn{
-display:inline-flex;
-align-items:center;
-gap:10px;
-
-padding:14px 26px;
-
-border-radius:2.5rem;
-
-background:linear-gradient(135deg,#00b7ff,#3e9cff);
-
+padding:14px 30px;
 border:none;
+border-radius:30px;
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+color:white;
+font-size:16px;
 cursor:pointer;
-
-font-size:1rem;
-font-weight:500;
-
-box-shadow:0 0 15px rgba(0,183,255,0.4);
-
-transition:0.25s;
-animation:breath 4s infinite alternate;
+transition:.3s;
 }
 
 .btn:hover{
-transform:scale(1.04);
+transform:scale(1.05);
+box-shadow:0 0 20px rgba(0,183,255,.6);
 }
 
-.btn:active{
-transform:scale(0.98);
-}
-
-/* breathing glow */
-
-@keyframes breath{
-
-0%{
-box-shadow:0 0 12px rgba(0,183,255,0.3);
-}
-
-100%{
-box-shadow:0 0 28px rgba(0,183,255,0.8);
-}
-
-}
-
-/* ---------- FEATURES GRID ---------- */
+/* FEATURES */
 
 .features{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 gap:30px;
-
-max-width:1100px;
-margin:auto;
-padding:40px 20px 80px;
+padding:60px 8%;
 }
-
-/* glass cards */
 
 .card{
-
-background:rgba(18,25,45,0.6);
-backdrop-filter:blur(12px);
-
-border-radius:2.5rem;
-
-padding:35px;
-
-border:1px solid rgba(110,180,255,0.2);
-
-box-shadow:0 0 25px rgba(0,150,255,0.1);
-
-transition:0.3s;
-animation:breath 4s infinite alternate;
-
+background:rgba(18,25,45,.6);
+backdrop-filter:blur(10px);
+padding:30px;
+border-radius:20px;
+border:1px solid rgba(110,180,255,.2);
+text-align:center;
 }
 
-.card:hover{
-transform:translateY(-8px);
-box-shadow:0 0 40px rgba(0,150,255,0.4);
+.card h3{
+margin-bottom:10px;
 }
 
-.card i{
-font-size:2rem;
-margin-bottom:15px;
-color:#7bc9ff;
-}
+/* RESPONSIVE */
 
-/* ---------- RESPONSIVE ---------- */
-
-@media(max-width:800px){
+@media(max-width:768px){
 
 .hero h1{
-font-size:2.6rem;
+font-size:2rem;
 }
 
-nav ul{
-display:none;
+nav{
+padding:15px 5%;
 }
 
 }
@@ -217,26 +132,18 @@ display:none;
 
 <nav>
 <h2>RentFlow</h2>
-
-<ul>
-<li><a href="#">Home</a></li>
-<li><a href="#">Features</a></li>
-<li><a href="login.html">Login</a></li>
-</ul>
-
+<div>
+<a href="login.html">Login</a>
+</div>
 </nav>
 
 <section class="hero">
 
 <h1>Smart Rent Collection</h1>
-
-<p>Securely collect rent, track tenants and manage payments in one futuristic dashboard.</p>
+<p>Manage tenants, collect rent and track payments with a modern dashboard.</p>
 
 <a href="login.html">
-<button class="btn">
-<i class="fa-solid fa-right-to-bracket"></i>
-Tenant Login
-</button>
+<button class="btn">Tenant Login</button>
 </a>
 
 </section>
@@ -244,21 +151,18 @@ Tenant Login
 <section class="features">
 
 <div class="card">
-<i class="fa-solid fa-credit-card"></i>
-<h3>Online Rent Payments</h3>
-<p>Tenants pay securely through UPI, cards and digital wallets.</p>
+<h3>Online Payments</h3>
+<p>Tenants can pay rent easily using secure digital payments.</p>
 </div>
 
 <div class="card">
-<i class="fa-solid fa-users"></i>
 <h3>Tenant Management</h3>
-<p>Track tenants, rooms and payment history with ease.</p>
+<p>Track rooms, tenants and rent payments in one place.</p>
 </div>
 
 <div class="card">
-<i class="fa-solid fa-chart-line"></i>
-<h3>Payment Analytics</h3>
-<p>Visual insights and reports for your rental income.</p>
+<h3>Analytics Dashboard</h3>
+<p>View payment insights and monthly rent reports instantly.</p>
 </div>
 
 </section>
