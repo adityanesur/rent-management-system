@@ -22,7 +22,6 @@
             position: relative;
         }
 
-        /* Animated background */
         body::before {
             content: '';
             position: fixed;
@@ -41,7 +40,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -63,7 +61,6 @@
 
         .header-left p {
             color: #b0d0ff;
-            font-size: 1rem;
         }
 
         .header-right {
@@ -102,7 +99,6 @@
             border-color: #ff4b4b;
         }
 
-        /* Main Card */
         .main-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
@@ -131,10 +127,9 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Tenant Info Grid */
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -154,7 +149,7 @@
 
         .info-label {
             color: #b0d0ff;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 0.5rem;
@@ -173,7 +168,6 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -181,27 +175,21 @@
             padding: 0.5rem 1.2rem;
             border-radius: 50px;
             font-weight: 500;
+            font-size: 0.95rem;
         }
 
         .status-badge.paid {
-            background: rgba(92, 255, 157, 0.2);
+            background: rgba(92, 255, 157, 0.15);
             color: #5cff9d;
             border: 1px solid rgba(92, 255, 157, 0.3);
         }
 
         .status-badge.pending {
-            background: rgba(255, 215, 0, 0.2);
+            background: rgba(255, 215, 0, 0.15);
             color: #ffd700;
             border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
-        .status-badge.overdue {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-        }
-
-        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 1rem;
@@ -210,8 +198,8 @@
         }
 
         .action-btn {
-            flex: 1 1 200px;
-            padding: 1rem;
+            flex: 1 1 250px;
+            padding: 1rem 1.5rem;
             border: none;
             border-radius: 50px;
             font-size: 1rem;
@@ -227,26 +215,20 @@
         .pay-btn {
             background: linear-gradient(135deg, #00b7ff, #3e9cff);
             color: white;
-            box-shadow: 0 4px 20px rgba(0, 183, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 183, 255, 0.3);
         }
 
-        .pay-btn:hover {
+        .pay-btn:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 183, 255, 0.6);
+            box-shadow: 0 8px 30px rgba(0, 183, 255, 0.5);
         }
 
-        .receipt-btn {
-            background: rgba(123, 201, 255, 0.2);
-            border: 1px solid #00b7ff;
-            color: white;
+        .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
         }
 
-        .receipt-btn:hover {
-            background: rgba(0, 183, 255, 0.3);
-            transform: translateY(-3px);
-        }
-
-        /* Payment History */
         .history-section {
             margin-top: 2.5rem;
         }
@@ -255,7 +237,6 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1.5rem;
             margin-bottom: 1.5rem;
-            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -275,7 +256,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 500px;
+            min-width: 600px;
         }
 
         th {
@@ -295,49 +276,50 @@
             background: rgba(0, 183, 255, 0.05);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .main-card {
-                padding: 1.5rem;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .header-right {
-                width: 100%;
-            }
-            
-            .header-btn {
-                flex: 1;
-                justify-content: center;
-            }
-        }
         .receipt-download-btn {
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    border: 1px solid #00b7ff;
-    background: rgba(0,183,255,0.1);
-    color: white;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: 0.25s;
-}
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            border: 1px solid #00b7ff;
+            background: rgba(0, 183, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
 
-.receipt-download-btn:hover {
-    background: rgba(0,183,255,0.3);
-    transform: translateY(-1px);
-}
+        .receipt-download-btn:hover {
+            background: rgba(0, 183, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .month-badge {
+            background: rgba(0, 183, 255, 0.1);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #7bc9ff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #b0d0ff;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .main-card { padding: 1.5rem; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -361,44 +343,54 @@
             <div id="content" style="display: none;">
                 <div class="info-grid">
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-user"></i> Tenant Name</div>
+                        <div class="info-label"><i class="fas fa-user"></i> TENANT NAME</div>
                         <div class="info-value" id="tenantName">-</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-door-open"></i> Room Number</div>
+                        <div class="info-label"><i class="fas fa-door-open"></i> ROOM NUMBER</div>
                         <div class="info-value" id="roomNumber">-</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-rupee-sign"></i> Monthly Rent</div>
+                        <div class="info-label"><i class="fas fa-rupee-sign"></i> MONTHLY RENT</div>
                         <div class="info-value" id="rentAmount">-</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-clock"></i> Status</div>
-                        <div class="info-value" id="paymentStatus">-</div>
+                        <div class="info-label"><i class="fas fa-calendar"></i> CURRENT MONTH</div>
+                        <div class="info-value" id="currentMonth">-</div>
                     </div>
                 </div>
 
-                <div class="action-buttons">
-    				<button class="action-btn pay-btn" id="payRentBtn">
-       	 				<i class="fas fa-credit-card"></i> Pay Rent Now
-    				</button>
-				</div>
+                <!-- Status Card -->
+                <div style="background: rgba(0, 183, 255, 0.05); border-radius: 20px; padding: 1.5rem; margin: 1.5rem 0; border: 1px solid rgba(0, 183, 255, 0.2);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="color: #b0d0ff; font-size: 0.9rem; margin-bottom: 0.3rem;">CURRENT MONTH STATUS</div>
+                            <div id="paymentStatusDisplay" style="font-size: 1.8rem; font-weight: 600;"></div>
+                        </div>
+                        <button class="action-btn pay-btn" id="payRentBtn">
+                            <i class="fas fa-credit-card"></i> Pay Rent Now
+                        </button>
+                    </div>
+                </div>
 
                 <div class="history-section">
                     <h3><i class="fas fa-history"></i> Payment History</h3>
                     <div class="table-container">
                         <table>
                             <thead>
-								<tr>
-								<th>Date</th>
-								<th>Amount</th>
-								<th>Status</th>
-								<th>Receipt</th>
-								</tr>
-								</thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Receipt</th>
+                                </tr>
+                            </thead>
                             <tbody id="paymentHistory">
                                 <tr>
-                                    <td colspan="4" style="text-align: center; color: #b0d0ff;">No payment history available</td>
+                                    <td colspan="4" class="no-data">
+                                        <i class="fas fa-inbox"></i>
+                                        <p>No payment history available</p>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -412,7 +404,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -426,6 +418,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Get current month
+        const now = new Date();
+        const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+        document.getElementById("currentMonth").innerText = currentMonth;
 
         // Load tenant data
         async function loadTenantData(user) {
@@ -446,35 +443,39 @@
                 document.getElementById("tenantName").innerText = data.name || "Not set";
                 document.getElementById("roomNumber").innerText = data.room || "Not assigned";
                 document.getElementById("rentAmount").innerText = "₹" + (data.rent || "0");
-                
-                const status = data.status || "pending";
-let statusHTML = '';
 
-const payRentBtn = document.getElementById("payRentBtn");
-
-// Disable Pay Button if already paid
-if(status.toLowerCase() === "paid"){
-    payRentBtn.disabled = true
-    payRentBtn.innerHTML = `<i class="fas fa-check-circle"></i> Rent Paid`
-    payRentBtn.style.opacity = "0.6"
-    payRentBtn.style.cursor = "not-allowed"
-}
-else{
-    payRentBtn.disabled = false
-    payRentBtn.innerHTML = `<i class="fas fa-credit-card"></i> Pay Rent Now`
-}
+                // Get current month's rent status from rents collection
+                const rentQuery = query(
+                    collection(db, "rents"),
+                    where("tenantId", "==", user.uid),
+                    where("month", "==", currentMonth)
+                );
+                const rentSnap = await getDocs(rentQuery);
                 
-                if (status.toLowerCase().includes("paid")) {
-                    statusHTML = '<span class="status-badge paid"><i class="fas fa-check-circle"></i> Paid</span>';
-                } else if (status.toLowerCase().includes("pending")) {
-                    statusHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> Pending</span>';
-                } else if (status.toLowerCase().includes("overdue")) {
-                    statusHTML = '<span class="status-badge overdue"><i class="fas fa-exclamation-triangle"></i> Overdue</span>';
-                } else {
-                    statusHTML = `<span>${status}</span>`;
+                let currentStatus = "pending";
+                let rentId = null;
+                
+                if (!rentSnap.empty) {
+                    currentStatus = rentSnap.docs[0].data().status;
+                    rentId = rentSnap.docs[0].id;
                 }
+
+                // Update tenant's status in tenants collection for admin view
+                await updateDoc(tenantRef, { status: currentStatus });
+
+                // Update UI based on status
+                const payRentBtn = document.getElementById("payRentBtn");
+                const statusDisplay = document.getElementById("paymentStatusDisplay");
                 
-                document.getElementById("paymentStatus").innerHTML = statusHTML;
+                if (currentStatus === "paid") {
+                    payRentBtn.disabled = true;
+                    payRentBtn.innerHTML = `<i class="fas fa-check-circle"></i> Paid for ${currentMonth}`;
+                    statusDisplay.innerHTML = '<span class="status-badge paid"><i class="fas fa-check-circle"></i> PAID</span>';
+                } else {
+                    payRentBtn.disabled = false;
+                    payRentBtn.innerHTML = `<i class="fas fa-credit-card"></i> Pay Rent for ${currentMonth}`;
+                    statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
+                }
 
                 // Load payment history
                 await loadPaymentHistory(user.uid);
@@ -492,7 +493,7 @@ else{
             historyTable.innerHTML = "";
 
             const q = query(
-                collection(db, "payments"), 
+                collection(db, "rents"), 
                 where("tenantId", "==", userId),
                 orderBy("date", "desc")
             );
@@ -500,7 +501,7 @@ else{
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                historyTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #b0d0ff;">No payment history available</td></tr>';
+                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
 
@@ -508,28 +509,36 @@ else{
                 const data = docSnap.data();
                 const row = document.createElement("tr");
                 
-                let statusClass = '';
-                if (data.status === 'completed') statusClass = 'paid';
-                else if (data.status === 'pending') statusClass = 'pending';
-                else statusClass = 'overdue';
+                let statusClass = data.status === 'paid' ? 'paid' : 'pending';
+                let statusText = data.status === 'paid' ? 'Paid' : 'Pending';
+                
+                // Format date if exists
+                const paymentDate = data.date ? new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                }) : 'N/A';
                 
                 row.innerHTML = `
-<td>${new Date(data.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-<td>₹${data.amount}</td>
-<td><span class="status-badge ${statusClass}" style="padding: 0.3rem 0.8rem;">${data.status}</span></td>
-<td>
-    ${data.status === "completed" ? 
-    `<button class="receipt-download-btn" 
-        data-name="${document.getElementById("tenantName").innerText}"
-        data-room="${document.getElementById("roomNumber").innerText}"
-        data-amount="${data.amount}"
-        data-date="${data.date}">
-        <i class="fas fa-download"></i> Receipt
-    </button>` 
-    : 
-    `<span style="color:#888;">—</span>`}
-</td>
-`;
+                    <td>
+                        ${data.month || 'N/A'}
+                        ${data.status === 'paid' ? `<span class="month-badge">${paymentDate}</span>` : ''}
+                    </td>
+                    <td>₹${data.amount || '0'}</td>
+                    <td><span class="status-badge ${statusClass}" style="padding: 0.3rem 1rem;">${statusText}</span></td>
+                    <td>
+                        ${data.status === "paid" 
+                            ? `<button class="receipt-download-btn" 
+                                data-name="${document.getElementById("tenantName").innerText}"
+                                data-room="${document.getElementById("roomNumber").innerText}"
+                                data-amount="${data.amount}"
+                                data-month="${data.month}"
+                                data-date="${paymentDate}">
+                                <i class="fas fa-download"></i> Download Receipt
+                              </button>` 
+                            : `<span style="color:#4a5568;">—</span>`}
+                    </td>
+                `;
                 historyTable.appendChild(row);
             });
         }
@@ -563,16 +572,38 @@ else{
             const amount = amountText.replace("₹", "").trim();
             const user = auth.currentUser;
 
-            const upiID = "adityanesur@ybl";
+            // Check if already paid for this month
+            const rentQuery = query(
+                collection(db, "rents"),
+                where("tenantId", "==", user.uid),
+                where("month", "==", currentMonth)
+            );
+            const existingRent = await getDocs(rentQuery);
+            
+            if (!existingRent.empty && existingRent.docs[0].data().status === "paid") {
+                alert("You have already paid rent for this month!");
+                return;
+            }
+
+            // Get tenant data for name and room
+            const tenantSnap = await getDoc(doc(db, "tenants", user.uid));
+            const tenantData = tenantSnap.data();
+
+            const upiID = "adityanesur@ybl"; // Your UPI ID
             const upiLink = `upi://pay?pa=${upiID}&pn=RentFlow&am=${amount}&cu=INR`;
 
-            // Save payment request
-            await addDoc(collection(db, "payments"), {
-                tenantId: user.uid,
-                amount: Number(amount),
-                date: new Date(),
-                status: "pending"
-            });
+            // Save or update payment request
+            if (existingRent.empty) {
+                await addDoc(collection(db, "rents"), {
+                    tenantId: user.uid,
+                    tenantName: tenantData.name,
+                    room: tenantData.room,
+                    amount: Number(amount),
+                    month: currentMonth,
+                    status: "pending",
+                    date: new Date()
+                });
+            }
 
             // Show QR
             const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
@@ -585,20 +616,22 @@ else{
                     <title>Pay Rent - QR Code</title>
                     <style>
                         body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0f1f, #030614); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-                        .qr-container { background: rgba(18, 25, 45, 0.8); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; border: 1px solid rgba(0, 183, 255, 0.2); text-align: center; max-width: 400px; }
+                        .qr-container { background: rgba(18, 25, 45, 0.9); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; border: 1px solid rgba(0, 183, 255, 0.2); text-align: center; max-width: 400px; }
                         h2 { background: linear-gradient(135deg, #ffffff, #7bc9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
                         img { border-radius: 20px; padding: 10px; background: white; margin: 20px 0; }
                         .amount { font-size: 24px; color: #00b7ff; margin: 10px 0; }
+                        .month { color: #7bc9ff; margin-bottom: 10px; font-size: 1.2rem; }
                         .note { color: #888; font-size: 14px; margin-top: 20px; }
                     </style>
                 </head>
                 <body>
                     <div class="qr-container">
                         <h2>✨ Scan to Pay Rent</h2>
+                        <div class="month">${currentMonth}</div>
                         <img src="${qrLink}" alt="Payment QR Code">
                         <div class="amount">Amount: ₹${amount}</div>
                         <p>Scan with any UPI app</p>
-                        <div class="note">QR code expires in 15 minutes</div>
+                        <div class="note">After payment, admin will confirm within 24 hours</div>
                     </div>
                 </body>
                 </html>
@@ -606,81 +639,51 @@ else{
         });
 
         // Download Receipt
-        document.getElementById("downloadReceiptBtn").addEventListener("click", () => {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-
-            const tenantName = document.getElementById("tenantName").innerText;
-            const room = document.getElementById("roomNumber").innerText;
-            const amount = document.getElementById("rentAmount").innerText;
-            const status = document.getElementById("paymentStatus").innerText.replace(/[✅⏳⚠️]/g, '').trim();
-            const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-
-            pdf.setFillColor(10, 20, 40);
-            pdf.rect(0, 0, 210, 297, 'F');
-
-            pdf.setTextColor(0, 183, 255);
-            pdf.setFontSize(24);
-            pdf.setFont("helvetica", "bold");
-            pdf.text("RENT RECEIPT", 105, 30, { align: "center" });
-
-            pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(12);
-            pdf.setFont("helvetica", "normal");
-            
-            pdf.text(`Tenant Name: ${tenantName}`, 20, 60);
-            pdf.text(`Room Number: ${room}`, 20, 70);
-            pdf.text(`Amount Paid: ${amount}`, 20, 80);
-            pdf.text(`Date: ${date}`, 20, 90);
-            pdf.text(`Status: ${status}`, 20, 100);
-            
-            pdf.text("Thank you for your payment!", 105, 150, { align: "center" });
-
-            pdf.save(`rent_receipt_${date.replace(/\s/g, '_')}.pdf`);
-        });
         document.addEventListener("click", function(e) {
+            if (e.target.closest(".receipt-download-btn")) {
+                const btn = e.target.closest(".receipt-download-btn");
+                const tenantName = btn.dataset.name;
+                const room = btn.dataset.room;
+                const amount = btn.dataset.amount;
+                const month = btn.dataset.month;
+                const paymentDate = btn.dataset.date;
 
-    if (e.target.closest(".receipt-download-btn")) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
 
-        const btn = e.target.closest(".receipt-download-btn")
+                // Dark theme background
+                pdf.setFillColor(10, 20, 40);
+                pdf.rect(0, 0, 210, 297, 'F');
 
-        const tenantName = btn.dataset.name
-        const room = btn.dataset.room
-        const amount = btn.dataset.amount
-        const dateRaw = btn.dataset.date
+                // Header
+                pdf.setTextColor(0, 183, 255);
+                pdf.setFontSize(28);
+                pdf.setFont("helvetica", "bold");
+                pdf.text("RENT RECEIPT", 105, 35, { align: "center" });
 
-        const date = new Date(dateRaw).toLocaleDateString('en-IN', {
-            day:'numeric',
-            month:'long',
-            year:'numeric'
-        })
+                // Receipt details
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(12);
+                pdf.setFont("helvetica", "normal");
+                
+                pdf.text(`Tenant Name: ${tenantName}`, 20, 70);
+                pdf.text(`Room Number: ${room}`, 20, 85);
+                pdf.text(`Month: ${month}`, 20, 100);
+                pdf.text(`Amount Paid: ₹${amount}`, 20, 115);
+                pdf.text(`Payment Date: ${paymentDate}`, 20, 130);
+                pdf.text(`Status: Paid`, 20, 145);
+                pdf.text(`Transaction ID: ${Math.random().toString(36).substring(2, 15).toUpperCase()}`, 20, 160);
 
-        const { jsPDF } = window.jspdf
-        const pdf = new jsPDF()
+                // Footer
+                pdf.setTextColor(123, 201, 255);
+                pdf.setFontSize(10);
+                pdf.text("Thank you for your payment!", 105, 220, { align: "center" });
+                pdf.text("RentFlow - Smart Rent Management", 105, 235, { align: "center" });
 
-        pdf.setFillColor(10,20,40)
-        pdf.rect(0,0,210,297,'F')
-
-        pdf.setTextColor(0,183,255)
-        pdf.setFontSize(24)
-        pdf.setFont("helvetica","bold")
-        pdf.text("RENT RECEIPT",105,30,{align:"center"})
-
-        pdf.setTextColor(255,255,255)
-        pdf.setFontSize(12)
-
-        pdf.text(`Tenant Name: ${tenantName}`,20,60)
-        pdf.text(`Room Number: ${room}`,20,70)
-        pdf.text(`Amount Paid: ₹${amount}`,20,80)
-        pdf.text(`Payment Date: ${date}`,20,90)
-        pdf.text(`Status: Paid`,20,100)
-
-        pdf.text("Thank you for your payment!",105,150,{align:"center"})
-
-        pdf.save(`rent_receipt_${date.replace(/\s/g,"_")}.pdf`)
-    }
-
-})
+                // Save
+                pdf.save(`rent_receipt_${month.replace(/\s/g, '_')}.pdf`);
+            }
+        });
     </script>
 </body>
 </html>
