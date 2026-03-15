@@ -1,158 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin Payments</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Payments</title>
 
-<style>
-
-body{
-font-family: Arial;
-background:#0b0f1c;
-color:white;
-padding:40px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:30px;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid #333;
-text-align:left;
-}
-
-button{
-padding:8px 15px;
-background:#00b7ff;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
-
-button:hover{
-opacity:0.8;
-}
-
-</style>
-
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f1c;
+      color: white;
+      padding: 40px;
+      display: none;           /* Hidden until auth check passes */
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+    button {
+      padding: 8px 15px;
+      background: #00b7ff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: #0b0f1c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      z-index: 9999;
+    }
+  </style>
 </head>
 
 <body>
 
-<h2>💰 Tenant Payments</h2>
+  <div id="loading">Checking authorization...</div>
 
-<table id="paymentsTable">
+  <h2>💰 Tenant Payments</h2>
 
-<thead>
+  <table id="paymentsTable">
+    <thead>
+      <tr>
+        <th>Tenant ID</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<tr>
-<th>Tenant ID</th>
-<th>Amount</th>
-<th>Date</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
+  <script type="module">
+    // ────────────────────────────────────────────────
+    //  Imports
+    // ────────────────────────────────────────────────
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      updateDoc, 
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-</thead>
+    // ────────────────────────────────────────────────
+    //  Config (public — not a secret)
+    // ────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+      authDomain: "rent-management-system-86ccc.firebaseapp.com",
+      projectId: "rent-management-system-86ccc",
+      storageBucket: "rent-management-system-86ccc.appspot.com",
+      messagingSenderId: "676999561040",
+      appId: "1:676999561040:web:f1166d818a33c5a008f655"
+    };
 
-<tbody>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-</tbody>
+    // ────────────────────────────────────────────────
+    //  Auth check + role (recommended)
+    // ────────────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
-</table>
+      try {
+        // ─── Option A: Simple — allow any logged-in user (less secure)
+        // document.getElementById("loading").style.display = "none";
+        // document.body.style.display = "block";
+        // loadPayments();
 
+        // ─── Option B: Recommended — check admin role in Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
 
-<script type="module">
+        if (!userSnap.exists() || userSnap.data().role !== "admin") {
+          alert("Access denied: Admin privileges required.");
+          window.location.href = "index.html"; // or login.html
+          return;
+        }
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, updateDoc, doc } 
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // Only admins reach here
+        document.getElementById("loading").style.display = "none";
+        document.body.style.display = "block";
+        loadPayments();
 
-const auth = getAuth();
+      } catch (err) {
+        console.error("Auth/role check failed", err);
+        alert("Something went wrong. Please try again.");
+        window.location.href = "login.html";
+      }
+    });
 
-onAuthStateChanged(auth,(user)=>{
+    // Fallback: if auth takes >4 seconds → redirect
+    setTimeout(() => {
+      if (document.body.style.display !== "block") {
+        window.location.href = "login.html";
+      }
+    }, 4000);
 
-if(!user){
+    // ────────────────────────────────────────────────
+    //  Load payments
+    // ────────────────────────────────────────────────
+    async function loadPayments() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "payments"));
+        const tbody = document.querySelector("#paymentsTable tbody");
+        tbody.innerHTML = ""; // clear previous rows
 
-window.location.href="login.html";
+        if (querySnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="5">No payments found.</td></tr>';
+          return;
+        }
 
-}
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const row = document.createElement("tr");
 
-});
+          row.innerHTML = `
+            <td>${data.tenantId || "—"}</td>
+            <td>₹${Number(data.amount || 0).toLocaleString()}</td>
+            <td>${data.date ? new Date(data.date).toLocaleString() : "—"}</td>
+            <td>${data.status || "unknown"}</td>
+            <td>
+              ${data.status === "pending" 
+                ? `<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>` 
+                : "✔ Paid"}
+            </td>
+          `;
 
-const firebaseConfig = {
-apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-authDomain: "rent-management-system-86ccc.firebaseapp.com",
-projectId: "rent-management-system-86ccc",
-storageBucket: "rent-management-system-86ccc.appspot.com",
-messagingSenderId: "676999561040",
-appId: "1:676999561040:web:f1166d818a33c5a008f655"
-};
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error loading payments:", err);
+        alert("Failed to load payments. Check console.");
+      }
+    }
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    // ────────────────────────────────────────────────
+    //  Mark as paid
+    // ────────────────────────────────────────────────
+    window.markPaid = async function(id) {
+      if (!confirm("Confirm this payment as PAID?")) return;
 
-
-async function loadPayments(){
-
-const querySnapshot = await getDocs(collection(db,"payments"));
-
-const table = document.querySelector("#paymentsTable tbody");
-
-querySnapshot.forEach((docSnap)=>{
-
-const data = docSnap.data();
-
-const row = document.createElement("tr");
-
-row.innerHTML = `
-
-<td>${data.tenantId}</td>
-<td>₹${data.amount}</td>
-<td>${new Date(data.date).toLocaleString()}</td>
-<td>${data.status}</td>
-
-<td>
-
-${data.status === "pending" ? 
-`<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>` 
-: "✔"}
-
-</td>
-
-`;
-
-table.appendChild(row);
-
-});
-
-}
-
-
-window.markPaid = async function(id){
-
-const paymentRef = doc(db,"payments",id);
-
-await updateDoc(paymentRef,{
-status:"paid"
-});
-
-alert("Payment confirmed");
-
-location.reload();
-
-}
-
-
-loadPayments();
-
-</script>
-
+      try {
+        const paymentRef = doc(db, "payments", id);
+        await updateDoc(paymentRef, { status: "paid" });
+        alert("Payment marked as paid.");
+        location.reload();
+      } catch (err) {
+        console.error("Error marking paid:", err);
+        alert("Failed to update payment.");
+      }
+    };
+  </script>
 </body>
-
 </html>
