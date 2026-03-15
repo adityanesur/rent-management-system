@@ -398,7 +398,7 @@
 								</thead>
                             <tbody id="paymentHistory">
                                 <tr>
-                                    <td colspan="3" style="text-align: center; color: #b0d0ff;">No payment history available</td>
+                                    <td colspan="4" style="text-align: center; color: #b0d0ff;">No payment history available</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -448,7 +448,21 @@
                 document.getElementById("rentAmount").innerText = "₹" + (data.rent || "0");
                 
                 const status = data.status || "pending";
-                let statusHTML = '';
+let statusHTML = '';
+
+const payRentBtn = document.getElementById("payRentBtn");
+
+// Disable Pay Button if already paid
+if(status.toLowerCase() === "paid"){
+    payRentBtn.disabled = true
+    payRentBtn.innerHTML = `<i class="fas fa-check-circle"></i> Rent Paid`
+    payRentBtn.style.opacity = "0.6"
+    payRentBtn.style.cursor = "not-allowed"
+}
+else{
+    payRentBtn.disabled = false
+    payRentBtn.innerHTML = `<i class="fas fa-credit-card"></i> Pay Rent Now`
+}
                 
                 if (status.toLowerCase().includes("paid")) {
                     statusHTML = '<span class="status-badge paid"><i class="fas fa-check-circle"></i> Paid</span>';
@@ -486,7 +500,7 @@
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                historyTable.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b0d0ff;">No payment history available</td></tr>';
+                historyTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #b0d0ff;">No payment history available</td></tr>';
                 return;
             }
 
