@@ -165,11 +165,13 @@
           row.innerHTML = `
             <td>${data.tenantId || "—"}</td>
             <td>₹${Number(data.amount || 0).toLocaleString()}</td>
-            <td>${data.date ? new Date(data.date).toLocaleString() : "—"}</td>
+            <td>${data.date ? const date = data.date.toDate().toLocaleDateString("en-IN"); : "—"}</td>
             <td>${data.status || "unknown"}</td>
             <td>
               ${data.status === "pending"
-? `<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>`
+? `<button onclick="markPaid('${docSnap.id}', '${data.tenantId}')">
+Mark Paid
+</button>`
 : `<button onclick="markPending('${docSnap.id}')">Mark Pending</button>`
 }
             </td>
