@@ -201,6 +201,12 @@
             box-shadow: 0 0 20px rgba(0, 183, 255, 0.2);
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -277,7 +283,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 700px;
         }
 
         th {
@@ -331,10 +337,25 @@
             color: #ff4b4b;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-right: 0.5rem;
         }
 
         .delete-btn:hover {
             background: rgba(255, 75, 75, 0.3);
+        }
+
+        .view-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(0, 183, 255, 0.2);
+            border: 1px solid #00b7ff;
+            border-radius: 50px;
+            color: #00b7ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: rgba(0, 183, 255, 0.3);
         }
 
         /* Message */
@@ -355,6 +376,12 @@
             background: rgba(255, 107, 107, 0.1);
             border: 1px solid #ff6b6b;
             color: #ff6b6b;
+        }
+
+        .message.info {
+            background: rgba(123, 201, 255, 0.1);
+            border: 1px solid #7bc9ff;
+            color: #7bc9ff;
         }
 
         /* Responsive */
@@ -381,6 +408,10 @@
             .admin-btn {
                 flex: 1;
                 justify-content: center;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -440,9 +471,15 @@
                     <label>Tenant Name</label>
                     <input type="text" id="name" class="form-control" placeholder="Enter full name">
                 </div>
-                <div class="form-group">
-                    <label>Room Number</label>
-                    <input type="text" id="room" class="form-control" placeholder="e.g., 101">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Room Number</label>
+                        <input type="text" id="room" class="form-control" placeholder="e.g., 101">
+                    </div>
+                    <div class="form-group">
+                        <label>Joining Date</label>
+                        <input type="date" id="joiningDate" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Rent Amount (₹)</label>
@@ -467,9 +504,10 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Room</th>
+                                <th>Joined</th>
                                 <th>Rent (₹)</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>Current Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="tenantTable"></tbody>
@@ -482,7 +520,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -514,7 +552,7 @@
         // Load tenants
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
-            tenantTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
+            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
 
             const querySnapshot = await getDocs(collection(db, "tenants"));
             tenantTable.innerHTML = "";
@@ -523,30 +561,54 @@
             let totalRent = 0;
             let paidRent = 0;
 
-            querySnapshot.forEach((docSnap) => {
+            // Get current month/year
+            const now = new Date();
+            const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            for (const docSnap of querySnapshot.docs) {
                 const data = docSnap.data();
                 totalTenants++;
                 totalRent += Number(data.rent) || 0;
-                if (data.status === "paid") paidRent += Number(data.rent) || 0;
+
+                // Get current month's rent status
+                const rentQuery = query(
+                    collection(db, "rents"),
+                    where("tenantId", "==", docSnap.id),
+                    where("month", "==", currentMonth)
+                );
+                const rentSnap = await getDocs(rentQuery);
+                
+                let currentStatus = "pending";
+                if (!rentSnap.empty) {
+                    currentStatus = rentSnap.docs[0].data().status;
+                }
+                
+                if (currentStatus === "paid") paidRent += Number(data.rent) || 0;
 
                 let statusClass = "status-pending";
-                if (data.status === "paid") statusClass = "status-paid";
-                else if (data.status === "overdue") statusClass = "status-overdue";
+                if (currentStatus === "paid") statusClass = "status-paid";
+                else if (currentStatus === "overdue") statusClass = "status-overdue";
+
+                const joiningDate = data.joiningDate ? new Date(data.joiningDate).toLocaleDateString('en-IN') : 'N/A';
 
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${data.name || "N/A"}</td>
                     <td>${data.room || "N/A"}</td>
+                    <td>${joiningDate}</td>
                     <td>₹${data.rent || "0"}</td>
-                    <td><span class="status-badge ${statusClass}">${data.status || "pending"}</span></td>
+                    <td><span class="status-badge ${statusClass}">${currentStatus}</span></td>
                     <td>
                         <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </td>
                 `;
                 tenantTable.appendChild(row);
-            });
+            }
 
             // Update stats
             document.getElementById("totalTenants").innerText = totalTenants;
@@ -557,79 +619,116 @@
 
         // Delete tenant
         window.deleteTenant = async (tenantId) => {
-            if (confirm("Are you sure you want to delete this tenant?")) {
+            if (confirm("Are you sure you want to delete this tenant? This will delete all their rent records.")) {
+                // Delete all rent records for this tenant
+                const rentsQuery = query(collection(db, "rents"), where("tenantId", "==", tenantId));
+                const rentsSnap = await getDocs(rentsQuery);
+                rentsSnap.forEach(async (rentDoc) => {
+                    await deleteDoc(doc(db, "rents", rentDoc.id));
+                });
+
+                // Delete tenant
                 await deleteDoc(doc(db, "tenants", tenantId));
+                
                 showMessage("Tenant deleted successfully!", "success");
                 loadTenants();
             }
         };
 
-        // Add tenant
-        document.getElementById("addTenant").addEventListener("click", async () => {
-            const name = document.getElementById("name").value;
-            const room = document.getElementById("room").value;
-            const rent = document.getElementById("rent").value;
+        // View tenant (you can implement detailed view)
+        window.viewTenant = (tenantId) => {
+            alert(`View details for tenant ID: ${tenantId}`);
+        };
 
-            if (!name || !room || !rent) {
-                showMessage("Please fill all fields", "error");
-                return;
+        // Add tenant
+document.getElementById("addTenant").addEventListener("click", async () => {
+    const name = document.getElementById("name").value;
+    const room = document.getElementById("room").value;
+    const rent = document.getElementById("rent").value;
+    const joiningDate = document.getElementById("joiningDate").value;
+
+    if (!name || !room || !rent || !joiningDate) {
+        showMessage("Please fill all fields", "error");
+        return;
+    }
+
+    // Create tenant document with joining date
+    const tenantRef = await addDoc(collection(db, "tenants"), {
+        name: name,
+        room: room,
+        rent: Number(rent),
+        joiningDate: new Date(joiningDate),
+        status: "pending"
+    });
+
+    showMessage("Tenant added successfully!", "success");
+    
+    // Clear form
+    document.getElementById("name").value = "";
+    document.getElementById("room").value = "";
+    document.getElementById("rent").value = "";
+    document.getElementById("joiningDate").value = new Date().toISOString().split('T')[0];
+    
+    loadTenants();
+});
+
+        // Generate monthly rent (intelligent)
+        document.getElementById("generateRentBtn").addEventListener("click", async () => {
+            const tenants = await getDocs(collection(db, "tenants"));
+            const now = new Date();
+            const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const currentYear = now.getFullYear();
+            const currentMonthIndex = now.getMonth();
+
+            let generatedCount = 0;
+            let skippedCount = 0;
+
+            for (const tenantDoc of tenants.docs) {
+                const data = tenantDoc.data();
+                
+                // Check if tenant joined on/before this month
+                const joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
+                
+                if (joiningDate) {
+                    const joinYear = joiningDate.getFullYear();
+                    const joinMonth = joiningDate.getMonth();
+                    
+                    // Skip if tenant joined after current month
+                    if (joinYear > currentYear || (joinYear === currentYear && joinMonth > currentMonthIndex)) {
+                        skippedCount++;
+                        continue;
+                    }
+                }
+
+                // Check if rent already exists for this month
+                const rentCheck = query(
+                    collection(db, "rents"),
+                    where("tenantId", "==", tenantDoc.id),
+                    where("month", "==", currentMonth)
+                );
+                
+                const existing = await getDocs(rentCheck);
+                
+                if (existing.empty) {
+                    // Create new rent record
+                    await addDoc(collection(db, "rents"), {
+                        tenantId: tenantDoc.id,
+                        tenantName: data.name,
+                        room: data.room,
+                        amount: data.rent,
+                        month: currentMonth,
+                        status: "pending",
+                        date: new Date()
+                    });
+                    generatedCount++;
+                } else {
+                    skippedCount++;
+                }
             }
 
-            await addDoc(collection(db, "tenants"), {
-                name: name,
-                room: room,
-                rent: Number(rent),
-                status: "pending"
-            });
-
-            showMessage("Tenant added successfully!", "success");
-            document.getElementById("name").value = "";
-            document.getElementById("room").value = "";
-            document.getElementById("rent").value = "";
+            showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed.`, "success");
             loadTenants();
         });
-
-        // Generate monthly rent
-        document.getElementById("generateRentBtn").addEventListener("click", async () => {
-
-const tenants = await getDocs(collection(db,"tenants"))
-
-const month = new Date().toLocaleString('default',{
-month:'long',
-year:'numeric'
-})
-
-tenants.forEach(async(tenantDoc)=>{
-
-const data = tenantDoc.data()
-
-const rentCheck = query(
-collection(db,"rents"),
-where("tenantId","==",tenantDoc.id),
-where("month","==",month)
-)
-
-const existing = await getDocs(rentCheck)
-
-if(!existing.empty){
-return
-}
-
-await addDoc(collection(db,"rents"),{
-tenantId:tenantDoc.id,
-tenantName:data.name,
-room:data.room,
-amount:data.rent,
-month:month,
-status:"pending",
-date:new Date()
-})
-
-})
-
-alert("Monthly rent generated safely")
-
-})
 
         // View payments
         document.getElementById("viewPaymentsBtn").addEventListener("click", () => {
