@@ -323,6 +323,21 @@
                 justify-content: center;
             }
         }
+        .receipt-download-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid #00b7ff;
+    background: rgba(0,183,255,0.1);
+    color: white;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.25s;
+}
+
+.receipt-download-btn:hover {
+    background: rgba(0,183,255,0.3);
+    transform: translateY(-1px);
+}
     </style>
 </head>
 <body>
@@ -364,25 +379,23 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="action-btn pay-btn" id="payRentBtn">
-                        <i class="fas fa-credit-card"></i> Pay Rent Now
-                    </button>
-                    <button class="action-btn receipt-btn" id="downloadReceiptBtn">
-                        <i class="fas fa-file-pdf"></i> Download Receipt
-                    </button>
-                </div>
+    				<button class="action-btn pay-btn" id="payRentBtn">
+       	 				<i class="fas fa-credit-card"></i> Pay Rent Now
+    				</button>
+				</div>
 
                 <div class="history-section">
                     <h3><i class="fas fa-history"></i> Payment History</h3>
                     <div class="table-container">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
+								<tr>
+								<th>Date</th>
+								<th>Amount</th>
+								<th>Status</th>
+								<th>Receipt</th>
+								</tr>
+								</thead>
                             <tbody id="paymentHistory">
                                 <tr>
                                     <td colspan="3" style="text-align: center; color: #b0d0ff;">No payment history available</td>
@@ -487,10 +500,22 @@
                 else statusClass = 'overdue';
                 
                 row.innerHTML = `
-                    <td>${new Date(data.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                    <td>₹${data.amount}</td>
-                    <td><span class="status-badge ${statusClass}" style="padding: 0.3rem 0.8rem;">${data.status}</span></td>
-                `;
+<td>${new Date(data.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+<td>₹${data.amount}</td>
+<td><span class="status-badge ${statusClass}" style="padding: 0.3rem 0.8rem;">${data.status}</span></td>
+<td>
+    ${data.status === "completed" ? 
+    `<button class="receipt-download-btn" 
+        data-name="${document.getElementById("tenantName").innerText}"
+        data-room="${document.getElementById("roomNumber").innerText}"
+        data-amount="${data.amount}"
+        data-date="${data.date}">
+        <i class="fas fa-download"></i> Receipt
+    </button>` 
+    : 
+    `<span style="color:#888;">—</span>`}
+</td>
+`;
                 historyTable.appendChild(row);
             });
         }
@@ -599,6 +624,49 @@
 
             pdf.save(`rent_receipt_${date.replace(/\s/g, '_')}.pdf`);
         });
+        document.addEventListener("click", function(e) {
+
+    if (e.target.closest(".receipt-download-btn")) {
+
+        const btn = e.target.closest(".receipt-download-btn")
+
+        const tenantName = btn.dataset.name
+        const room = btn.dataset.room
+        const amount = btn.dataset.amount
+        const dateRaw = btn.dataset.date
+
+        const date = new Date(dateRaw).toLocaleDateString('en-IN', {
+            day:'numeric',
+            month:'long',
+            year:'numeric'
+        })
+
+        const { jsPDF } = window.jspdf
+        const pdf = new jsPDF()
+
+        pdf.setFillColor(10,20,40)
+        pdf.rect(0,0,210,297,'F')
+
+        pdf.setTextColor(0,183,255)
+        pdf.setFontSize(24)
+        pdf.setFont("helvetica","bold")
+        pdf.text("RENT RECEIPT",105,30,{align:"center"})
+
+        pdf.setTextColor(255,255,255)
+        pdf.setFontSize(12)
+
+        pdf.text(`Tenant Name: ${tenantName}`,20,60)
+        pdf.text(`Room Number: ${room}`,20,70)
+        pdf.text(`Amount Paid: ₹${amount}`,20,80)
+        pdf.text(`Payment Date: ${date}`,20,90)
+        pdf.text(`Status: Paid`,20,100)
+
+        pdf.text("Thank you for your payment!",105,150,{align:"center"})
+
+        pdf.save(`rent_receipt_${date.replace(/\s/g,"_")}.pdf`)
+    }
+
+})
     </script>
 </body>
 </html>
