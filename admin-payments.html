@@ -186,50 +186,56 @@
     // ────────────────────────────────────────────────
     //  Mark as paid
     // ────────────────────────────────────────────────
-    window.markPaid = async function(id) {
+    window.markPaid = async function(id){
 
-  if (!confirm("Confirm payment?")) return;
+if(!confirm("Confirm payment?")) return
 
-  const paymentRef = doc(db,"payments",id)
+const paymentRef = doc(db,"payments",id)
 
-  await updateDoc(paymentRef,{
-    status:"paid"
-  })
+// update payment record
+await updateDoc(paymentRef,{
+status:"paid"
+})
 
-  const paymentSnap = await getDoc(paymentRef)
-  const data = paymentSnap.data()
+// get payment info
+const paymentSnap = await getDoc(paymentRef)
+const paymentData = paymentSnap.data()
 
-  const rentQuery = query(
-      collection(db,"rents"),
-      where("tenantId","==",data.tenantId),
-      where("month","==",data.month)
-  )
+// update tenant status
+const tenantRef = doc(db,"tenants",paymentData.tenantId)
 
-  const rentDocs = await getDocs(rentQuery)
+await updateDoc(tenantRef,{
+status:"paid"
+})
 
-  rentDocs.forEach(async(rentDoc)=>{
-      await updateDoc(doc(db,"rents",rentDoc.id),{
-          status:"paid"
-      })
-  })
+alert("Payment confirmed")
 
-  alert("Payment confirmed")
+location.reload()
 
-  location.reload()
 }
-    window.markPending = async function(id) {
+    window.markPending = async function(id){
 
-  if (!confirm("Mark this payment as pending again?")) return;
+if(!confirm("Mark this payment as pending again?")) return
 
-  const paymentRef = doc(db, "payments", id);
+const paymentRef = doc(db,"payments",id)
 
-  await updateDoc(paymentRef,{
-    status:"pending"
-  });
+await updateDoc(paymentRef,{
+status:"pending"
+})
 
-  alert("Payment set to pending");
+const paymentSnap = await getDoc(paymentRef)
+const paymentData = paymentSnap.data()
 
-  location.reload();
+const tenantRef = doc(db,"tenants",paymentData.tenantId)
+
+await updateDoc(tenantRef,{
+status:"pending"
+})
+
+alert("Payment set to pending")
+
+location.reload()
+
 }
   </script>
 </body>
