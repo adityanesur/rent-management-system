@@ -591,24 +591,45 @@
 
         // Generate monthly rent
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
-            const tenantsSnapshot = await getDocs(collection(db, "tenants"));
-            const month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 
-            tenantsSnapshot.forEach(async (docSnap) => {
-                const data = docSnap.data();
-                await addDoc(collection(db, "rents"), {
-                    tenantId: docSnap.id,
-                    tenantName: data.name,
-                    room: data.room,
-                    amount: Number(data.rent),
-                    month: month,
-                    status: "pending",
-                    date: new Date()
-                });
-            });
+const tenants = await getDocs(collection(db,"tenants"))
 
-            showMessage("Monthly rent generated for all tenants!", "success");
-        });
+const month = new Date().toLocaleString('default',{
+month:'long',
+year:'numeric'
+})
+
+tenants.forEach(async(tenantDoc)=>{
+
+const data = tenantDoc.data()
+
+const rentCheck = query(
+collection(db,"rents"),
+where("tenantId","==",tenantDoc.id),
+where("month","==",month)
+)
+
+const existing = await getDocs(rentCheck)
+
+if(!existing.empty){
+return
+}
+
+await addDoc(collection(db,"rents"),{
+tenantId:tenantDoc.id,
+tenantName:data.name,
+room:data.room,
+amount:data.rent,
+month:month,
+status:"pending",
+date:new Date()
+})
+
+})
+
+alert("Monthly rent generated safely")
+
+})
 
         // View payments
         document.getElementById("viewPaymentsBtn").addEventListener("click", () => {
