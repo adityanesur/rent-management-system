@@ -168,9 +168,10 @@
             <td>${data.date ? new Date(data.date).toLocaleString() : "—"}</td>
             <td>${data.status || "unknown"}</td>
             <td>
-              ${data.status === "pending" 
-                ? `<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>` 
-                : "✔ Paid"}
+              ${data.status === "pending"
+? `<button onclick="markPaid('${docSnap.id}')">Mark Paid</button>`
+: `<button onclick="markPending('${docSnap.id}')">Mark Pending</button>`
+}
             </td>
           `;
 
@@ -186,18 +187,50 @@
     //  Mark as paid
     // ────────────────────────────────────────────────
     window.markPaid = async function(id) {
-      if (!confirm("Confirm this payment as PAID?")) return;
 
-      try {
-        const paymentRef = doc(db, "payments", id);
-        await updateDoc(paymentRef, { status: "paid" });
-        alert("Payment marked as paid.");
-        location.reload();
-      } catch (err) {
-        console.error("Error marking paid:", err);
-        alert("Failed to update payment.");
-      }
-    };
+  if (!confirm("Confirm payment?")) return;
+
+  const paymentRef = doc(db,"payments",id)
+
+  await updateDoc(paymentRef,{
+    status:"paid"
+  })
+
+  const paymentSnap = await getDoc(paymentRef)
+  const data = paymentSnap.data()
+
+  const rentQuery = query(
+      collection(db,"rents"),
+      where("tenantId","==",data.tenantId),
+      where("month","==",data.month)
+  )
+
+  const rentDocs = await getDocs(rentQuery)
+
+  rentDocs.forEach(async(rentDoc)=>{
+      await updateDoc(doc(db,"rents",rentDoc.id),{
+          status:"paid"
+      })
+  })
+
+  alert("Payment confirmed")
+
+  location.reload()
+}
+    window.markPending = async function(id) {
+
+  if (!confirm("Mark this payment as pending again?")) return;
+
+  const paymentRef = doc(db, "payments", id);
+
+  await updateDoc(paymentRef,{
+    status:"pending"
+  });
+
+  alert("Payment set to pending");
+
+  location.reload();
+}
   </script>
 </body>
 </html>
