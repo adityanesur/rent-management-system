@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* === YOUR EXISTING STYLES (unchanged) === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -256,30 +255,77 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Get current month
         const now = new Date();
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
 
-        // Load tenant data
+        // Helper: get all rent records for this tenant (by name+room, or by tenantId)
+        async function getAllTenantRents(tenantName, tenantRoom, userId) {
+            // Query 1: by tenantId (UID)
+            const q1 = query(
+                collection(db, "rents"),
+                where("tenantId", "==", userId),
+                orderBy("date", "desc")
+            );
+            // Query 2: by tenantName + room (for records created by admin with auto-generated ID)
+            const q2 = query(
+                collection(db, "rents"),
+                where("tenantName", "==", tenantName),
+                where("room", "==", tenantRoom),
+                orderBy("date", "desc")
+            );
+            
+            const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+            const map = new Map(); // use month as key to avoid duplicates
+            
+            snap1.forEach(docSnap => { map.set(docSnap.id, docSnap); });
+            snap2.forEach(docSnap => { if (!map.has(docSnap.id)) map.set(docSnap.id, docSnap); });
+            
+            return Array.from(map.values());
+        }
+
         async function loadTenantData(user) {
             try {
                 const tenantRef = doc(db, "tenants", user.uid);
-                const tenantSnap = await getDoc(tenantRef);
+                let tenantSnap = await getDoc(tenantRef);
+                
+                // If tenant not found by UID, try to find by name+room (legacy)
+                if (!tenantSnap.exists()) {
+                    // Search tenants collection by name and room (fallback)
+                    const allTenants = await getDocs(collection(db, "tenants"));
+                    let found = null;
+                    allTenants.forEach(docSnap => {
+                        const d = docSnap.data();
+                        if (d.email === user.email || (d.name && d.room)) {
+                            // crude match – we'll use the first one
+                            if (!found) found = { ref: docSnap.ref, data: d };
+                        }
+                    });
+                    if (found) {
+                        tenantSnap = { exists: () => true, data: () => found.data, ref: found.ref };
+                    }
+                }
 
                 document.getElementById("loadingMessage").style.display = "none";
                 document.getElementById("content").style.display = "block";
 
                 if (!tenantSnap.exists()) {
-                    document.getElementById("tenantName").innerText = "Data not found";
+                    document.getElementById("tenantName").innerText = "Account not linked to any tenant";
+                    document.getElementById("roomNumber").innerText = "Contact admin";
+                    document.getElementById("rentAmount").innerText = "₹0";
+                    document.getElementById("payRentBtn").disabled = true;
+                    document.getElementById("paymentStatusDisplay").innerHTML = '<span class="status-badge pending">NOT SETUP</span>';
                     return;
                 }
 
                 const data = tenantSnap.data();
+                const tenantName = data.name || "Not set";
+                const tenantRoom = data.room || "Not assigned";
+                const monthlyRent = data.rent || 0;
                 
-                document.getElementById("tenantName").innerText = data.name || "Not set";
-                document.getElementById("roomNumber").innerText = data.room || "Not assigned";
-                document.getElementById("rentAmount").innerText = "₹" + (data.rent || "0");
+                document.getElementById("tenantName").innerText = tenantName;
+                document.getElementById("roomNumber").innerText = tenantRoom;
+                document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
 
                 // Get current month's rent status from rents collection
                 const rentQuery = query(
@@ -287,35 +333,41 @@
                     where("tenantId", "==", user.uid),
                     where("month", "==", currentMonth)
                 );
-                const rentSnap = await getDocs(rentQuery);
-                
+                let rentSnap = await getDocs(rentQuery);
                 let currentStatus = "pending";
-                let rentId = null;
-                
                 if (!rentSnap.empty) {
                     currentStatus = rentSnap.docs[0].data().status;
-                    rentId = rentSnap.docs[0].id;
                 } else {
-                    // If no rent record exists for this month, create one automatically
-                    await addDoc(collection(db, "rents"), {
-                        tenantId: user.uid,
-                        tenantName: data.name,
-                        room: data.room,
-                        amount: Number(data.rent),
-                        month: currentMonth,
-                        status: "pending",
-                        date: new Date()
-                    });
-                    currentStatus = "pending";
+                    // Fallback: search by name+room
+                    const fallbackQuery = query(
+                        collection(db, "rents"),
+                        where("tenantName", "==", tenantName),
+                        where("room", "==", tenantRoom),
+                        where("month", "==", currentMonth)
+                    );
+                    const fallbackSnap = await getDocs(fallbackQuery);
+                    if (!fallbackSnap.empty) {
+                        currentStatus = fallbackSnap.docs[0].data().status;
+                    } else {
+                        // Create a new pending record for this month (using user.uid as tenantId)
+                        await addDoc(collection(db, "rents"), {
+                            tenantId: user.uid,
+                            tenantName: tenantName,
+                            room: tenantRoom,
+                            amount: monthlyRent,
+                            month: currentMonth,
+                            status: "pending",
+                            date: new Date()
+                        });
+                        currentStatus = "pending";
+                    }
                 }
 
-                // Update tenant's status in tenants collection for admin view
-                await updateDoc(tenantRef, { status: currentStatus });
+                // Ensure tenant document has correct status (for admin view)
+                await updateDoc(tenantSnap.ref, { status: currentStatus });
 
-                // Update UI based on status
                 const payRentBtn = document.getElementById("payRentBtn");
                 const statusDisplay = document.getElementById("paymentStatusDisplay");
-                
                 if (currentStatus === "paid") {
                     payRentBtn.disabled = true;
                     payRentBtn.innerHTML = `<i class="fas fa-check-circle"></i> Paid for ${currentMonth}`;
@@ -326,79 +378,49 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
-                // Load payment history (FIXED: now uses both UID and name/room fallback)
-                await loadPaymentHistory(user.uid, data.name, data.room);
+                // Load full payment history
+                await loadPaymentHistory(user.uid, tenantName, tenantRoom);
 
             } catch (err) {
-                console.error("Error:", err);
+                console.error(err);
                 document.getElementById("loadingMessage").innerHTML = "❌ Error loading data. Please refresh.";
                 document.getElementById("loadingMessage").style.color = "#ff6b6b";
             }
         }
 
-        // ✅ FIXED: Load payment history – tries UID first, then falls back to name+room
         async function loadPaymentHistory(userId, tenantName, tenantRoom) {
             const historyTable = document.getElementById("paymentHistory");
             historyTable.innerHTML = "";
 
-            let paymentRecords = [];
+            const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
 
-            // First, try query by tenantId (user's UID)
-            const qByUid = query(
-                collection(db, "rents"),
-                where("tenantId", "==", userId),
-                orderBy("date", "desc")
-            );
-            const uidSnapshot = await getDocs(qByUid);
-
-            if (!uidSnapshot.empty) {
-                paymentRecords = uidSnapshot.docs;
-            } else {
-                // Fallback: search by tenantName AND room (since admin records may use different tenantId)
-                console.log("No records found by UID, falling back to name+room search");
-                const qByNameRoom = query(
-                    collection(db, "rents"),
-                    where("tenantName", "==", tenantName),
-                    where("room", "==", tenantRoom),
-                    orderBy("date", "desc")
-                );
-                const nameRoomSnapshot = await getDocs(qByNameRoom);
-                paymentRecords = nameRoomSnapshot.docs;
-            }
-
-            if (paymentRecords.length === 0) {
+            if (rentDocs.length === 0) {
                 historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
 
-            paymentRecords.forEach(docSnap => {
+            rentDocs.sort((a, b) => {
+                const dateA = a.data().date?.toDate?.() || new Date(0);
+                const dateB = b.data().date?.toDate?.() || new Date(0);
+                return dateB - dateA;
+            });
+
+            for (const docSnap of rentDocs) {
                 const data = docSnap.data();
-                const row = document.createElement("tr");
-                
-                let statusClass = data.status === 'paid' ? 'paid' : 'pending';
-                let statusText = data.status === 'paid' ? 'Paid' : 'Pending';
+                const statusClass = data.status === 'paid' ? 'paid' : 'pending';
+                const statusText = data.status === 'paid' ? 'Paid' : 'Pending';
                 
                 let paymentDate = 'N/A';
                 if (data.date) {
-                    if (data.date.toDate) {
-                        paymentDate = data.date.toDate().toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                    } else if (data.date.seconds) {
-                        paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                    }
+                    if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    });
+                    else if (data.date.seconds) paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    });
                 }
-
-                // Get current tenant name/room from the DOM for the receipt button
-                const currentTenantName = document.getElementById("tenantName").innerText;
-                const currentTenantRoom = document.getElementById("roomNumber").innerText;
                 
+                const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>
                         ${data.month || 'N/A'}
@@ -409,8 +431,8 @@
                     <td>
                         ${data.status === "paid" 
                             ? `<button class="receipt-download-btn" 
-                                data-name="${currentTenantName}"
-                                data-room="${currentTenantRoom}"
+                                data-name="${document.getElementById("tenantName").innerText}"
+                                data-room="${document.getElementById("roomNumber").innerText}"
                                 data-amount="${data.amount}"
                                 data-month="${data.month}"
                                 data-date="${paymentDate}">
@@ -420,16 +442,14 @@
                     </td>
                 `;
                 historyTable.appendChild(row);
-            });
+            }
 
-            // Attach receipt download listeners
             document.querySelectorAll('.receipt-download-btn').forEach(btn => {
                 btn.removeEventListener('click', downloadReceipt);
                 btn.addEventListener('click', downloadReceipt);
             });
         }
 
-        // Separate receipt download function
         function downloadReceipt(e) {
             const btn = e.currentTarget;
             const tenantName = btn.dataset.name;
@@ -469,52 +489,25 @@
             pdf.save(`rent_receipt_${month.replace(/\s/g, '_')}.pdf`);
         }
 
-        // Auth state
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-                return;
-            }
-            await loadTenantData(user);
+            if (!user) window.location.href = "login.html";
+            else await loadTenantData(user);
         });
 
-        // Logout
         document.getElementById("logoutBtn").addEventListener("click", () => {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            });
+            signOut(auth).then(() => window.location.href = "login.html");
         });
 
-        // Refresh
         document.getElementById("refreshBtn").addEventListener("click", () => {
-            if (auth.currentUser) {
-                loadTenantData(auth.currentUser);
-            }
+            if (auth.currentUser) loadTenantData(auth.currentUser);
         });
 
-        // Pay Rent (unchanged)
         document.getElementById("payRentBtn").addEventListener("click", async () => {
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
                 const amount = amountText.replace("₹", "").trim();
                 const user = auth.currentUser;
-
-                if (!user) {
-                    alert("Please login again.");
-                    return;
-                }
-
-                const rentQuery = query(
-                    collection(db, "rents"),
-                    where("tenantId", "==", user.uid),
-                    where("month", "==", currentMonth)
-                );
-                const existingRent = await getDocs(rentQuery);
-                
-                if (!existingRent.empty && existingRent.docs[0].data().status === "paid") {
-                    alert("You have already paid rent for this month!");
-                    return;
-                }
+                if (!user) { alert("Please login again."); return; }
 
                 const tenantSnap = await getDoc(doc(db, "tenants", user.uid));
                 if (!tenantSnap.exists()) {
@@ -522,6 +515,17 @@
                     return;
                 }
                 const tenantData = tenantSnap.data();
+
+                const rentQuery = query(
+                    collection(db, "rents"),
+                    where("tenantId", "==", user.uid),
+                    where("month", "==", currentMonth)
+                );
+                const existingRent = await getDocs(rentQuery);
+                if (!existingRent.empty && existingRent.docs[0].data().status === "paid") {
+                    alert("You have already paid rent for this month!");
+                    return;
+                }
 
                 const upiID = "adityanesur@ybl";
                 const upiLink = `upi://pay?pa=${upiID}&pn=RentFlow&am=${amount}&cu=INR`;
@@ -546,21 +550,19 @@
 
                 const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
                 const qrWindow = window.open("", "_blank");
-                
                 qrWindow.document.write(`
                     <!DOCTYPE html>
                     <html>
-                    <head>
-                        <title>Pay Rent - QR Code</title>
-                        <style>
-                            body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0f1f, #030614); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-                            .qr-container { background: rgba(18, 25, 45, 0.9); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; border: 1px solid rgba(0, 183, 255, 0.2); text-align: center; max-width: 400px; }
-                            h2 { background: linear-gradient(135deg, #ffffff, #7bc9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
-                            img { border-radius: 20px; padding: 10px; background: white; margin: 20px 0; }
-                            .amount { font-size: 24px; color: #00b7ff; margin: 10px 0; }
-                            .month { color: #7bc9ff; margin-bottom: 10px; font-size: 1.2rem; }
-                            .note { color: #888; font-size: 14px; margin-top: 20px; }
-                        </style>
+                    <head><title>Pay Rent - QR Code</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0f1f, #030614); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+                        .qr-container { background: rgba(18, 25, 45, 0.9); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; border: 1px solid rgba(0, 183, 255, 0.2); text-align: center; max-width: 400px; }
+                        h2 { background: linear-gradient(135deg, #ffffff, #7bc9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+                        img { border-radius: 20px; padding: 10px; background: white; margin: 20px 0; }
+                        .amount { font-size: 24px; color: #00b7ff; margin: 10px 0; }
+                        .month { color: #7bc9ff; margin-bottom: 10px; font-size: 1.2rem; }
+                        .note { color: #888; font-size: 14px; margin-top: 20px; }
+                    </style>
                     </head>
                     <body>
                         <div class="qr-container">
@@ -569,18 +571,14 @@
                             <img src="${qrLink}" alt="Payment QR Code">
                             <div class="amount">Amount: ₹${amount}</div>
                             <p>Scan with any UPI app</p>
-                            <div class="note">After payment, admin will confirm within 24 hours</div>
+                            <div class="note">After payment, admin will confirm and generate receipt.</div>
                         </div>
                     </body>
                     </html>
                 `);
-
-                setTimeout(() => {
-                    loadTenantData(user);
-                }, 1000);
-
+                setTimeout(() => loadTenantData(user), 1000);
             } catch (error) {
-                console.error("Payment error:", error);
+                console.error(error);
                 alert("Error processing payment: " + error.message);
             }
         });
