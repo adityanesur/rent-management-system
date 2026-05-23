@@ -414,7 +414,7 @@
             getDocs, 
             orderBy, 
             updateDoc,
-            addDoc   // ← FIXED: Added missing import
+            addDoc
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -524,7 +524,7 @@
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
+                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></table>';
                 return;
             }
 
