@@ -7,12 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* same as before – no change */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a0f1f 0%, #030614 100%);
@@ -21,7 +17,6 @@
             padding: 2rem 1.5rem;
             position: relative;
         }
-
         body::before {
             content: '';
             position: fixed;
@@ -34,13 +29,7 @@
             pointer-events: none;
             z-index: -1;
         }
-
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Header */
+        .admin-container { max-width: 1400px; margin: 0 auto; }
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -49,7 +38,6 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .header-left h1 {
             font-family: 'Poppins', sans-serif;
             font-size: clamp(2rem, 5vw, 2.8rem);
@@ -59,16 +47,8 @@
             background-clip: text;
             margin-bottom: 0.3rem;
         }
-
-        .header-left p {
-            color: #b0d0ff;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 1rem;
-        }
-
+        .header-left p { color: #b0d0ff; }
+        .header-right { display: flex; gap: 1rem; }
         .admin-btn {
             padding: 0.8rem 1.8rem;
             border-radius: 50px;
@@ -82,85 +62,40 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .admin-btn:hover {
-            border-color: #00b7ff;
-            background: rgba(0, 183, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .admin-btn.logout {
-            background: rgba(255, 75, 75, 0.2);
-            border-color: rgba(255, 75, 75, 0.4);
-        }
-
-        .admin-btn.logout:hover {
-            background: rgba(255, 75, 75, 0.3);
-            border-color: #ff4b4b;
-        }
-
-        /* Stats Grid */
+        .admin-btn:hover { border-color: #00b7ff; background: rgba(0, 183, 255, 0.1); transform: translateY(-2px); }
+        .admin-btn.logout { background: rgba(255, 75, 75, 0.2); border-color: rgba(255, 75, 75, 0.4); }
+        .admin-btn.logout:hover { background: rgba(255, 75, 75, 0.3); border-color: #ff4b4b; }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .stat-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(0, 183, 255, 0.2);
             border-radius: 25px;
             padding: 1.8rem;
             transition: all 0.3s ease;
         }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: #00b7ff;
-            box-shadow: 0 20px 40px rgba(0, 183, 255, 0.15);
-        }
-
-        .stat-icon {
-            font-size: 2rem;
-            color: #00b7ff;
-            margin-bottom: 1rem;
-        }
-
-        .stat-label {
-            color: #b0d0ff;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Two Column Layout */
+        .stat-card:hover { transform: translateY(-5px); border-color: #00b7ff; box-shadow: 0 20px 40px rgba(0, 183, 255, 0.15); }
+        .stat-icon { font-size: 2rem; color: #00b7ff; margin-bottom: 1rem; }
+        .stat-label { color: #b0d0ff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 2rem; font-weight: 600; font-family: 'Poppins', sans-serif; }
         .two-column {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
-
-        /* Add Tenant Form */
         .form-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(0, 183, 255, 0.2);
             border-radius: 30px;
             padding: 2rem;
         }
-
         .form-card h3 {
             font-family: 'Poppins', sans-serif;
             font-size: 1.5rem;
@@ -169,21 +104,9 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .form-card h3 i {
-            color: #00b7ff;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #b0d0ff;
-        }
-
+        .form-card h3 i { color: #00b7ff; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #b0d0ff; }
         .form-control {
             width: 100%;
             padding: 1rem;
@@ -194,19 +117,8 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #00b7ff;
-            box-shadow: 0 0 20px rgba(0, 183, 255, 0.2);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
+        .form-control:focus { outline: none; border-color: #00b7ff; box-shadow: 0 0 20px rgba(0, 183, 255, 0.2); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -220,22 +132,14 @@
             transition: all 0.3s ease;
             margin-top: 1rem;
         }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 183, 255, 0.4);
-        }
-
-        /* Tenants Table */
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 183, 255, 0.4); }
         .table-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(0, 183, 255, 0.2);
             border-radius: 30px;
             padding: 2rem;
         }
-
         .table-header {
             display: flex;
             justify-content: space-between;
@@ -244,7 +148,6 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .table-header h3 {
             font-family: 'Poppins', sans-serif;
             font-size: 1.5rem;
@@ -252,11 +155,7 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .table-header h3 i {
-            color: #00b7ff;
-        }
-
+        .table-header h3 i { color: #00b7ff; }
         .generate-btn {
             padding: 0.8rem 1.5rem;
             background: rgba(255, 215, 0, 0.2);
@@ -269,66 +168,16 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .generate-btn:hover {
-            background: rgba(255, 215, 0, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
-
-        th {
-            text-align: left;
-            padding: 1rem;
-            color: #b0d0ff;
-            font-weight: 500;
-            border-bottom: 2px solid rgba(0, 183, 255, 0.2);
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-        }
-
-        tr:hover td {
-            background: rgba(0, 183, 255, 0.05);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .status-paid {
-            background: rgba(92, 255, 157, 0.2);
-            color: #5cff9d;
-            border: 1px solid rgba(92, 255, 157, 0.3);
-        }
-
-        .status-pending {
-            background: rgba(255, 215, 0, 0.2);
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .status-overdue {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-        }
-
+        .generate-btn:hover { background: rgba(255, 215, 0, 0.3); transform: translateY(-2px); }
+        .table-container { overflow-x: auto; border-radius: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { text-align: left; padding: 1rem; color: #b0d0ff; font-weight: 500; border-bottom: 2px solid rgba(0, 183, 255, 0.2); }
+        td { padding: 1rem; border-bottom: 1px solid rgba(0, 183, 255, 0.1); }
+        tr:hover td { background: rgba(0, 183, 255, 0.05); }
+        .status-badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.9rem; font-weight: 500; }
+        .status-paid { background: rgba(92, 255, 157, 0.2); color: #5cff9d; border: 1px solid rgba(92, 255, 157, 0.3); }
+        .status-pending { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
+        .status-overdue { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
         .delete-btn {
             padding: 0.4rem 1rem;
             background: rgba(255, 75, 75, 0.2);
@@ -339,11 +188,7 @@
             transition: all 0.3s ease;
             margin-right: 0.5rem;
         }
-
-        .delete-btn:hover {
-            background: rgba(255, 75, 75, 0.3);
-        }
-
+        .delete-btn:hover { background: rgba(255, 75, 75, 0.3); }
         .view-btn {
             padding: 0.4rem 1rem;
             background: rgba(0, 183, 255, 0.2);
@@ -353,66 +198,23 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
-        .view-btn:hover {
-            background: rgba(0, 183, 255, 0.3);
-        }
-
-        /* Message */
+        .view-btn:hover { background: rgba(0, 183, 255, 0.3); }
         .message {
             padding: 1rem;
             border-radius: 15px;
             margin-bottom: 1.5rem;
             display: none;
         }
-
-        .message.success {
-            background: rgba(92, 255, 157, 0.1);
-            border: 1px solid #5cff9d;
-            color: #5cff9d;
-        }
-
-        .message.error {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid #ff6b6b;
-            color: #ff6b6b;
-        }
-
-        .message.info {
-            background: rgba(123, 201, 255, 0.1);
-            border: 1px solid #7bc9ff;
-            color: #7bc9ff;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .two-column {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        .message.success { background: rgba(92, 255, 157, 0.1); border: 1px solid #5cff9d; color: #5cff9d; }
+        .message.error { background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; color: #ff6b6b; }
+        .message.info { background: rgba(123, 201, 255, 0.1); border: 1px solid #7bc9ff; color: #7bc9ff; }
+        @media (max-width: 1024px) { .two-column { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .admin-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .header-right {
-                width: 100%;
-            }
-            
-            .admin-btn {
-                flex: 1;
-                justify-content: center;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            body { padding: 1rem; }
+            .admin-header { flex-direction: column; align-items: flex-start; }
+            .header-right { width: 100%; }
+            .admin-btn { flex: 1; justify-content: center; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -424,47 +226,19 @@
                 <p>Manage tenants and track payments</p>
             </div>
             <div class="header-right">
-                <button class="admin-btn" id="viewPaymentsBtn">
-                    <i class="fas fa-credit-card"></i> Payments
-                </button>
-                <button class="admin-btn" id="refreshBtn">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-                <button class="admin-btn logout" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+                <button class="admin-btn" id="viewPaymentsBtn"><i class="fas fa-credit-card"></i> Payments</button>
+                <button class="admin-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="admin-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </div>
-
         <div id="message" class="message"></div>
-
-        <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
-                <div class="stat-label">Total Tenants</div>
-                <div class="stat-value" id="totalTenants">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
-                <div class="stat-label">Total Rent</div>
-                <div class="stat-value" id="totalRent">₹0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-label">Collected</div>
-                <div class="stat-value" id="paidRent">₹0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                <div class="stat-label">Pending</div>
-                <div class="stat-value" id="pendingRent">₹0</div>
-            </div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-label">Total Tenants</div><div class="stat-value" id="totalTenants">0</div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-rupee-sign"></i></div><div class="stat-label">Total Rent</div><div class="stat-value" id="totalRent">₹0</div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-label">Collected</div><div class="stat-value" id="paidRent">₹0</div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-label">Pending</div><div class="stat-value" id="pendingRent">₹0</div></div>
         </div>
-
-        <!-- Two Column Layout -->
         <div class="two-column">
-            <!-- Add Tenant Form -->
             <div class="form-card">
                 <h3><i class="fas fa-user-plus"></i> Add New Tenant</h3>
                 <div class="form-group">
@@ -478,49 +252,38 @@
                     </div>
                     <div class="form-group">
                         <label>Joining Date</label>
-                        <input type="date" id="joiningDate" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                        <input type="date" id="joiningDate" class="form-control" value="2026-01-01">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Rent Amount (₹)</label>
                     <input type="number" id="rent" class="form-control" placeholder="Enter amount">
                 </div>
-                <button class="submit-btn" id="addTenant">
-                    <i class="fas fa-plus-circle"></i> Add Tenant
-                </button>
+                <div class="form-group">
+                    <label>Firebase User UID (from Authentication → Users)</label>
+                    <input type="text" id="userUid" class="form-control" placeholder="Paste the user's UID">
+                    <small style="color:#7bc9ff;">Required: Get the UID from Firebase Console → Authentication → Users</small>
+                </div>
+                <button class="submit-btn" id="addTenant"><i class="fas fa-plus-circle"></i> Add Tenant</button>
             </div>
-
-            <!-- Tenants Table -->
             <div class="table-card">
                 <div class="table-header">
                     <h3><i class="fas fa-list"></i> Tenants List</h3>
-                    <button class="generate-btn" id="generateRentBtn">
-                        <i class="fas fa-file-invoice"></i> Generate Monthly Rent
-                    </button>
+                    <button class="generate-btn" id="generateRentBtn"><i class="fas fa-file-invoice"></i> Generate Monthly Rent</button>
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Room</th>
-                                <th>Joined</th>
-                                <th>Rent (₹)</th>
-                                <th>Current Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Name</th><th>Room</th><th>Joined</th><th>Rent (₹)</th><th>Current Status</th><th>Actions</th></tr></thead>
                         <tbody id="tenantTable"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, query, where, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -530,18 +293,12 @@
             messagingSenderId: "676999561040",
             appId: "1:676999561040:web:f1166d818a33c5a008f655"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Check admin access
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-                return;
-            }
-
+            if (!user) { window.location.href = "login.html"; return; }
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists() || userDoc.data().role !== "admin") {
                 alert("Access denied. Admin only.");
@@ -549,168 +306,100 @@
             }
         });
 
-        // Load tenants
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
             tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
-
             const querySnapshot = await getDocs(collection(db, "tenants"));
             tenantTable.innerHTML = "";
-
-            let totalTenants = 0;
-            let totalRent = 0;
-            let paidRent = 0;
-
-            // Get current month/year
+            let totalTenants = 0, totalRent = 0, paidRent = 0;
             const now = new Date();
             const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-
             for (const docSnap of querySnapshot.docs) {
                 const data = docSnap.data();
                 totalTenants++;
                 totalRent += Number(data.rent) || 0;
-
-                // Get current month's rent status
-                const rentQuery = query(
-                    collection(db, "rents"),
-                    where("tenantId", "==", docSnap.id),
-                    where("month", "==", currentMonth)
-                );
+                const rentQuery = query(collection(db, "rents"), where("tenantId", "==", docSnap.id), where("month", "==", currentMonth));
                 const rentSnap = await getDocs(rentQuery);
-                
                 let currentStatus = "pending";
-                if (!rentSnap.empty) {
-                    currentStatus = rentSnap.docs[0].data().status;
-                }
-                
+                if (!rentSnap.empty) currentStatus = rentSnap.docs[0].data().status;
                 if (currentStatus === "paid") paidRent += Number(data.rent) || 0;
-
-                let statusClass = "status-pending";
-                if (currentStatus === "paid") statusClass = "status-paid";
-                else if (currentStatus === "overdue") statusClass = "status-overdue";
-
+                let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
                 const joiningDate = data.joiningDate ? new Date(data.joiningDate).toLocaleDateString('en-IN') : 'N/A';
-
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${data.name || "N/A"}</td>
-                    <td>${data.room || "N/A"}</td>
-                    <td>${joiningDate}</td>
-                    <td>₹${data.rent || "0"}</td>
+                    <td>${data.name || "N/A"}</td><td>${data.room || "N/A"}</td><td>${joiningDate}</td><td>₹${data.rent || "0"}</td>
                     <td><span class="status-badge ${statusClass}">${currentStatus}</span></td>
-                    <td>
-                        <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
+                    <td><button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
+                    <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button></td>
                 `;
                 tenantTable.appendChild(row);
             }
-
-            // Update stats
             document.getElementById("totalTenants").innerText = totalTenants;
             document.getElementById("totalRent").innerText = `₹${totalRent}`;
             document.getElementById("paidRent").innerText = `₹${paidRent}`;
             document.getElementById("pendingRent").innerText = `₹${totalRent - paidRent}`;
         }
 
-        // Delete tenant
         window.deleteTenant = async (tenantId) => {
-            if (confirm("Are you sure you want to delete this tenant? This will delete all their rent records.")) {
-                // Delete all rent records for this tenant
+            if (confirm("Are you sure? This will delete all rent records for this tenant.")) {
                 const rentsQuery = query(collection(db, "rents"), where("tenantId", "==", tenantId));
                 const rentsSnap = await getDocs(rentsQuery);
-                rentsSnap.forEach(async (rentDoc) => {
-                    await deleteDoc(doc(db, "rents", rentDoc.id));
-                });
-
-                // Delete tenant
+                rentsSnap.forEach(async (rentDoc) => await deleteDoc(doc(db, "rents", rentDoc.id)));
                 await deleteDoc(doc(db, "tenants", tenantId));
-                
                 showMessage("Tenant deleted successfully!", "success");
                 loadTenants();
             }
         };
+        window.viewTenant = (tenantId) => alert(`View details for tenant ID: ${tenantId}`);
 
-        // View tenant (you can implement detailed view)
-        window.viewTenant = (tenantId) => {
-            alert(`View details for tenant ID: ${tenantId}`);
-        };
+        document.getElementById("addTenant").addEventListener("click", async () => {
+            const name = document.getElementById("name").value;
+            const room = document.getElementById("room").value;
+            const rent = document.getElementById("rent").value;
+            const joiningDate = document.getElementById("joiningDate").value;
+            const userUid = document.getElementById("userUid").value;
+            if (!name || !room || !rent || !joiningDate || !userUid) {
+                showMessage("Please fill all fields including User UID", "error");
+                return;
+            }
+            const tenantRef = doc(db, "tenants", userUid);
+            await setDoc(tenantRef, {
+                name: name,
+                room: room,
+                rent: Number(rent),
+                joiningDate: new Date(joiningDate),
+                status: "pending"
+            });
+            showMessage("Tenant added successfully!", "success");
+            document.getElementById("name").value = "";
+            document.getElementById("room").value = "";
+            document.getElementById("rent").value = "";
+            document.getElementById("joiningDate").value = new Date().toISOString().split('T')[0];
+            document.getElementById("userUid").value = "";
+            loadTenants();
+        });
 
-        // Add tenant
-document.getElementById("addTenant").addEventListener("click", async () => {
-    const name = document.getElementById("name").value;
-    const room = document.getElementById("room").value;
-    const rent = document.getElementById("rent").value;
-    const joiningDate = document.getElementById("joiningDate").value;
-
-    if (!name || !room || !rent || !joiningDate) {
-        showMessage("Please fill all fields", "error");
-        return;
-    }
-
-    // Create tenant document with joining date
-    const tenantRef = await addDoc(collection(db, "tenants"), {
-        name: name,
-        room: room,
-        rent: Number(rent),
-        joiningDate: new Date(joiningDate),
-        status: "pending"
-    });
-
-    showMessage("Tenant added successfully!", "success");
-    
-    // Clear form
-    document.getElementById("name").value = "";
-    document.getElementById("room").value = "";
-    document.getElementById("rent").value = "";
-    document.getElementById("joiningDate").value = new Date().toISOString().split('T')[0];
-    
-    loadTenants();
-});
-
-        // Generate monthly rent (intelligent)
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
             const tenants = await getDocs(collection(db, "tenants"));
             const now = new Date();
             const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
             const currentYear = now.getFullYear();
             const currentMonthIndex = now.getMonth();
-
-            let generatedCount = 0;
-            let skippedCount = 0;
-
+            let generatedCount = 0, skippedCount = 0;
             for (const tenantDoc of tenants.docs) {
                 const data = tenantDoc.data();
-                
-                // Check if tenant joined on/before this month
                 const joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
-                
                 if (joiningDate) {
                     const joinYear = joiningDate.getFullYear();
                     const joinMonth = joiningDate.getMonth();
-                    
-                    // Skip if tenant joined after current month
                     if (joinYear > currentYear || (joinYear === currentYear && joinMonth > currentMonthIndex)) {
                         skippedCount++;
                         continue;
                     }
                 }
-
-                // Check if rent already exists for this month
-                const rentCheck = query(
-                    collection(db, "rents"),
-                    where("tenantId", "==", tenantDoc.id),
-                    where("month", "==", currentMonth)
-                );
-                
+                const rentCheck = query(collection(db, "rents"), where("tenantId", "==", tenantDoc.id), where("month", "==", currentMonth));
                 const existing = await getDocs(rentCheck);
-                
                 if (existing.empty) {
-                    // Create new rent record
                     await addDoc(collection(db, "rents"), {
                         tenantId: tenantDoc.id,
                         tenantName: data.name,
@@ -721,31 +410,16 @@ document.getElementById("addTenant").addEventListener("click", async () => {
                         date: new Date()
                     });
                     generatedCount++;
-                } else {
-                    skippedCount++;
-                }
+                } else skippedCount++;
             }
-
             showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed.`, "success");
             loadTenants();
         });
 
-        // View payments
-        document.getElementById("viewPaymentsBtn").addEventListener("click", () => {
-            window.location.href = "admin-payments.html";
-        });
-
-        // Refresh
+        document.getElementById("viewPaymentsBtn").addEventListener("click", () => window.location.href = "admin-payments.html");
         document.getElementById("refreshBtn").addEventListener("click", loadTenants);
+        document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth).then(() => window.location.href = "login.html"));
 
-        // Logout
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            });
-        });
-
-        // Show message
         function showMessage(text, type) {
             const msg = document.getElementById("message");
             msg.textContent = text;
@@ -753,8 +427,6 @@ document.getElementById("addTenant").addEventListener("click", async () => {
             msg.style.display = "block";
             setTimeout(() => msg.style.display = "none", 3000);
         }
-
-        // Initial load
         loadTenants();
     </script>
 </body>
