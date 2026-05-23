@@ -7,12 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* === YOUR EXISTING STYLES (unchanged) === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a0f1f 0%, #030614 100%);
@@ -21,7 +17,6 @@
             padding: 2rem 1.5rem;
             position: relative;
         }
-
         body::before {
             content: '';
             position: fixed;
@@ -34,12 +29,7 @@
             pointer-events: none;
             z-index: -1;
         }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        .dashboard-container { max-width: 1200px; margin: 0 auto; }
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -48,7 +38,6 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .header-left h1 {
             font-family: 'Poppins', sans-serif;
             font-size: clamp(1.8rem, 5vw, 2.5rem);
@@ -58,17 +47,8 @@
             background-clip: text;
             margin-bottom: 0.3rem;
         }
-
-        .header-left p {
-            color: #b0d0ff;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
+        .header-left p { color: #b0d0ff; }
+        .header-right { display: flex; gap: 1rem; flex-wrap: wrap; }
         .header-btn {
             padding: 0.8rem 1.8rem;
             border-radius: 50px;
@@ -82,23 +62,9 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .header-btn:hover {
-            border-color: #00b7ff;
-            background: rgba(0, 183, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .header-btn.logout {
-            background: rgba(255, 75, 75, 0.2);
-            border-color: rgba(255, 75, 75, 0.4);
-        }
-
-        .header-btn.logout:hover {
-            background: rgba(255, 75, 75, 0.3);
-            border-color: #ff4b4b;
-        }
-
+        .header-btn:hover { border-color: #00b7ff; background: rgba(0, 183, 255, 0.1); transform: translateY(-2px); }
+        .header-btn.logout { background: rgba(255, 75, 75, 0.2); border-color: rgba(255, 75, 75, 0.4); }
+        .header-btn.logout:hover { background: rgba(255, 75, 75, 0.3); border-color: #ff4b4b; }
         .main-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
@@ -109,31 +75,15 @@
             margin-bottom: 2rem;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 183, 255, 0.1);
         }
-
-        .loading {
-            text-align: center;
-            padding: 4rem;
-            color: #7bc9ff;
-            font-size: 1.2rem;
-        }
-
-        .loading i {
-            margin-right: 0.5rem;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        .loading { text-align: center; padding: 4rem; color: #7bc9ff; font-size: 1.2rem; }
+        .loading i { margin-right: 0.5rem; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .info-item {
             background: rgba(10, 20, 40, 0.5);
             border-radius: 20px;
@@ -141,62 +91,14 @@
             border: 1px solid rgba(0, 183, 255, 0.15);
             transition: all 0.3s ease;
         }
-
-        .info-item:hover {
-            border-color: #00b7ff;
-            box-shadow: 0 10px 30px rgba(0, 183, 255, 0.1);
-        }
-
-        .info-label {
-            color: #b0d0ff;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .info-label i {
-            color: #00b7ff;
-        }
-
-        .info-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .status-badge.paid {
-            background: rgba(92, 255, 157, 0.15);
-            color: #5cff9d;
-            border: 1px solid rgba(92, 255, 157, 0.3);
-        }
-
-        .status-badge.pending {
-            background: rgba(255, 215, 0, 0.15);
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
+        .info-item:hover { border-color: #00b7ff; box-shadow: 0 10px 30px rgba(0, 183, 255, 0.1); }
+        .info-label { color: #b0d0ff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .info-label i { color: #00b7ff; }
+        .info-value { font-size: 1.5rem; font-weight: 600; font-family: 'Poppins', sans-serif; }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 50px; font-weight: 500; font-size: 0.95rem; }
+        .status-badge.paid { background: rgba(92, 255, 157, 0.15); color: #5cff9d; border: 1px solid rgba(92, 255, 157, 0.3); }
+        .status-badge.pending { background: rgba(255, 215, 0, 0.15); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
+        .action-buttons { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
         .action-btn {
             flex: 1 1 250px;
             padding: 1rem 1.5rem;
@@ -211,71 +113,17 @@
             justify-content: center;
             gap: 0.5rem;
         }
-
-        .pay-btn {
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 183, 255, 0.3);
-        }
-
-        .pay-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 183, 255, 0.5);
-        }
-
-        .pay-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: linear-gradient(135deg, #4a5568, #2d3748);
-        }
-
-        .history-section {
-            margin-top: 2.5rem;
-        }
-
-        .history-section h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .history-section h3 i {
-            color: #00b7ff;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 20px;
-            background: rgba(10, 20, 40, 0.5);
-            border: 1px solid rgba(0, 183, 255, 0.15);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        th {
-            text-align: left;
-            padding: 1.2rem 1rem;
-            color: #b0d0ff;
-            font-weight: 500;
-            border-bottom: 2px solid rgba(0, 183, 255, 0.2);
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-        }
-
-        tr:hover td {
-            background: rgba(0, 183, 255, 0.05);
-        }
-
+        .pay-btn { background: linear-gradient(135deg, #00b7ff, #3e9cff); color: white; box-shadow: 0 4px 20px rgba(0, 183, 255, 0.3); }
+        .pay-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0, 183, 255, 0.5); }
+        .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; background: linear-gradient(135deg, #4a5568, #2d3748); }
+        .history-section { margin-top: 2.5rem; }
+        .history-section h3 { font-family: 'Poppins', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .history-section h3 i { color: #00b7ff; }
+        .table-container { overflow-x: auto; border-radius: 20px; background: rgba(10, 20, 40, 0.5); border: 1px solid rgba(0, 183, 255, 0.15); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 1.2rem 1rem; color: #b0d0ff; font-weight: 500; border-bottom: 2px solid rgba(0, 183, 255, 0.2); }
+        td { padding: 1rem; border-bottom: 1px solid rgba(0, 183, 255, 0.1); }
+        tr:hover td { background: rgba(0, 183, 255, 0.05); }
         .receipt-download-btn {
             padding: 0.4rem 1rem;
             border-radius: 30px;
@@ -289,32 +137,10 @@
             align-items: center;
             gap: 0.3rem;
         }
-
-        .receipt-download-btn:hover {
-            background: rgba(0, 183, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .month-badge {
-            background: rgba(0, 183, 255, 0.1);
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #7bc9ff;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 3rem;
-            color: #b0d0ff;
-        }
-
-        .no-data i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
+        .receipt-download-btn:hover { background: rgba(0, 183, 255, 0.3); transform: translateY(-2px); }
+        .month-badge { background: rgba(0, 183, 255, 0.1); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; color: #7bc9ff; }
+        .no-data { text-align: center; padding: 3rem; color: #b0d0ff; }
+        .no-data i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
         @media (max-width: 768px) {
             body { padding: 1rem; }
             .main-card { padding: 1.5rem; }
@@ -500,8 +326,8 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
-                // Load payment history
-                await loadPaymentHistory(user.uid);
+                // Load payment history (FIXED: now uses both UID and name/room fallback)
+                await loadPaymentHistory(user.uid, data.name, data.room);
 
             } catch (err) {
                 console.error("Error:", err);
@@ -510,32 +336,48 @@
             }
         }
 
-        // Load payment history
-        async function loadPaymentHistory(userId) {
+        // ✅ FIXED: Load payment history – tries UID first, then falls back to name+room
+        async function loadPaymentHistory(userId, tenantName, tenantRoom) {
             const historyTable = document.getElementById("paymentHistory");
             historyTable.innerHTML = "";
 
-            const q = query(
-                collection(db, "rents"), 
+            let paymentRecords = [];
+
+            // First, try query by tenantId (user's UID)
+            const qByUid = query(
+                collection(db, "rents"),
                 where("tenantId", "==", userId),
                 orderBy("date", "desc")
             );
+            const uidSnapshot = await getDocs(qByUid);
 
-            const querySnapshot = await getDocs(q);
+            if (!uidSnapshot.empty) {
+                paymentRecords = uidSnapshot.docs;
+            } else {
+                // Fallback: search by tenantName AND room (since admin records may use different tenantId)
+                console.log("No records found by UID, falling back to name+room search");
+                const qByNameRoom = query(
+                    collection(db, "rents"),
+                    where("tenantName", "==", tenantName),
+                    where("room", "==", tenantRoom),
+                    orderBy("date", "desc")
+                );
+                const nameRoomSnapshot = await getDocs(qByNameRoom);
+                paymentRecords = nameRoomSnapshot.docs;
+            }
 
-            if (querySnapshot.empty) {
-                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></table>';
+            if (paymentRecords.length === 0) {
+                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
 
-            querySnapshot.forEach((docSnap) => {
+            paymentRecords.forEach(docSnap => {
                 const data = docSnap.data();
                 const row = document.createElement("tr");
                 
                 let statusClass = data.status === 'paid' ? 'paid' : 'pending';
                 let statusText = data.status === 'paid' ? 'Paid' : 'Pending';
                 
-                // Format date if exists (handles Firestore Timestamp)
                 let paymentDate = 'N/A';
                 if (data.date) {
                     if (data.date.toDate) {
@@ -552,6 +394,10 @@
                         });
                     }
                 }
+
+                // Get current tenant name/room from the DOM for the receipt button
+                const currentTenantName = document.getElementById("tenantName").innerText;
+                const currentTenantRoom = document.getElementById("roomNumber").innerText;
                 
                 row.innerHTML = `
                     <td>
@@ -563,8 +409,8 @@
                     <td>
                         ${data.status === "paid" 
                             ? `<button class="receipt-download-btn" 
-                                data-name="${document.getElementById("tenantName").innerText}"
-                                data-room="${document.getElementById("roomNumber").innerText}"
+                                data-name="${currentTenantName}"
+                                data-room="${currentTenantRoom}"
                                 data-amount="${data.amount}"
                                 data-month="${data.month}"
                                 data-date="${paymentDate}">
@@ -575,6 +421,52 @@
                 `;
                 historyTable.appendChild(row);
             });
+
+            // Attach receipt download listeners
+            document.querySelectorAll('.receipt-download-btn').forEach(btn => {
+                btn.removeEventListener('click', downloadReceipt);
+                btn.addEventListener('click', downloadReceipt);
+            });
+        }
+
+        // Separate receipt download function
+        function downloadReceipt(e) {
+            const btn = e.currentTarget;
+            const tenantName = btn.dataset.name;
+            const room = btn.dataset.room;
+            const amount = btn.dataset.amount;
+            const month = btn.dataset.month;
+            const paymentDate = btn.dataset.date;
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+
+            pdf.setFillColor(10, 20, 40);
+            pdf.rect(0, 0, 210, 297, 'F');
+
+            pdf.setTextColor(0, 183, 255);
+            pdf.setFontSize(28);
+            pdf.setFont("helvetica", "bold");
+            pdf.text("RENT RECEIPT", 105, 35, { align: "center" });
+
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(12);
+            pdf.setFont("helvetica", "normal");
+            
+            pdf.text(`Tenant Name: ${tenantName}`, 20, 70);
+            pdf.text(`Room Number: ${room}`, 20, 85);
+            pdf.text(`Month: ${month}`, 20, 100);
+            pdf.text(`Amount Paid: ₹${amount}`, 20, 115);
+            pdf.text(`Payment Date: ${paymentDate}`, 20, 130);
+            pdf.text(`Status: Paid`, 20, 145);
+            pdf.text(`Transaction ID: ${Math.random().toString(36).substring(2, 15).toUpperCase()}`, 20, 160);
+
+            pdf.setTextColor(123, 201, 255);
+            pdf.setFontSize(10);
+            pdf.text("Thank you for your payment!", 105, 220, { align: "center" });
+            pdf.text("RentFlow - Smart Rent Management", 105, 235, { align: "center" });
+
+            pdf.save(`rent_receipt_${month.replace(/\s/g, '_')}.pdf`);
         }
 
         // Auth state
@@ -600,7 +492,7 @@
             }
         });
 
-        // Pay Rent
+        // Pay Rent (unchanged)
         document.getElementById("payRentBtn").addEventListener("click", async () => {
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
@@ -612,7 +504,6 @@
                     return;
                 }
 
-                // Check if already paid for this month
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
@@ -625,14 +516,16 @@
                     return;
                 }
 
-                // Get tenant data for name and room
                 const tenantSnap = await getDoc(doc(db, "tenants", user.uid));
+                if (!tenantSnap.exists()) {
+                    alert("Tenant record not found. Please contact admin.");
+                    return;
+                }
                 const tenantData = tenantSnap.data();
 
-                const upiID = "adityanesur@ybl"; // Your UPI ID
+                const upiID = "adityanesur@ybl";
                 const upiLink = `upi://pay?pa=${upiID}&pn=RentFlow&am=${amount}&cu=INR`;
 
-                // Save or update payment request
                 if (existingRent.empty) {
                     await addDoc(collection(db, "rents"), {
                         tenantId: user.uid,
@@ -644,7 +537,6 @@
                         date: new Date()
                     });
                 } else {
-                    // Update existing pending record
                     const rentDoc = existingRent.docs[0];
                     await updateDoc(doc(db, "rents", rentDoc.id), {
                         status: "pending",
@@ -652,7 +544,6 @@
                     });
                 }
 
-                // Show QR code
                 const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
                 const qrWindow = window.open("", "_blank");
                 
@@ -684,7 +575,6 @@
                     </html>
                 `);
 
-                // Refresh dashboard after a short delay
                 setTimeout(() => {
                     loadTenantData(user);
                 }, 1000);
@@ -692,53 +582,6 @@
             } catch (error) {
                 console.error("Payment error:", error);
                 alert("Error processing payment: " + error.message);
-            }
-        });
-
-        // Download Receipt
-        document.addEventListener("click", function(e) {
-            if (e.target.closest(".receipt-download-btn")) {
-                const btn = e.target.closest(".receipt-download-btn");
-                const tenantName = btn.dataset.name;
-                const room = btn.dataset.room;
-                const amount = btn.dataset.amount;
-                const month = btn.dataset.month;
-                const paymentDate = btn.dataset.date;
-
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF();
-
-                // Dark theme background
-                pdf.setFillColor(10, 20, 40);
-                pdf.rect(0, 0, 210, 297, 'F');
-
-                // Header
-                pdf.setTextColor(0, 183, 255);
-                pdf.setFontSize(28);
-                pdf.setFont("helvetica", "bold");
-                pdf.text("RENT RECEIPT", 105, 35, { align: "center" });
-
-                // Receipt details
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(12);
-                pdf.setFont("helvetica", "normal");
-                
-                pdf.text(`Tenant Name: ${tenantName}`, 20, 70);
-                pdf.text(`Room Number: ${room}`, 20, 85);
-                pdf.text(`Month: ${month}`, 20, 100);
-                pdf.text(`Amount Paid: ₹${amount}`, 20, 115);
-                pdf.text(`Payment Date: ${paymentDate}`, 20, 130);
-                pdf.text(`Status: Paid`, 20, 145);
-                pdf.text(`Transaction ID: ${Math.random().toString(36).substring(2, 15).toUpperCase()}`, 20, 160);
-
-                // Footer
-                pdf.setTextColor(123, 201, 255);
-                pdf.setFontSize(10);
-                pdf.text("Thank you for your payment!", 105, 220, { align: "center" });
-                pdf.text("RentFlow - Smart Rent Management", 105, 235, { align: "center" });
-
-                // Save
-                pdf.save(`rent_receipt_${month.replace(/\s/g, '_')}.pdf`);
             }
         });
     </script>
