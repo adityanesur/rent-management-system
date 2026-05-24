@@ -247,60 +247,130 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
-            body { padding: 1rem; }
-            .stat-card { padding: 0.8rem; }
-            .stat-value { font-size: 1.2rem; }
-            .form-card, .table-card { padding: 1rem; }
-            .form-row { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            
-            /* Transform table to card layout on mobile – no horizontal scroll */
-            .table-container {
-                overflow-x: visible;
-                background: transparent;
-                border: none;
-                padding: 0;
-            }
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-            thead {
-                display: none;
-            }
-            tr {
-                background: rgba(10, 20, 40, 0.5);
-                border: 1px solid rgba(0, 183, 255, 0.2);
-                border-radius: 20px;
-                margin-bottom: 1rem;
-                padding: 1rem;
-                width: 100%;
-                box-sizing: border-box;
-            }
-            td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.6rem 0;
-                border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-                font-size: 0.85rem;
-                word-break: break-word;
-                overflow-wrap: break-word;
-            }
-            td:last-child {
-                border-bottom: none;
-            }
-            td:before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #7bc9ff;
-                width: 40%;
-                flex-shrink: 0;
-            }
-            .delete-btn, .view-btn {
-                padding: 0.2rem 0.6rem;
-                font-size: 0.7rem;
-            }
-            .status-badge { padding: 0.2rem 0.6rem; font-size: 0.75rem; }
+
+    body {
+        padding: 1rem;
+    }
+
+    .stat-card {
+        padding: 0.8rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .form-card,
+    .table-card {
+        padding: 1rem;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* FIXED MOBILE TABLE LAYOUT */
+
+    .table-container {
+        overflow-x: hidden;
+        background: transparent;
+        border: none;
+        padding: 0;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        min-width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    tr {
+        display: block;
+        width: 100%;
+        background: rgba(10, 20, 40, 0.55);
+        border: 1px solid rgba(0, 183, 255, 0.2);
+        border-radius: 20px;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid rgba(0, 183, 255, 0.1);
+        font-size: 0.85rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    td::before {
+        content: attr(data-label);
+        color: #7bc9ff;
+        font-weight: 600;
+        min-width: 90px;
+        max-width: 90px;
+        flex-shrink: 0;
+    }
+
+    td span,
+    td button {
+        text-align: right;
+    }
+
+    .delete-btn,
+    .view-btn {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.72rem;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+    }
+
+    /* Prevent form overflow */
+
+    .form-control {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .submit-btn,
+    .generate-btn,
+    .admin-btn {
+        max-width: 100%;
+    }
+
+    .table-header {
+        width: 100%;
+    }
+}
         }
     </style>
 </head>
