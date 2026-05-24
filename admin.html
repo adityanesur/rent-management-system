@@ -272,7 +272,7 @@
                     <button class="generate-btn" id="generateRentBtn"><i class="fas fa-file-invoice"></i> Generate Monthly Rent</button>
                 </div>
                 <div class="table-container">
-                    <table>
+                    <tr>
                         <thead><tr><th>Name</th><th>Room</th><th>Joined</th><th>Rent (₹)</th><th>Current Status</th><th>Actions</th></tr></thead>
                         <tbody id="tenantTable"></tbody>
                     </table>
@@ -310,11 +310,9 @@
         function formatJoiningDate(dateValue) {
             if (!dateValue) return 'Not set';
             try {
-                // If it's a Firestore Timestamp
                 if (dateValue.toDate) {
                     return dateValue.toDate().toLocaleDateString('en-IN');
                 }
-                // If it's a string (YYYY-MM-DD)
                 const d = new Date(dateValue);
                 if (isNaN(d.getTime())) return 'Invalid date';
                 return d.toLocaleDateString('en-IN');
@@ -323,6 +321,7 @@
             }
         }
 
+        // ✅ FIXED: loadTenants now uses multiple strategies to find current month's rent record
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
             tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
@@ -335,24 +334,49 @@
             for (const docSnap of querySnapshot.docs) {
                 const data = docSnap.data();
                 totalTenants++;
-                // Try to get the current month's rent record (to display correct rent amount and status)
-                const rentQuery = query(
+                let currentStatus = "pending";
+                let displayRent = data.rent || 0;
+
+                // Strategy 1: find by tenantName + room
+                let rentQuery = query(
                     collection(db, "rents"),
                     where("tenantName", "==", data.name),
                     where("room", "==", data.room),
                     where("month", "==", currentMonth)
                 );
-                const rentSnap = await getDocs(rentQuery);
-                let currentStatus = "pending";
-                let displayRent = data.rent || 0;
+                let rentSnap = await getDocs(rentQuery);
+
+                // Strategy 2: if not found, try by tenantId (document ID)
+                if (rentSnap.empty) {
+                    console.warn(`No rent record found for ${data.name} (room ${data.room}) using name+room. Trying tenantId: ${docSnap.id}`);
+                    rentQuery = query(
+                        collection(db, "rents"),
+                        where("tenantId", "==", docSnap.id),
+                        where("month", "==", currentMonth)
+                    );
+                    rentSnap = await getDocs(rentQuery);
+                }
+
+                // Strategy 3: if still not found, try by the stored UID (if exists)
+                if (rentSnap.empty && data.uid) {
+                    console.warn(`Trying fallback by stored UID: ${data.uid}`);
+                    rentQuery = query(
+                        collection(db, "rents"),
+                        where("tenantId", "==", data.uid),
+                        where("month", "==", currentMonth)
+                    );
+                    rentSnap = await getDocs(rentQuery);
+                }
+
                 if (!rentSnap.empty) {
                     const rentData = rentSnap.docs[0].data();
                     currentStatus = rentData.status;
-                    // Use the rent amount from the rent record (so Aditya shows ₹5000, not ₹50000)
                     displayRent = rentData.amount || data.rent || 0;
                 }
-                if (currentStatus === "paid") paidRent += (displayRent);
-                totalRent += (data.rent || 0);   // keep total rent based on tenant's registered rent for consistency
+
+                if (currentStatus === "paid") paidRent += displayRent;
+                totalRent += (data.rent || 0);
+
                 let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
                 const joiningDate = formatJoiningDate(data.joiningDate);
                 const row = document.createElement("tr");
@@ -367,6 +391,7 @@
                 `;
                 tenantTable.appendChild(row);
             }
+
             document.getElementById("totalTenants").innerText = totalTenants;
             document.getElementById("totalRent").innerText = `₹${totalRent}`;
             document.getElementById("paidRent").innerText = `₹${paidRent}`;
@@ -400,7 +425,7 @@
                 name: name,
                 room: room,
                 rent: Number(rent),
-                joiningDate: new Date(joiningDate),  // store as Date object
+                joiningDate: new Date(joiningDate),
                 uid: userUid,
                 status: "pending"
             });
