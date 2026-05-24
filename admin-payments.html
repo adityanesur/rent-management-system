@@ -272,20 +272,39 @@
                 width: 40%;
                 flex-shrink: 0;
             }
-            /* Special handling for the Actions column */
-            td:last-child {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            td:last-child::before {
-                margin-bottom: 0.5rem;
-            }
-            .action-btn {
-                width: 100%;
-                justify-content: center;
-                margin: 0.3rem 0;
-                padding: 0.5rem;
-            }
+            /* Special handling for Actions column */
+td.action-buttons-cell {
+    display: block !important;
+    width: 100%;
+    padding-top: 1rem;
+}
+
+td.action-buttons-cell::before {
+    content: "Actions";
+    display: block;
+    font-weight: 600;
+    color: #7bc9ff;
+    margin-bottom: 0.7rem;
+}
+
+.action-btn {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    margin: 0.4rem 0;
+    padding: 0.65rem;
+    font-size: 0.8rem;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.action-buttons-cell span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+    word-break: break-word;
+}
             .status-badge {
                 white-space: normal;
                 text-align: center;
