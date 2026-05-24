@@ -297,11 +297,10 @@
 
                 // If tenant document doesn't exist, try to find rent records for this user
                 if (!tenantSnap.exists()) {
-                    console.log("No tenant document, looking for rent records...");
+                    console.log("No tenant document by UID, looking for rent records...");
                     const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
                     const rentSnap = await getDocs(rentQuery);
                     if (!rentSnap.empty) {
-                        // Use the first rent record to create a tenant document
                         const firstRent = rentSnap.docs[0].data();
                         tenantData = {
                             name: firstRent.tenantName,
@@ -309,7 +308,6 @@
                             rent: firstRent.amount,
                             status: firstRent.status
                         };
-                        // Create the missing tenant document
                         await setDoc(tenantRef, {
                             name: tenantData.name,
                             room: tenantData.room,
@@ -317,8 +315,35 @@
                             status: tenantData.status,
                             createdAt: new Date()
                         });
-                        console.log("Created missing tenant document");
+                        console.log("Created tenant document from rent record");
                         tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
+                    } else {
+                        // Fallback: search tenants collection by name (using email as hint)
+                        console.log("No rent records found, searching tenants by name");
+                        const allTenants = await getDocs(collection(db, "tenants"));
+                        let match = null;
+                        // If the user's email contains the tenant name (e.g., aditya@gmail.com matches ADITYA)
+                        const userEmail = user.email ? user.email.toLowerCase() : "";
+                        allTenants.forEach(docSnap => {
+                            const d = docSnap.data();
+                            const tenantNameMatch = d.name && userEmail.includes(d.name.toLowerCase());
+                            if (tenantNameMatch || (d.name && d.room)) {
+                                if (!match) match = { ref: docSnap.ref, data: d };
+                            }
+                        });
+                        if (match) {
+                            tenantData = match.data;
+                            // Create a tenant document with the correct UID
+                            await setDoc(tenantRef, {
+                                name: tenantData.name,
+                                room: tenantData.room,
+                                rent: tenantData.rent,
+                                status: tenantData.status || "pending",
+                                createdAt: new Date()
+                            });
+                            console.log("Created tenant document from matched tenant");
+                            tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
+                        }
                     }
                 } else {
                     tenantData = tenantSnap.data();
@@ -410,7 +435,7 @@
             historyTable.innerHTML = "";
             const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
             if (rentDocs.length === 0) {
-                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
+                historyTable.innerHTML = '<td><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
             for (const docSnap of rentDocs) {
@@ -503,7 +528,6 @@
                             room: firstRent.room,
                             rent: firstRent.amount
                         };
-                        // Optionally create tenant document now (but we already did in loadTenantData)
                     } else {
                         alert("Tenant record not found. Please contact admin.");
                         return;
