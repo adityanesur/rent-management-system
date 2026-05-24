@@ -240,7 +240,8 @@
             getDocs, 
             orderBy, 
             updateDoc,
-            addDoc
+            addDoc,
+            setDoc
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -260,56 +261,31 @@
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
 
-        // ✅ FIXED: Removed orderBy from Firestore queries to avoid index error – sorting is now done in JavaScript
+        // Helper: get all rent records (as before)
         async function getAllTenantRents(tenantName, tenantRoom, userId) {
-            // Strategy 1: by tenantId (user's UID) – no orderBy
-            const q1 = query(
-                collection(db, "rents"),
-                where("tenantId", "==", userId)
-            );
-            // Strategy 2: by tenantName + room – no orderBy
-            const q2 = query(
-                collection(db, "rents"),
-                where("tenantName", "==", tenantName),
-                where("room", "==", tenantRoom)
-            );
-            
+            const q1 = query(collection(db, "rents"), where("tenantId", "==", userId));
+            const q2 = query(collection(db, "rents"), where("tenantName", "==", tenantName), where("room", "==", tenantRoom));
             const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
             const map = new Map();
             snap1.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             snap2.forEach(docSnap => { if (!map.has(docSnap.id)) map.set(docSnap.id, docSnap); });
-
-            // Strategy 3: fallback – query by tenantName only
             if (map.size === 0 && tenantName) {
-                console.warn("No records found by tenantId or name+room. Trying query by tenantName only.");
-                const q3 = query(
-                    collection(db, "rents"),
-                    where("tenantName", "==", tenantName)
-                );
+                const q3 = query(collection(db, "rents"), where("tenantName", "==", tenantName));
                 const snap3 = await getDocs(q3);
                 snap3.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             }
-
-            // Strategy 4: fallback – query by room only
             if (map.size === 0 && tenantRoom) {
-                console.warn("Still no records. Trying query by room only.");
-                const q4 = query(
-                    collection(db, "rents"),
-                    where("room", "==", tenantRoom)
-                );
+                const q4 = query(collection(db, "rents"), where("room", "==", tenantRoom));
                 const snap4 = await getDocs(q4);
                 snap4.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             }
-
-            // Sort in memory by date (descending)
             const results = Array.from(map.values());
             results.sort((a, b) => {
                 const dateA = a.data().date?.toDate?.() || new Date(0);
                 const dateB = b.data().date?.toDate?.() || new Date(0);
                 return dateB - dateA;
             });
-
-            console.log(`Found ${results.length} payment records for tenant ${tenantName} (room ${tenantRoom})`);
+            console.log(`Found ${results.length} payment records`);
             return results;
         }
 
@@ -317,25 +293,41 @@
             try {
                 const tenantRef = doc(db, "tenants", user.uid);
                 let tenantSnap = await getDoc(tenantRef);
-                
+                let tenantData = null;
+
+                // If tenant document doesn't exist, try to find rent records for this user
                 if (!tenantSnap.exists()) {
-                    const allTenants = await getDocs(collection(db, "tenants"));
-                    let found = null;
-                    allTenants.forEach(docSnap => {
-                        const d = docSnap.data();
-                        if (d.email === user.email || (d.name && d.room)) {
-                            if (!found) found = { ref: docSnap.ref, data: d };
-                        }
-                    });
-                    if (found) {
-                        tenantSnap = { exists: () => true, data: () => found.data, ref: found.ref };
+                    console.log("No tenant document, looking for rent records...");
+                    const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
+                    const rentSnap = await getDocs(rentQuery);
+                    if (!rentSnap.empty) {
+                        // Use the first rent record to create a tenant document
+                        const firstRent = rentSnap.docs[0].data();
+                        tenantData = {
+                            name: firstRent.tenantName,
+                            room: firstRent.room,
+                            rent: firstRent.amount,
+                            status: firstRent.status
+                        };
+                        // Create the missing tenant document
+                        await setDoc(tenantRef, {
+                            name: tenantData.name,
+                            room: tenantData.room,
+                            rent: tenantData.rent,
+                            status: tenantData.status,
+                            createdAt: new Date()
+                        });
+                        console.log("Created missing tenant document");
+                        tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
                     }
+                } else {
+                    tenantData = tenantSnap.data();
                 }
 
                 document.getElementById("loadingMessage").style.display = "none";
                 document.getElementById("content").style.display = "block";
 
-                if (!tenantSnap.exists()) {
+                if (!tenantData) {
                     document.getElementById("tenantName").innerText = "Account not linked to any tenant";
                     document.getElementById("roomNumber").innerText = "Contact admin";
                     document.getElementById("rentAmount").innerText = "₹0";
@@ -344,16 +336,15 @@
                     return;
                 }
 
-                const data = tenantSnap.data();
-                const tenantName = data.name || "Not set";
-                const tenantRoom = data.room || "Not assigned";
-                const monthlyRent = data.rent || 0;
+                const tenantName = tenantData.name || "Not set";
+                const tenantRoom = tenantData.room || "Not assigned";
+                const monthlyRent = tenantData.rent || 0;
                 
                 document.getElementById("tenantName").innerText = tenantName;
                 document.getElementById("roomNumber").innerText = tenantRoom;
                 document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
 
-                // Get current month's rent status
+                // Get current month's rent status (by userId)
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
@@ -364,6 +355,7 @@
                 if (!rentSnap.empty) {
                     currentStatus = rentSnap.docs[0].data().status;
                 } else {
+                    // Fallback: search by name+room
                     const fallbackQuery = query(
                         collection(db, "rents"),
                         where("tenantName", "==", tenantName),
@@ -374,6 +366,7 @@
                     if (!fallbackSnap.empty) {
                         currentStatus = fallbackSnap.docs[0].data().status;
                     } else {
+                        // Create a new pending record
                         await addDoc(collection(db, "rents"), {
                             tenantId: user.uid,
                             tenantName: tenantName,
@@ -387,7 +380,8 @@
                     }
                 }
 
-                await updateDoc(tenantSnap.ref, { status: currentStatus });
+                // Update tenant document status
+                await updateDoc(tenantRef, { status: currentStatus });
 
                 const payRentBtn = document.getElementById("payRentBtn");
                 const statusDisplay = document.getElementById("paymentStatusDisplay");
@@ -414,53 +408,29 @@
         async function loadPaymentHistory(userId, tenantName, tenantRoom) {
             const historyTable = document.getElementById("paymentHistory");
             historyTable.innerHTML = "";
-
             const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
-
             if (rentDocs.length === 0) {
                 historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
-
             for (const docSnap of rentDocs) {
                 const data = docSnap.data();
                 const statusClass = data.status === 'paid' ? 'paid' : 'pending';
                 const statusText = data.status === 'paid' ? 'Paid' : 'Pending';
-                
                 let paymentDate = 'N/A';
                 if (data.date) {
-                    if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                    });
-                    else if (data.date.seconds) paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                    });
+                    if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    else if (data.date.seconds) paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
                 }
-                
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>
-                        ${data.month || 'N/A'}
-                        ${data.status === 'paid' ? `<span class="month-badge">${paymentDate}</span>` : ''}
-                    </td>
+                    <td>${data.month || 'N/A'} ${data.status === 'paid' ? `<span class="month-badge">${paymentDate}</span>` : ''}</td>
                     <td>₹${data.amount || '0'}</td>
                     <td><span class="status-badge ${statusClass}" style="padding: 0.3rem 1rem;">${statusText}</span></td>
-                    <td>
-                        ${data.status === "paid" 
-                            ? `<button class="receipt-download-btn" 
-                                data-name="${document.getElementById("tenantName").innerText}"
-                                data-room="${document.getElementById("roomNumber").innerText}"
-                                data-amount="${data.amount}"
-                                data-month="${data.month}"
-                                data-date="${paymentDate}">
-                                <i class="fas fa-download"></i> Download Receipt
-                              </button>` 
-                            : `<span style="color:#4a5568;">—</span>`}
-                    </td>
+                    <td>${data.status === "paid" ? `<button class="receipt-download-btn" data-name="${document.getElementById("tenantName").innerText}" data-room="${document.getElementById("roomNumber").innerText}" data-amount="${data.amount}" data-month="${data.month}" data-date="${paymentDate}"><i class="fas fa-download"></i> Download Receipt</button>` : `<span style="color:#4a5568;">—</span>`}</td>
                 `;
                 historyTable.appendChild(row);
             }
-
             document.querySelectorAll('.receipt-download-btn').forEach(btn => {
                 btn.removeEventListener('click', downloadReceipt);
                 btn.addEventListener('click', downloadReceipt);
@@ -474,22 +444,16 @@
             const amount = btn.dataset.amount;
             const month = btn.dataset.month;
             const paymentDate = btn.dataset.date;
-
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
-
             pdf.setFillColor(10, 20, 40);
             pdf.rect(0, 0, 210, 297, 'F');
-
             pdf.setTextColor(0, 183, 255);
             pdf.setFontSize(28);
             pdf.setFont("helvetica", "bold");
             pdf.text("RENT RECEIPT", 105, 35, { align: "center" });
-
             pdf.setTextColor(255, 255, 255);
             pdf.setFontSize(12);
-            pdf.setFont("helvetica", "normal");
-            
             pdf.text(`Tenant Name: ${tenantName}`, 20, 70);
             pdf.text(`Room Number: ${room}`, 20, 85);
             pdf.text(`Month: ${month}`, 20, 100);
@@ -497,12 +461,10 @@
             pdf.text(`Payment Date: ${paymentDate}`, 20, 130);
             pdf.text(`Status: Paid`, 20, 145);
             pdf.text(`Transaction ID: ${Math.random().toString(36).substring(2, 15).toUpperCase()}`, 20, 160);
-
             pdf.setTextColor(123, 201, 255);
             pdf.setFontSize(10);
             pdf.text("Thank you for your payment!", 105, 220, { align: "center" });
             pdf.text("RentFlow - Smart Rent Management", 105, 235, { align: "center" });
-
             pdf.save(`rent_receipt_${month.replace(/\s/g, '_')}.pdf`);
         }
 
@@ -526,12 +488,27 @@
                 const user = auth.currentUser;
                 if (!user) { alert("Please login again."); return; }
 
-                const tenantSnap = await getDoc(doc(db, "tenants", user.uid));
-                if (!tenantSnap.exists()) {
-                    alert("Tenant record not found. Please contact admin.");
-                    return;
+                // Try to get tenant data (may be missing)
+                let tenantSnap = await getDoc(doc(db, "tenants", user.uid));
+                let tenantData = tenantSnap.exists() ? tenantSnap.data() : null;
+
+                // If tenant data missing, try to get from rents collection
+                if (!tenantData) {
+                    const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
+                    const rentSnap = await getDocs(rentQuery);
+                    if (!rentSnap.empty) {
+                        const firstRent = rentSnap.docs[0].data();
+                        tenantData = {
+                            name: firstRent.tenantName,
+                            room: firstRent.room,
+                            rent: firstRent.amount
+                        };
+                        // Optionally create tenant document now (but we already did in loadTenantData)
+                    } else {
+                        alert("Tenant record not found. Please contact admin.");
+                        return;
+                    }
                 }
-                const tenantData = tenantSnap.data();
 
                 const rentQuery = query(
                     collection(db, "rents"),
