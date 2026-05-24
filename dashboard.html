@@ -295,7 +295,6 @@
                 let tenantSnap = await getDoc(tenantRef);
                 let tenantData = null;
 
-                // If tenant document doesn't exist, try to find rent records for this user
                 if (!tenantSnap.exists()) {
                     console.log("No tenant document by UID, looking for rent records...");
                     const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
@@ -318,11 +317,8 @@
                         console.log("Created tenant document from rent record");
                         tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
                     } else {
-                        // Fallback: search tenants collection by name (using email as hint)
-                        console.log("No rent records found, searching tenants by name");
                         const allTenants = await getDocs(collection(db, "tenants"));
                         let match = null;
-                        // If the user's email contains the tenant name (e.g., aditya@gmail.com matches ADITYA)
                         const userEmail = user.email ? user.email.toLowerCase() : "";
                         allTenants.forEach(docSnap => {
                             const d = docSnap.data();
@@ -333,7 +329,6 @@
                         });
                         if (match) {
                             tenantData = match.data;
-                            // Create a tenant document with the correct UID
                             await setDoc(tenantRef, {
                                 name: tenantData.name,
                                 room: tenantData.room,
@@ -369,7 +364,7 @@
                 document.getElementById("roomNumber").innerText = tenantRoom;
                 document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
 
-                // Get current month's rent status (by userId)
+                // Get current month's rent status
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
@@ -380,7 +375,6 @@
                 if (!rentSnap.empty) {
                     currentStatus = rentSnap.docs[0].data().status;
                 } else {
-                    // Fallback: search by name+room
                     const fallbackQuery = query(
                         collection(db, "rents"),
                         where("tenantName", "==", tenantName),
@@ -391,7 +385,6 @@
                     if (!fallbackSnap.empty) {
                         currentStatus = fallbackSnap.docs[0].data().status;
                     } else {
-                        // Create a new pending record
                         await addDoc(collection(db, "rents"), {
                             tenantId: user.uid,
                             tenantName: tenantName,
@@ -405,7 +398,6 @@
                     }
                 }
 
-                // Update tenant document status
                 await updateDoc(tenantRef, { status: currentStatus });
 
                 const payRentBtn = document.getElementById("payRentBtn");
@@ -420,7 +412,6 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
-                // Load payment history
                 await loadPaymentHistory(user.uid, tenantName, tenantRoom);
 
             } catch (err) {
@@ -435,7 +426,7 @@
             historyTable.innerHTML = "";
             const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
             if (rentDocs.length === 0) {
-                historyTable.innerHTML = '<td><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
+                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
             for (const docSnap of rentDocs) {
@@ -506,6 +497,7 @@
             if (auth.currentUser) loadTenantData(auth.currentUser);
         });
 
+        // ✅ FIXED: Pay Rent – now updates existing pending record instead of creating duplicate
         document.getElementById("payRentBtn").addEventListener("click", async () => {
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
@@ -513,42 +505,44 @@
                 const user = auth.currentUser;
                 if (!user) { alert("Please login again."); return; }
 
-                // Try to get tenant data (may be missing)
+                // Get tenant data
                 let tenantSnap = await getDoc(doc(db, "tenants", user.uid));
                 let tenantData = tenantSnap.exists() ? tenantSnap.data() : null;
-
-                // If tenant data missing, try to get from rents collection
                 if (!tenantData) {
                     const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
                     const rentSnap = await getDocs(rentQuery);
                     if (!rentSnap.empty) {
                         const firstRent = rentSnap.docs[0].data();
-                        tenantData = {
-                            name: firstRent.tenantName,
-                            room: firstRent.room,
-                            rent: firstRent.amount
-                        };
+                        tenantData = { name: firstRent.tenantName, room: firstRent.room, rent: firstRent.amount };
                     } else {
                         alert("Tenant record not found. Please contact admin.");
                         return;
                     }
                 }
 
+                // Check for existing rent record for this month
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
                     where("month", "==", currentMonth)
                 );
                 const existingRent = await getDocs(rentQuery);
-                if (!existingRent.empty && existingRent.docs[0].data().status === "paid") {
-                    alert("You have already paid rent for this month!");
-                    return;
-                }
 
-                const upiID = "adityanesur@ybl";
-                const upiLink = `upi://pay?pa=${upiID}&pn=RentFlow&am=${amount}&cu=INR`;
-
-                if (existingRent.empty) {
+                if (!existingRent.empty) {
+                    const existingDoc = existingRent.docs[0];
+                    const existingStatus = existingDoc.data().status;
+                    if (existingStatus === "paid") {
+                        alert("You have already paid rent for this month!");
+                        return;
+                    }
+                    // ✅ Update the existing pending record (overrides previous request)
+                    await updateDoc(doc(db, "rents", existingDoc.id), {
+                        status: "pending",
+                        date: new Date()
+                    });
+                    console.log("Updated existing pending rent record");
+                } else {
+                    // No record exists – create a new one
                     await addDoc(collection(db, "rents"), {
                         tenantId: user.uid,
                         tenantName: tenantData.name,
@@ -558,14 +552,11 @@
                         status: "pending",
                         date: new Date()
                     });
-                } else {
-                    const rentDoc = existingRent.docs[0];
-                    await updateDoc(doc(db, "rents", rentDoc.id), {
-                        status: "pending",
-                        date: new Date()
-                    });
+                    console.log("Created new rent record");
                 }
 
+                const upiID = "adityanesur@ybl";
+                const upiLink = `upi://pay?pa=${upiID}&pn=RentFlow&am=${amount}&cu=INR`;
                 const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
                 const qrWindow = window.open("", "_blank");
                 qrWindow.document.write(`
