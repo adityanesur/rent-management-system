@@ -376,6 +376,9 @@
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
 
+        // Store current month's rent record globally so it can be used in payment history
+        let currentRentRecord = null;
+
         // Helper: get all rent records
         async function getAllTenantRents(tenantName, tenantRoom, userId) {
             const q1 = query(collection(db, "rents"), where("tenantId", "==", userId));
@@ -458,7 +461,7 @@
                         rentRecord = { id: fallbackSnap.docs[0].id, data: fallbackSnap.docs[0].data() };
                     } else {
                         // Create new pending record
-                        await addDoc(collection(db, "rents"), {
+                        const newDocRef = await addDoc(collection(db, "rents"), {
                             tenantId: user.uid,
                             tenantName: tenantName,
                             room: tenantRoom,
@@ -468,9 +471,12 @@
                             date: new Date(),
                             receiptGenerated: false
                         });
-                        rentRecord = { data: { status: "pending", receiptGenerated: false } };
+                        rentRecord = { id: newDocRef.id, data: { status: "pending", receiptGenerated: false, amount: monthlyRent, month: currentMonth } };
                     }
                 }
+
+                // Store globally for payment history
+                currentRentRecord = rentRecord;
 
                 const isPaid = (rentRecord.data.status === 'paid' && rentRecord.data.receiptGenerated === true);
                 const payRentBtn = document.getElementById("payRentBtn");
@@ -486,8 +492,8 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
-                // Load payment history
-                await loadPaymentHistory(user.uid, tenantName, tenantRoom);
+                // Load payment history (including current month if pending)
+                await loadPaymentHistory(user.uid, tenantName, tenantRoom, rentRecord);
 
             } catch (err) {
                 console.error(err);
@@ -496,14 +502,26 @@
             }
         }
 
-        async function loadPaymentHistory(userId, tenantName, tenantRoom) {
+        async function loadPaymentHistory(userId, tenantName, tenantRoom, currentRecord) {
             const historyTable = document.getElementById("paymentHistory");
             historyTable.innerHTML = "";
-            const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
+            let rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
+
+            // Ensure current month's record is included (if it's pending and not already in the list)
+            if (currentRecord && !rentDocs.some(doc => doc.id === currentRecord.id)) {
+                // Create a fake docSnap object
+                const fakeSnap = {
+                    id: currentRecord.id,
+                    data: () => currentRecord.data
+                };
+                rentDocs.unshift(fakeSnap);
+            }
+
             if (rentDocs.length === 0) {
                 historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p><\/td><\/tr>';
                 return;
             }
+
             for (const docSnap of rentDocs) {
                 const data = docSnap.data();
                 const isFullyPaid = (data.status === 'paid' && data.receiptGenerated === true);
