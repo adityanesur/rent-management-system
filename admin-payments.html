@@ -95,7 +95,6 @@
         .access-denied i { font-size: 4rem; color: #ff4b4b; margin-bottom: 1rem; }
         .access-denied h2 { font-family: 'Poppins', sans-serif; font-size: 2rem; margin-bottom: 1rem; color: #ff6b6b; }
         
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -113,7 +112,6 @@
         .stat-label { color: #b0d0ff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: 1.5rem; font-weight: 600; font-family: 'Poppins', sans-serif; }
         
-        /* Filters */
         .filters-section {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
@@ -135,7 +133,6 @@
         }
         .filter-select:focus { outline: none; border-color: #00b7ff; }
         
-        /* Table Card */
         .table-card {
             background: rgba(18, 25, 45, 0.7);
             backdrop-filter: blur(20px);
@@ -153,7 +150,6 @@
         }
         .table-header h2 { font-family: 'Poppins', sans-serif; font-size: 1.3rem; }
         
-        /* Desktop table styling – scrollable if needed */
         .table-container {
             overflow-x: auto;
             border-radius: 15px;
@@ -168,10 +164,6 @@
             border-collapse: collapse;
             min-width: 800px;
         }
-        td {
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
         th {
             text-align: left;
             padding: 0.8rem;
@@ -188,7 +180,14 @@
             overflow-wrap: break-word;
         }
         tr:hover td { background: rgba(0, 183, 255, 0.05); }
-        .status-badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
         .status-paid { background: rgba(92, 255, 157, 0.2); color: #5cff9d; border: 1px solid rgba(92, 255, 157, 0.3); }
         .status-pending { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
         .action-btn {
@@ -220,142 +219,77 @@
         .message.error { background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; color: #ff6b6b; }
         .message.info { background: rgba(123, 201, 255, 0.1); border: 1px solid #7bc9ff; color: #7bc9ff; }
         
-        /* Mobile breakpoints */
+        /* Mobile styles – card layout with no overflow */
         @media (max-width: 768px) {
-
-    body {
-        padding: 1rem;
-        overflow-x: hidden;
-    }
-
-    .payments-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-
-    .payments-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header-right {
-        width: 100%;
-        flex-direction: column;
-    }
-
-    .admin-btn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filters-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .table-card {
-        padding: 1rem;
-        border-radius: 22px;
-        overflow: hidden;
-    }
-
-    .table-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .table-header h2 {
-        font-size: 1.3rem;
-    }
-
-    /* REMOVE HORIZONTAL SCROLL */
-    .table-container {
-        overflow-x: visible;
-        width: 100%;
-    }
-
-    table,
-    thead,
-    tbody,
-    th,
-    td,
-    tr {
-        display: block;
-        width: 100%;
-    }
-
-    thead {
-        display: none;
-    }
-
-    tbody {
-        width: 100%;
-    }
-
-    tr {
-        background: rgba(10, 20, 40, 0.65);
-        border: 1px solid rgba(0, 183, 255, 0.2);
-        border-radius: 20px;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        width: 100%;
-    }
-
-    td {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-        font-size: 0.85rem;
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-
-    td:last-child {
-        border-bottom: none;
-    }
-
-    td::before {
-        width: 42%;
-        flex-shrink: 0;
-        font-weight: 600;
-        color: #7bc9ff;
-    }
-
-    td:nth-child(1)::before { content: "Tenant"; }
-    td:nth-child(2)::before { content: "Room"; }
-    td:nth-child(3)::before { content: "Month"; }
-    td:nth-child(4)::before { content: "Amount"; }
-    td:nth-child(5)::before { content: "Date"; }
-    td:nth-child(6)::before { content: "Status"; }
-    td:nth-child(7)::before { content: "Actions"; }
-
-    .action-buttons-cell {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-    }
-
-    .action-btn {
-        width: 100%;
-        justify-content: center;
-        margin: 0;
-        padding: 0.65rem;
-        font-size: 0.78rem;
-    }
-
-    .status-badge {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.7rem;
-    }
-}
+            body { padding: 1rem; }
+            .payments-header { flex-direction: column; align-items: flex-start; }
+            .header-right { width: 100%; flex-direction: column; }
+            .admin-btn { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filters-grid { grid-template-columns: 1fr; }
+            .table-card { padding: 1rem; }
+            .table-header { flex-direction: column; align-items: stretch; gap: 1rem; }
+            .table-header h2 { text-align: center; }
+            
+            /* Card layout */
+            .table-container {
+                overflow-x: visible;
+                background: transparent;
+                border: none;
+                padding: 0;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead { display: none; }
+            tr {
+                background: rgba(10, 20, 40, 0.65);
+                border: 1px solid rgba(0, 183, 255, 0.2);
+                border-radius: 20px;
+                margin-bottom: 1rem;
+                padding: 1rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 0.8rem 0;
+                border-bottom: 1px solid rgba(0, 183, 255, 0.1);
+                font-size: 0.85rem;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+            td:last-child {
+                border-bottom: none;
+            }
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #7bc9ff;
+                width: 40%;
+                flex-shrink: 0;
+            }
+            /* Special handling for the Actions column */
+            td:last-child {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            td:last-child::before {
+                margin-bottom: 0.5rem;
+            }
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+                margin: 0.3rem 0;
+                padding: 0.5rem;
+            }
+            .status-badge {
+                white-space: normal;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -491,7 +425,6 @@
                     let statusClass = payment.status === 'paid' ? 'status-paid' : 'status-pending';
                     const isPaid = payment.status === 'paid';
                     const receiptGenerated = payment.receiptGenerated === true;
-                    // data-label attributes for mobile card layout
                     row.innerHTML = `
                         <td data-label="Tenant">${payment.tenantName || 'N/A'}</td>
                         <td data-label="Room">${payment.room || 'N/A'}</td>
@@ -508,12 +441,11 @@
                     `;
                     tbody.appendChild(row);
                 });
-                // Attach event listeners dynamically
                 document.querySelectorAll('.action-btn').forEach(btn => {
                     btn.removeEventListener('click', handleAction);
                     btn.addEventListener('click', handleAction);
                 });
-            } catch (error) { console.error(error); tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #ff6b6b;">Error: ${error.message}</td></tr>`; }
+            } catch (error) { console.error(error); tbody.innerHTML = `<td><td colspan="7" style="text-align: center; color: #ff6b6b;">Error: ${error.message}</td></tr>`; }
         }
 
         async function handleAction(e) {
