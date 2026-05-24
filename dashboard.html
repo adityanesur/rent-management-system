@@ -196,45 +196,89 @@
         
         /* Mobile card layout – no horizontal scroll, all fields visible */
         @media (max-width: 640px) {
-            .table-container {
-                overflow-x: visible;
-                background: transparent;
-                border: none;
-                padding: 0;
-            }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; }
-            tr {
-                background: rgba(10, 20, 40, 0.5);
-                border: 1px solid rgba(0, 183, 255, 0.2);
-                border-radius: 20px;
-                margin-bottom: 1rem;
-                padding: 1rem;
-                width: 100%;
-                box-sizing: border-box;
-            }
-            td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.6rem 0;
-                border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-                font-size: 0.9rem;
-                word-break: break-word;
-                overflow-wrap: break-word;
-                width: 100%;
-            }
-            td:last-child { border-bottom: none; }
-            td:before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #7bc9ff;
-                width: 40%;
-                flex-shrink: 0;
-            }
-            .receipt-download-btn { white-space: normal; text-align: center; width: auto; }
-            .month-badge { white-space: normal; display: inline-block; }
-        }
+
+    .table-container {
+        overflow-x: hidden;
+        background: transparent;
+        border: none;
+        padding: 0;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        min-width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    tr {
+        display: block;
+        width: 100%;
+        background: rgba(10, 20, 40, 0.6);
+        border: 1px solid rgba(0, 183, 255, 0.2);
+        border-radius: 20px;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid rgba(0, 183, 255, 0.1);
+        font-size: 0.9rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    td::before {
+        content: attr(data-label);
+        color: #7bc9ff;
+        font-weight: 600;
+        min-width: 90px;
+        max-width: 90px;
+        flex-shrink: 0;
+    }
+
+    td span,
+    td button {
+        text-align: right;
+    }
+
+    .status-badge {
+        justify-content: center;
+    }
+
+    .receipt-download-btn {
+        white-space: normal;
+        width: auto;
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .month-badge {
+        display: inline-block;
+        margin-top: 0.3rem;
+    }
+}
     </style>
 </head>
 <body>
