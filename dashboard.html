@@ -219,7 +219,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </tr>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -295,12 +295,10 @@
                 let tenantSnap = await getDoc(tenantRef);
                 let tenantData = null;
 
-                // Only use the exact UID match – NO more email-based fallback
-                if (tenantSnap.exists()) {
-                    tenantData = tenantSnap.data();
-                } else {
+                if (!tenantSnap.exists()) {
                     console.log("No tenant document found for UID:", user.uid);
-                    // No automatic linking – the admin must add the tenant manually using the UID
+                } else {
+                    tenantData = tenantSnap.data();
                 }
 
                 document.getElementById("loadingMessage").style.display = "none";
@@ -323,16 +321,16 @@
                 document.getElementById("roomNumber").innerText = tenantRoom;
                 document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
 
-                // Get current month's rent status
-                const rentQuery = query(
+                // Get current month's rent record
+                let rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
                     where("month", "==", currentMonth)
                 );
                 let rentSnap = await getDocs(rentQuery);
-                let currentStatus = "pending";
+                let rentRecord = null;
                 if (!rentSnap.empty) {
-                    currentStatus = rentSnap.docs[0].data().status;
+                    rentRecord = { id: rentSnap.docs[0].id, data: rentSnap.docs[0].data() };
                 } else {
                     const fallbackQuery = query(
                         collection(db, "rents"),
@@ -342,8 +340,9 @@
                     );
                     const fallbackSnap = await getDocs(fallbackQuery);
                     if (!fallbackSnap.empty) {
-                        currentStatus = fallbackSnap.docs[0].data().status;
+                        rentRecord = { id: fallbackSnap.docs[0].id, data: fallbackSnap.docs[0].data() };
                     } else {
+                        // Create new pending record
                         await addDoc(collection(db, "rents"), {
                             tenantId: user.uid,
                             tenantName: tenantName,
@@ -351,17 +350,18 @@
                             amount: monthlyRent,
                             month: currentMonth,
                             status: "pending",
-                            date: new Date()
+                            date: new Date(),
+                            receiptGenerated: false
                         });
-                        currentStatus = "pending";
+                        rentRecord = { data: { status: "pending", receiptGenerated: false } };
                     }
                 }
 
-                await updateDoc(tenantRef, { status: currentStatus });
-
+                const isPaid = (rentRecord.data.status === 'paid' && rentRecord.data.receiptGenerated === true);
                 const payRentBtn = document.getElementById("payRentBtn");
                 const statusDisplay = document.getElementById("paymentStatusDisplay");
-                if (currentStatus === "paid") {
+                
+                if (isPaid) {
                     payRentBtn.disabled = true;
                     payRentBtn.innerHTML = `<i class="fas fa-check-circle"></i> Paid for ${currentMonth}`;
                     statusDisplay.innerHTML = '<span class="status-badge paid"><i class="fas fa-check-circle"></i> PAID</span>';
@@ -371,6 +371,7 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
+                // Load payment history (respecting receiptGenerated)
                 await loadPaymentHistory(user.uid, tenantName, tenantRoom);
 
             } catch (err) {
@@ -390,8 +391,9 @@
             }
             for (const docSnap of rentDocs) {
                 const data = docSnap.data();
-                const statusClass = data.status === 'paid' ? 'paid' : 'pending';
-                const statusText = data.status === 'paid' ? 'Paid' : 'Pending';
+                const isFullyPaid = (data.status === 'paid' && data.receiptGenerated === true);
+                const statusClass = isFullyPaid ? 'paid' : 'pending';
+                const statusText = isFullyPaid ? 'Paid' : 'Pending';
                 let paymentDate = 'N/A';
                 if (data.date) {
                     if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -399,10 +401,10 @@
                 }
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${data.month || 'N/A'} ${data.status === 'paid' ? `<span class="month-badge">${paymentDate}</span>` : ''}</td>
+                    <td>${data.month || 'N/A'} ${isFullyPaid ? `<span class="month-badge">${paymentDate}</span>` : ''}</td>
                     <td>₹${data.amount || '0'}</td>
                     <td><span class="status-badge ${statusClass}" style="padding: 0.3rem 1rem;">${statusText}</span></td>
-                    <td>${data.status === "paid" ? `<button class="receipt-download-btn" data-name="${document.getElementById("tenantName").innerText}" data-room="${document.getElementById("roomNumber").innerText}" data-amount="${data.amount}" data-month="${data.month}" data-date="${paymentDate}"><i class="fas fa-download"></i> Download Receipt</button>` : `<span style="color:#4a5568;">—</span>`}</td>
+                    <td>${isFullyPaid ? `<button class="receipt-download-btn" data-name="${document.getElementById("tenantName").innerText}" data-room="${document.getElementById("roomNumber").innerText}" data-amount="${data.amount}" data-month="${data.month}" data-date="${paymentDate}"><i class="fas fa-download"></i> Download Receipt</button>` : `<span style="color:#4a5568;">—</span>`}</td>
                 `;
                 historyTable.appendChild(row);
             }
@@ -456,7 +458,6 @@
             if (auth.currentUser) loadTenantData(auth.currentUser);
         });
 
-        // Pay Rent – updates existing pending record (no duplicate)
         document.getElementById("payRentBtn").addEventListener("click", async () => {
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
@@ -480,13 +481,14 @@
 
                 if (!existingRent.empty) {
                     const existingDoc = existingRent.docs[0];
-                    if (existingDoc.data().status === "paid") {
+                    if (existingDoc.data().status === "paid" && existingDoc.data().receiptGenerated === true) {
                         alert("You have already paid rent for this month!");
                         return;
                     }
                     await updateDoc(doc(db, "rents", existingDoc.id), {
                         status: "pending",
-                        date: new Date()
+                        date: new Date(),
+                        receiptGenerated: false
                     });
                 } else {
                     await addDoc(collection(db, "rents"), {
@@ -496,7 +498,8 @@
                         amount: Number(amount),
                         month: currentMonth,
                         status: "pending",
-                        date: new Date()
+                        date: new Date(),
+                        receiptGenerated: false
                     });
                 }
 
