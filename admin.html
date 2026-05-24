@@ -272,7 +272,7 @@
                     <button class="generate-btn" id="generateRentBtn"><i class="fas fa-file-invoice"></i> Generate Monthly Rent</button>
                 </div>
                 <div class="table-container">
-                    <tr>
+                    <table>
                         <thead><tr><th>Name</th><th>Room</th><th>Joined</th><th>Rent (₹)</th><th>Current Status</th><th>Actions</th></tr></thead>
                         <tbody id="tenantTable"></tbody>
                     </table>
@@ -297,15 +297,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = "login.html"; return; }
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (!userDoc.exists() || userDoc.data().role !== "admin") {
-                alert("Access denied. Admin only.");
-                window.location.href = "dashboard.html";
-            }
-        });
-
         // Helper: safely format a date from Firestore Timestamp or string
         function formatJoiningDate(dateValue) {
             if (!dateValue) return 'Not set';
@@ -321,10 +312,10 @@
             }
         }
 
-        // ✅ FIXED: loadTenants now uses multiple strategies to find current month's rent record
+        // ✅ loadTenants now uses multiple strategies to find current month's rent record
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
-            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
+            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></td>';
             const querySnapshot = await getDocs(collection(db, "tenants"));
             tenantTable.innerHTML = "";
             let totalTenants = 0, totalRent = 0, paidRent = 0;
@@ -348,7 +339,6 @@
 
                 // Strategy 2: if not found, try by tenantId (document ID)
                 if (rentSnap.empty) {
-                    console.warn(`No rent record found for ${data.name} (room ${data.room}) using name+room. Trying tenantId: ${docSnap.id}`);
                     rentQuery = query(
                         collection(db, "rents"),
                         where("tenantId", "==", docSnap.id),
@@ -359,7 +349,6 @@
 
                 // Strategy 3: if still not found, try by the stored UID (if exists)
                 if (rentSnap.empty && data.uid) {
-                    console.warn(`Trying fallback by stored UID: ${data.uid}`);
                     rentQuery = query(
                         collection(db, "rents"),
                         where("tenantId", "==", data.uid),
@@ -497,7 +486,22 @@
             msg.style.display = "block";
             setTimeout(() => msg.style.display = "none", 3000);
         }
-        loadTenants();
+
+        // ✅ FIX: Only call loadTenants after admin authentication is confirmed
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== "admin") {
+                alert("Access denied. Admin only.");
+                window.location.href = "dashboard.html";
+                return;
+            }
+            // User is admin – now load the tenants
+            await loadTenants();
+        });
     </script>
 </body>
 </html>
