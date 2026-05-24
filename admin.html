@@ -306,10 +306,21 @@
             }
         });
 
-        // Helper: get the correct tenantId (prefer stored uid)
-        function getTenantIdForRent(tenantDoc) {
-            const data = tenantDoc.data();
-            return data.uid ? data.uid : tenantDoc.id;
+        // Helper: safely format a date from Firestore Timestamp or string
+        function formatJoiningDate(dateValue) {
+            if (!dateValue) return 'Not set';
+            try {
+                // If it's a Firestore Timestamp
+                if (dateValue.toDate) {
+                    return dateValue.toDate().toLocaleDateString('en-IN');
+                }
+                // If it's a string (YYYY-MM-DD)
+                const d = new Date(dateValue);
+                if (isNaN(d.getTime())) return 'Invalid date';
+                return d.toLocaleDateString('en-IN');
+            } catch (e) {
+                return 'Invalid date';
+            }
         }
 
         async function loadTenants() {
@@ -320,11 +331,11 @@
             let totalTenants = 0, totalRent = 0, paidRent = 0;
             const now = new Date();
             const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+
             for (const docSnap of querySnapshot.docs) {
                 const data = docSnap.data();
                 totalTenants++;
-                totalRent += Number(data.rent) || 0;
-                // Find current month's rent record by name+room to get correct status (covers both ID and UID)
+                // Try to get the current month's rent record (to display correct rent amount and status)
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantName", "==", data.name),
@@ -333,18 +344,23 @@
                 );
                 const rentSnap = await getDocs(rentQuery);
                 let currentStatus = "pending";
+                let displayRent = data.rent || 0;
                 if (!rentSnap.empty) {
-                    currentStatus = rentSnap.docs[0].data().status;
+                    const rentData = rentSnap.docs[0].data();
+                    currentStatus = rentData.status;
+                    // Use the rent amount from the rent record (so Aditya shows ₹5000, not ₹50000)
+                    displayRent = rentData.amount || data.rent || 0;
                 }
-                if (currentStatus === "paid") paidRent += Number(data.rent) || 0;
+                if (currentStatus === "paid") paidRent += (displayRent);
+                totalRent += (data.rent || 0);   // keep total rent based on tenant's registered rent for consistency
                 let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
-                const joiningDate = data.joiningDate ? new Date(data.joiningDate).toLocaleDateString('en-IN') : 'N/A';
+                const joiningDate = formatJoiningDate(data.joiningDate);
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${data.name || "N/A"}</td>
                     <td>${data.room || "N/A"}</td>
                     <td>${joiningDate}</td>
-                    <td>₹${data.rent || "0"}</td>
+                    <td>₹${displayRent}</td>
                     <td><span class="status-badge ${statusClass}">${currentStatus}</span></td>
                     <td><button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
                     <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button></td>
@@ -384,8 +400,8 @@
                 name: name,
                 room: room,
                 rent: Number(rent),
-                joiningDate: new Date(joiningDate),
-                uid: userUid,          // store the UID for future reference
+                joiningDate: new Date(joiningDate),  // store as Date object
+                uid: userUid,
                 status: "pending"
             });
             showMessage("Tenant added successfully!", "success");
@@ -397,7 +413,7 @@
             loadTenants();
         });
 
-        // ✅ FIXED: Generate monthly rent – now avoids duplicate months by checking name+room
+        // Generate monthly rent – avoids duplicate months by checking name+room
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
             const tenants = await getDocs(collection(db, "tenants"));
             const now = new Date();
@@ -417,9 +433,6 @@
                         continue;
                     }
                 }
-
-                // ✅ Check for ANY existing rent record for this tenant in this month
-                // Use tenantName + room (more reliable than ID)
                 const existingQuery = query(
                     collection(db, "rents"),
                     where("tenantName", "==", data.name),
@@ -427,9 +440,7 @@
                     where("month", "==", currentMonth)
                 );
                 const existing = await getDocs(existingQuery);
-
                 if (existing.empty) {
-                    // ✅ Use the stored UID if available, otherwise fallback to document ID
                     const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
                     await addDoc(collection(db, "rents"), {
                         tenantId: tenantIdForRent,
