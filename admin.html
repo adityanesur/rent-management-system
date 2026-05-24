@@ -297,25 +297,71 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Helper: safely format a date from Firestore Timestamp or string
+        // Helper: normalise string (trim, lower case)
+        function normalise(str) {
+            return String(str).trim().toLowerCase();
+        }
+
+        // Helper: format joining date
         function formatJoiningDate(dateValue) {
             if (!dateValue) return 'Not set';
             try {
-                if (dateValue.toDate) {
-                    return dateValue.toDate().toLocaleDateString('en-IN');
-                }
+                if (dateValue.toDate) return dateValue.toDate().toLocaleDateString('en-IN');
                 const d = new Date(dateValue);
                 if (isNaN(d.getTime())) return 'Invalid date';
                 return d.toLocaleDateString('en-IN');
-            } catch (e) {
-                return 'Invalid date';
-            }
+            } catch (e) { return 'Invalid date'; }
         }
 
-        // ✅ loadTenants now uses multiple strategies to find current month's rent record
+        // ✅ Enhanced: find current month's rent record using normalised matching
+        async function findCurrentMonthRentRecord(tenantDocId, data, currentMonth) {
+            const tenantName = data.name;
+            const tenantRoom = data.room;
+            const normalisedName = normalise(tenantName);
+            const normalisedRoom = normalise(tenantRoom);
+
+            // Strategy 1: by tenantName + room (normalised)
+            let q = query(
+                collection(db, "rents"),
+                where("month", "==", currentMonth)
+            );
+            let snap = await getDocs(q);
+            let found = null;
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const dName = normalise(d.tenantName || "");
+                const dRoom = normalise(d.room || "");
+                if (dName === normalisedName && dRoom === normalisedRoom) {
+                    found = { doc: docSnap, data: d };
+                }
+            });
+            if (found) return found;
+
+            // Strategy 2: by tenantId (document ID)
+            q = query(
+                collection(db, "rents"),
+                where("tenantId", "==", tenantDocId),
+                where("month", "==", currentMonth)
+            );
+            snap = await getDocs(q);
+            if (!snap.empty) return { doc: snap.docs[0], data: snap.docs[0].data() };
+
+            // Strategy 3: by stored uid
+            if (data.uid) {
+                q = query(
+                    collection(db, "rents"),
+                    where("tenantId", "==", data.uid),
+                    where("month", "==", currentMonth)
+                );
+                snap = await getDocs(q);
+                if (!snap.empty) return { doc: snap.docs[0], data: snap.docs[0].data() };
+            }
+            return null;
+        }
+
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
-            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></td>';
+            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
             const querySnapshot = await getDocs(collection(db, "tenants"));
             tenantTable.innerHTML = "";
             let totalTenants = 0, totalRent = 0, paidRent = 0;
@@ -328,39 +374,10 @@
                 let currentStatus = "pending";
                 let displayRent = data.rent || 0;
 
-                // Strategy 1: find by tenantName + room
-                let rentQuery = query(
-                    collection(db, "rents"),
-                    where("tenantName", "==", data.name),
-                    where("room", "==", data.room),
-                    where("month", "==", currentMonth)
-                );
-                let rentSnap = await getDocs(rentQuery);
-
-                // Strategy 2: if not found, try by tenantId (document ID)
-                if (rentSnap.empty) {
-                    rentQuery = query(
-                        collection(db, "rents"),
-                        where("tenantId", "==", docSnap.id),
-                        where("month", "==", currentMonth)
-                    );
-                    rentSnap = await getDocs(rentQuery);
-                }
-
-                // Strategy 3: if still not found, try by the stored UID (if exists)
-                if (rentSnap.empty && data.uid) {
-                    rentQuery = query(
-                        collection(db, "rents"),
-                        where("tenantId", "==", data.uid),
-                        where("month", "==", currentMonth)
-                    );
-                    rentSnap = await getDocs(rentQuery);
-                }
-
-                if (!rentSnap.empty) {
-                    const rentData = rentSnap.docs[0].data();
-                    currentStatus = rentData.status;
-                    displayRent = rentData.amount || data.rent || 0;
+                const rentRecord = await findCurrentMonthRentRecord(docSnap.id, data, currentMonth);
+                if (rentRecord) {
+                    currentStatus = rentRecord.data.status;
+                    displayRent = rentRecord.data.amount || data.rent || 0;
                 }
 
                 if (currentStatus === "paid") paidRent += displayRent;
@@ -391,7 +408,7 @@
             if (confirm("Are you sure? This will delete all rent records for this tenant.")) {
                 const rentsQuery = query(collection(db, "rents"), where("tenantId", "==", tenantId));
                 const rentsSnap = await getDocs(rentsQuery);
-                rentsSnap.forEach(async (rentDoc) => await deleteDoc(doc(db, "rents", rentDoc.id)));
+                for (const rentDoc of rentsSnap.docs) await deleteDoc(doc(db, "rents", rentDoc.id));
                 await deleteDoc(doc(db, "tenants", tenantId));
                 showMessage("Tenant deleted successfully!", "success");
                 loadTenants();
@@ -427,7 +444,7 @@
             loadTenants();
         });
 
-        // Generate monthly rent – avoids duplicate months by checking name+room
+        // ✅ FIXED: Generate monthly rent – now reliably checks for existing record (paid or pending)
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
             const tenants = await getDocs(collection(db, "tenants"));
             const now = new Date();
@@ -447,29 +464,27 @@
                         continue;
                     }
                 }
-                const existingQuery = query(
-                    collection(db, "rents"),
-                    where("tenantName", "==", data.name),
-                    where("room", "==", data.room),
-                    where("month", "==", currentMonth)
-                );
-                const existing = await getDocs(existingQuery);
-                if (existing.empty) {
-                    const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
-                    await addDoc(collection(db, "rents"), {
-                        tenantId: tenantIdForRent,
-                        tenantName: data.name,
-                        room: data.room,
-                        amount: data.rent,
-                        month: currentMonth,
-                        status: "pending",
-                        date: new Date(),
-                        receiptGenerated: false
-                    });
-                    generatedCount++;
-                } else {
+
+                // Use normalised matching to check if any rent record exists for this tenant in this month
+                const existingRecord = await findCurrentMonthRentRecord(tenantDoc.id, data, currentMonth);
+                if (existingRecord) {
                     skippedCount++;
+                    continue;
                 }
+
+                // No record exists – create a new pending rent record
+                const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
+                await addDoc(collection(db, "rents"), {
+                    tenantId: tenantIdForRent,
+                    tenantName: data.name,
+                    room: data.room,
+                    amount: data.rent,
+                    month: currentMonth,
+                    status: "pending",
+                    date: new Date(),
+                    receiptGenerated: false
+                });
+                generatedCount++;
             }
             showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed (paid or pending).`, "success");
             loadTenants();
@@ -487,7 +502,6 @@
             setTimeout(() => msg.style.display = "none", 3000);
         }
 
-        // ✅ FIX: Only call loadTenants after admin authentication is confirmed
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "login.html";
@@ -499,7 +513,6 @@
                 window.location.href = "dashboard.html";
                 return;
             }
-            // User is admin – now load the tenants
             await loadTenants();
         });
     </script>
