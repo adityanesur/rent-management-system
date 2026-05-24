@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* === YOUR EXACT STYLES – NO CHANGE === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -259,15 +260,15 @@
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
 
-        // Helper: get all rent records for this tenant (by name+room, or by tenantId)
+        // ✅ ENHANCED: get all rent records with multiple fallback strategies
         async function getAllTenantRents(tenantName, tenantRoom, userId) {
-            // Query 1: by tenantId (UID)
+            // Strategy 1: by tenantId (user's UID)
             const q1 = query(
                 collection(db, "rents"),
                 where("tenantId", "==", userId),
                 orderBy("date", "desc")
             );
-            // Query 2: by tenantName + room (for records created by admin with auto-generated ID)
+            // Strategy 2: by tenantName + room
             const q2 = query(
                 collection(db, "rents"),
                 where("tenantName", "==", tenantName),
@@ -276,11 +277,35 @@
             );
             
             const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-            const map = new Map(); // use month as key to avoid duplicates
-            
+            const map = new Map();
             snap1.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             snap2.forEach(docSnap => { if (!map.has(docSnap.id)) map.set(docSnap.id, docSnap); });
-            
+
+            // Strategy 3: fallback – if still empty, try query by tenantName only (ignore room)
+            if (map.size === 0 && tenantName) {
+                console.warn("No records found by tenantId or name+room. Trying query by tenantName only.");
+                const q3 = query(
+                    collection(db, "rents"),
+                    where("tenantName", "==", tenantName),
+                    orderBy("date", "desc")
+                );
+                const snap3 = await getDocs(q3);
+                snap3.forEach(docSnap => { map.set(docSnap.id, docSnap); });
+            }
+
+            // Strategy 4: finally, try by room only (if tenantName didn't work)
+            if (map.size === 0 && tenantRoom) {
+                console.warn("Still no records. Trying query by room only.");
+                const q4 = query(
+                    collection(db, "rents"),
+                    where("room", "==", tenantRoom),
+                    orderBy("date", "desc")
+                );
+                const snap4 = await getDocs(q4);
+                snap4.forEach(docSnap => { map.set(docSnap.id, docSnap); });
+            }
+
+            console.log(`Found ${map.size} payment records for tenant ${tenantName} (room ${tenantRoom})`);
             return Array.from(map.values());
         }
 
@@ -289,15 +314,12 @@
                 const tenantRef = doc(db, "tenants", user.uid);
                 let tenantSnap = await getDoc(tenantRef);
                 
-                // If tenant not found by UID, try to find by name+room (legacy)
                 if (!tenantSnap.exists()) {
-                    // Search tenants collection by name and room (fallback)
                     const allTenants = await getDocs(collection(db, "tenants"));
                     let found = null;
                     allTenants.forEach(docSnap => {
                         const d = docSnap.data();
                         if (d.email === user.email || (d.name && d.room)) {
-                            // crude match – we'll use the first one
                             if (!found) found = { ref: docSnap.ref, data: d };
                         }
                     });
@@ -327,7 +349,7 @@
                 document.getElementById("roomNumber").innerText = tenantRoom;
                 document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
 
-                // Get current month's rent status from rents collection
+                // Get current month's rent status
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
@@ -338,7 +360,6 @@
                 if (!rentSnap.empty) {
                     currentStatus = rentSnap.docs[0].data().status;
                 } else {
-                    // Fallback: search by name+room
                     const fallbackQuery = query(
                         collection(db, "rents"),
                         where("tenantName", "==", tenantName),
@@ -349,7 +370,6 @@
                     if (!fallbackSnap.empty) {
                         currentStatus = fallbackSnap.docs[0].data().status;
                     } else {
-                        // Create a new pending record for this month (using user.uid as tenantId)
                         await addDoc(collection(db, "rents"), {
                             tenantId: user.uid,
                             tenantName: tenantName,
@@ -363,7 +383,6 @@
                     }
                 }
 
-                // Ensure tenant document has correct status (for admin view)
                 await updateDoc(tenantSnap.ref, { status: currentStatus });
 
                 const payRentBtn = document.getElementById("payRentBtn");
@@ -378,7 +397,7 @@
                     statusDisplay.innerHTML = '<span class="status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
                 }
 
-                // Load full payment history
+                // Load payment history
                 await loadPaymentHistory(user.uid, tenantName, tenantRoom);
 
             } catch (err) {
