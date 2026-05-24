@@ -85,8 +85,8 @@
         .info-item:hover { border-color: #00b7ff; box-shadow: 0 10px 30px rgba(0, 183, 255, 0.1); }
         .info-label { color: #b0d0ff; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem; }
         .info-label i { color: #00b7ff; font-size: 0.9rem; }
-        .info-value { font-size: 1.2rem; font-weight: 600; font-family: 'Poppins', sans-serif; word-break: break-word; }
-        .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 50px; font-weight: 500; font-size: 0.85rem; }
+        .info-value { font-size: 1.2rem; font-weight: 600; font-family: 'Poppins', sans-serif; word-break: break-word; overflow-wrap: break-word; }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 50px; font-weight: 500; font-size: 0.85rem; word-break: break-word; overflow-wrap: break-word; }
         .status-badge.paid { background: rgba(92, 255, 157, 0.15); color: #5cff9d; border: 1px solid rgba(92, 255, 157, 0.3); }
         .status-badge.pending { background: rgba(255, 215, 0, 0.15); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
         .action-buttons { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
@@ -116,7 +116,7 @@
         .table-container { overflow-x: auto; border-radius: 20px; background: rgba(10, 20, 40, 0.5); border: 1px solid rgba(0, 183, 255, 0.15); -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; min-width: 450px; }
         th { text-align: left; padding: 1rem 0.8rem; color: #b0d0ff; font-weight: 500; border-bottom: 2px solid rgba(0, 183, 255, 0.2); font-size: 0.85rem; }
-        td { padding: 0.8rem; border-bottom: 1px solid rgba(0, 183, 255, 0.1); font-size: 0.85rem; }
+        td { padding: 0.8rem; border-bottom: 1px solid rgba(0, 183, 255, 0.1); font-size: 0.85rem; word-break: break-word; overflow-wrap: break-word; }
         tr:hover td { background: rgba(0, 183, 255, 0.05); }
         .receipt-download-btn {
             padding: 0.3rem 0.8rem;
@@ -130,15 +130,15 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            white-space: nowrap;
         }
         .receipt-download-btn:hover { background: rgba(0, 183, 255, 0.3); transform: translateY(-2px); }
-        .month-badge { background: rgba(0, 183, 255, 0.1); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; color: #7bc9ff; }
+        .month-badge { background: rgba(0, 183, 255, 0.1); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; color: #7bc9ff; display: inline-block; white-space: nowrap; }
         .no-data { text-align: center; padding: 2rem; color: #b0d0ff; }
         .no-data i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
         
         /* Mobile optimisations */
         @media (max-width: 768px) {
-            /* Remove backdrop-filter on mobile to avoid smoggy scroll */
             .main-card {
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
@@ -162,7 +162,7 @@
                 display: block;
             }
             thead {
-                display: none; /* Hide table headers */
+                display: none;
             }
             tr {
                 background: rgba(10, 20, 40, 0.5);
@@ -178,6 +178,8 @@
                 padding: 0.6rem 0;
                 border-bottom: 1px solid rgba(0, 183, 255, 0.1);
                 font-size: 0.9rem;
+                word-break: break-word;
+                overflow-wrap: break-word;
             }
             td:last-child {
                 border-bottom: none;
@@ -187,10 +189,12 @@
                 font-weight: 600;
                 color: #7bc9ff;
                 width: 40%;
+                flex-shrink: 0;
             }
             .receipt-download-btn {
+                white-space: normal;
+                text-align: center;
                 width: auto;
-                justify-content: center;
             }
         }
     </style>
@@ -433,7 +437,7 @@
             historyTable.innerHTML = "";
             const rentDocs = await getAllTenantRents(tenantName, tenantRoom, userId);
             if (rentDocs.length === 0) {
-                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p><\/td><\/tr>';
+                historyTable.innerHTML = '</table><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p><\/td><\/tr>';
                 return;
             }
             for (const docSnap of rentDocs) {
@@ -610,9 +614,11 @@
                                 padding: 8px 0;
                                 border-bottom: 1px solid rgba(0, 183, 255, 0.2);
                                 font-size: 1rem;
+                                flex-wrap: wrap;
+                                gap: 0.5rem;
                             }
                             .detail-label { color: #7bc9ff; font-weight: 500; }
-                            .detail-value { color: white; font-weight: 600; }
+                            .detail-value { color: white; font-weight: 600; word-break: break-word; }
                             .upi-box {
                                 background: rgba(0, 183, 255, 0.1);
                                 border-radius: 15px;
@@ -620,8 +626,8 @@
                                 margin: 15px 0;
                                 text-align: center;
                             }
-                            .upi-box p { margin: 5px 0; }
-                            .upi-id { font-size: 1.1rem; color: #00b7ff; font-weight: bold; letter-spacing: 1px; }
+                            .upi-box p { margin: 5px 0; word-break: break-word; }
+                            .upi-id { font-size: 1.1rem; color: #00b7ff; font-weight: bold; letter-spacing: 1px; word-break: break-all; }
                             img {
                                 border-radius: 20px;
                                 padding: 10px;
@@ -629,6 +635,7 @@
                                 margin: 15px 0;
                                 width: 200px;
                                 height: 200px;
+                                max-width: 100%;
                             }
                             .amount { font-size: 28px; color: #00b7ff; font-weight: bold; margin: 10px 0; }
                             .note { color: #888; font-size: 12px; margin-top: 20px; }
