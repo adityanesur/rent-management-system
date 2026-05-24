@@ -219,7 +219,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </tr>
                     </div>
                 </div>
             </div>
@@ -295,53 +295,12 @@
                 let tenantSnap = await getDoc(tenantRef);
                 let tenantData = null;
 
-                if (!tenantSnap.exists()) {
-                    console.log("No tenant document by UID, looking for rent records...");
-                    const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
-                    const rentSnap = await getDocs(rentQuery);
-                    if (!rentSnap.empty) {
-                        const firstRent = rentSnap.docs[0].data();
-                        tenantData = {
-                            name: firstRent.tenantName,
-                            room: firstRent.room,
-                            rent: firstRent.amount,
-                            status: firstRent.status
-                        };
-                        await setDoc(tenantRef, {
-                            name: tenantData.name,
-                            room: tenantData.room,
-                            rent: tenantData.rent,
-                            status: tenantData.status,
-                            createdAt: new Date()
-                        });
-                        console.log("Created tenant document from rent record");
-                        tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
-                    } else {
-                        const allTenants = await getDocs(collection(db, "tenants"));
-                        let match = null;
-                        const userEmail = user.email ? user.email.toLowerCase() : "";
-                        allTenants.forEach(docSnap => {
-                            const d = docSnap.data();
-                            const tenantNameMatch = d.name && userEmail.includes(d.name.toLowerCase());
-                            if (tenantNameMatch || (d.name && d.room)) {
-                                if (!match) match = { ref: docSnap.ref, data: d };
-                            }
-                        });
-                        if (match) {
-                            tenantData = match.data;
-                            await setDoc(tenantRef, {
-                                name: tenantData.name,
-                                room: tenantData.room,
-                                rent: tenantData.rent,
-                                status: tenantData.status || "pending",
-                                createdAt: new Date()
-                            });
-                            console.log("Created tenant document from matched tenant");
-                            tenantSnap = { exists: () => true, data: () => tenantData, ref: tenantRef };
-                        }
-                    }
-                } else {
+                // Only use the exact UID match – NO more email-based fallback
+                if (tenantSnap.exists()) {
                     tenantData = tenantSnap.data();
+                } else {
+                    console.log("No tenant document found for UID:", user.uid);
+                    // No automatic linking – the admin must add the tenant manually using the UID
                 }
 
                 document.getElementById("loadingMessage").style.display = "none";
@@ -497,7 +456,7 @@
             if (auth.currentUser) loadTenantData(auth.currentUser);
         });
 
-        // ✅ FIXED: Pay Rent – now updates existing pending record instead of creating duplicate
+        // Pay Rent – updates existing pending record (no duplicate)
         document.getElementById("payRentBtn").addEventListener("click", async () => {
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
@@ -505,22 +464,13 @@
                 const user = auth.currentUser;
                 if (!user) { alert("Please login again."); return; }
 
-                // Get tenant data
-                let tenantSnap = await getDoc(doc(db, "tenants", user.uid));
-                let tenantData = tenantSnap.exists() ? tenantSnap.data() : null;
-                if (!tenantData) {
-                    const rentQuery = query(collection(db, "rents"), where("tenantId", "==", user.uid));
-                    const rentSnap = await getDocs(rentQuery);
-                    if (!rentSnap.empty) {
-                        const firstRent = rentSnap.docs[0].data();
-                        tenantData = { name: firstRent.tenantName, room: firstRent.room, rent: firstRent.amount };
-                    } else {
-                        alert("Tenant record not found. Please contact admin.");
-                        return;
-                    }
+                const tenantSnap = await getDoc(doc(db, "tenants", user.uid));
+                if (!tenantSnap.exists()) {
+                    alert("Tenant record not found. Please contact admin.");
+                    return;
                 }
+                const tenantData = tenantSnap.data();
 
-                // Check for existing rent record for this month
                 const rentQuery = query(
                     collection(db, "rents"),
                     where("tenantId", "==", user.uid),
@@ -530,19 +480,15 @@
 
                 if (!existingRent.empty) {
                     const existingDoc = existingRent.docs[0];
-                    const existingStatus = existingDoc.data().status;
-                    if (existingStatus === "paid") {
+                    if (existingDoc.data().status === "paid") {
                         alert("You have already paid rent for this month!");
                         return;
                     }
-                    // ✅ Update the existing pending record (overrides previous request)
                     await updateDoc(doc(db, "rents", existingDoc.id), {
                         status: "pending",
                         date: new Date()
                     });
-                    console.log("Updated existing pending rent record");
                 } else {
-                    // No record exists – create a new one
                     await addDoc(collection(db, "rents"), {
                         tenantId: user.uid,
                         tenantName: tenantData.name,
@@ -552,7 +498,6 @@
                         status: "pending",
                         date: new Date()
                     });
-                    console.log("Created new rent record");
                 }
 
                 const upiID = "adityanesur@ybl";
