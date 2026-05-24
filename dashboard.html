@@ -260,20 +260,18 @@
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
 
-        // ✅ ENHANCED: get all rent records with multiple fallback strategies
+        // ✅ FIXED: Removed orderBy from Firestore queries to avoid index error – sorting is now done in JavaScript
         async function getAllTenantRents(tenantName, tenantRoom, userId) {
-            // Strategy 1: by tenantId (user's UID)
+            // Strategy 1: by tenantId (user's UID) – no orderBy
             const q1 = query(
                 collection(db, "rents"),
-                where("tenantId", "==", userId),
-                orderBy("date", "desc")
+                where("tenantId", "==", userId)
             );
-            // Strategy 2: by tenantName + room
+            // Strategy 2: by tenantName + room – no orderBy
             const q2 = query(
                 collection(db, "rents"),
                 where("tenantName", "==", tenantName),
-                where("room", "==", tenantRoom),
-                orderBy("date", "desc")
+                where("room", "==", tenantRoom)
             );
             
             const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
@@ -281,32 +279,38 @@
             snap1.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             snap2.forEach(docSnap => { if (!map.has(docSnap.id)) map.set(docSnap.id, docSnap); });
 
-            // Strategy 3: fallback – if still empty, try query by tenantName only (ignore room)
+            // Strategy 3: fallback – query by tenantName only
             if (map.size === 0 && tenantName) {
                 console.warn("No records found by tenantId or name+room. Trying query by tenantName only.");
                 const q3 = query(
                     collection(db, "rents"),
-                    where("tenantName", "==", tenantName),
-                    orderBy("date", "desc")
+                    where("tenantName", "==", tenantName)
                 );
                 const snap3 = await getDocs(q3);
                 snap3.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             }
 
-            // Strategy 4: finally, try by room only (if tenantName didn't work)
+            // Strategy 4: fallback – query by room only
             if (map.size === 0 && tenantRoom) {
                 console.warn("Still no records. Trying query by room only.");
                 const q4 = query(
                     collection(db, "rents"),
-                    where("room", "==", tenantRoom),
-                    orderBy("date", "desc")
+                    where("room", "==", tenantRoom)
                 );
                 const snap4 = await getDocs(q4);
                 snap4.forEach(docSnap => { map.set(docSnap.id, docSnap); });
             }
 
-            console.log(`Found ${map.size} payment records for tenant ${tenantName} (room ${tenantRoom})`);
-            return Array.from(map.values());
+            // Sort in memory by date (descending)
+            const results = Array.from(map.values());
+            results.sort((a, b) => {
+                const dateA = a.data().date?.toDate?.() || new Date(0);
+                const dateB = b.data().date?.toDate?.() || new Date(0);
+                return dateB - dateA;
+            });
+
+            console.log(`Found ${results.length} payment records for tenant ${tenantName} (room ${tenantRoom})`);
+            return results;
         }
 
         async function loadTenantData(user) {
@@ -417,12 +421,6 @@
                 historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
                 return;
             }
-
-            rentDocs.sort((a, b) => {
-                const dateA = a.data().date?.toDate?.() || new Date(0);
-                const dateB = b.data().date?.toDate?.() || new Date(0);
-                return dateB - dateA;
-            });
 
             for (const docSnap of rentDocs) {
                 const data = docSnap.data();
