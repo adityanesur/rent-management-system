@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* same as before – no change */
+        /* === YOUR EXACT STYLES – NO CHANGE === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -306,6 +306,12 @@
             }
         });
 
+        // Helper: get the correct tenantId (prefer stored uid)
+        function getTenantIdForRent(tenantDoc) {
+            const data = tenantDoc.data();
+            return data.uid ? data.uid : tenantDoc.id;
+        }
+
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
             tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
@@ -318,16 +324,27 @@
                 const data = docSnap.data();
                 totalTenants++;
                 totalRent += Number(data.rent) || 0;
-                const rentQuery = query(collection(db, "rents"), where("tenantId", "==", docSnap.id), where("month", "==", currentMonth));
+                // Find current month's rent record by name+room to get correct status (covers both ID and UID)
+                const rentQuery = query(
+                    collection(db, "rents"),
+                    where("tenantName", "==", data.name),
+                    where("room", "==", data.room),
+                    where("month", "==", currentMonth)
+                );
                 const rentSnap = await getDocs(rentQuery);
                 let currentStatus = "pending";
-                if (!rentSnap.empty) currentStatus = rentSnap.docs[0].data().status;
+                if (!rentSnap.empty) {
+                    currentStatus = rentSnap.docs[0].data().status;
+                }
                 if (currentStatus === "paid") paidRent += Number(data.rent) || 0;
                 let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
                 const joiningDate = data.joiningDate ? new Date(data.joiningDate).toLocaleDateString('en-IN') : 'N/A';
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${data.name || "N/A"}</td><td>${data.room || "N/A"}</td><td>${joiningDate}</td><td>₹${data.rent || "0"}</td>
+                    <td>${data.name || "N/A"}</td>
+                    <td>${data.room || "N/A"}</td>
+                    <td>${joiningDate}</td>
+                    <td>₹${data.rent || "0"}</td>
                     <td><span class="status-badge ${statusClass}">${currentStatus}</span></td>
                     <td><button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
                     <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button></td>
@@ -368,6 +385,7 @@
                 room: room,
                 rent: Number(rent),
                 joiningDate: new Date(joiningDate),
+                uid: userUid,          // store the UID for future reference
                 status: "pending"
             });
             showMessage("Tenant added successfully!", "success");
@@ -379,6 +397,7 @@
             loadTenants();
         });
 
+        // ✅ FIXED: Generate monthly rent – now avoids duplicate months by checking name+room
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
             const tenants = await getDocs(collection(db, "tenants"));
             const now = new Date();
@@ -386,6 +405,7 @@
             const currentYear = now.getFullYear();
             const currentMonthIndex = now.getMonth();
             let generatedCount = 0, skippedCount = 0;
+
             for (const tenantDoc of tenants.docs) {
                 const data = tenantDoc.data();
                 const joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
@@ -397,22 +417,36 @@
                         continue;
                     }
                 }
-                const rentCheck = query(collection(db, "rents"), where("tenantId", "==", tenantDoc.id), where("month", "==", currentMonth));
-                const existing = await getDocs(rentCheck);
+
+                // ✅ Check for ANY existing rent record for this tenant in this month
+                // Use tenantName + room (more reliable than ID)
+                const existingQuery = query(
+                    collection(db, "rents"),
+                    where("tenantName", "==", data.name),
+                    where("room", "==", data.room),
+                    where("month", "==", currentMonth)
+                );
+                const existing = await getDocs(existingQuery);
+
                 if (existing.empty) {
+                    // ✅ Use the stored UID if available, otherwise fallback to document ID
+                    const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
                     await addDoc(collection(db, "rents"), {
-                        tenantId: tenantDoc.id,
+                        tenantId: tenantIdForRent,
                         tenantName: data.name,
                         room: data.room,
                         amount: data.rent,
                         month: currentMonth,
                         status: "pending",
-                        date: new Date()
+                        date: new Date(),
+                        receiptGenerated: false
                     });
                     generatedCount++;
-                } else skippedCount++;
+                } else {
+                    skippedCount++;
+                }
             }
-            showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed.`, "success");
+            showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed (paid or pending).`, "success");
             loadTenants();
         });
 
