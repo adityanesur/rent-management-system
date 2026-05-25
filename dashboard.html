@@ -792,61 +792,83 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.mi
                             <div class="upi-box"><p>📱 Pay to UPI ID</p><p class="upi-id">${upiID}</p><p>🏦 ${bankName}</p></div>
                             <img src="${qrLink}" alt="Payment QR Code"><div class="amount">₹${amount}</div>
 
-<div class="upi-apps" style="
-display:flex;
-flex-direction:column;
-gap:14px;
-margin-top:20px;
+<div style="
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:22px;
+width:100%;
 ">
 
     <!-- Google Pay -->
     <button
         onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#ffffff,#f5f5f5);
+        background:#ffffff;
         border:none;
         border-radius:22px;
-        padding:14px 18px;
-        font-size:1rem;
-        font-weight:600;
-        color:#202124;
-        cursor:pointer;
-        width:100%;
+        padding:14px 10px;
+        min-height:88px;
         display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        gap:12px;
-        box-shadow:0 6px 20px rgba(255,255,255,0.08);
-        transition:0.3s;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(255,255,255,0.08);
     ">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png"
-             style="width:28px;height:28px;object-fit:contain;">
-        Google Pay
+        <img 
+            src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png'
+            style="
+            width:42px;
+            height:42px;
+            object-fit:contain;
+        "
+        >
+        <span style="
+            color:#202124;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            Google Pay
+        </span>
     </button>
 
     <!-- PhonePe -->
     <button
         onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#5f259f,#7b3fe4);
+        background:linear-gradient(135deg,#5f259f,#7c3aed);
         border:none;
         border-radius:22px;
-        padding:14px 18px;
-        font-size:1rem;
-        font-weight:600;
-        color:white;
-        cursor:pointer;
-        width:100%;
+        padding:14px 10px;
+        min-height:88px;
         display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        gap:12px;
-        box-shadow:0 6px 20px rgba(123,63,228,0.35);
-        transition:0.3s;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(124,58,237,0.28);
     ">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png"
-             style="width:28px;height:28px;object-fit:contain;">
-        PhonePe
+        <img 
+            src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png'
+            style="
+            width:42px;
+            height:42px;
+            object-fit:contain;
+            background:white;
+            border-radius:50%;
+            padding:6px;
+        "
+        >
+        <span style="
+            color:white;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            PhonePe
+        </span>
     </button>
 
     <!-- Paytm -->
@@ -856,47 +878,71 @@ margin-top:20px;
         background:linear-gradient(135deg,#002970,#00baf2);
         border:none;
         border-radius:22px;
-        padding:14px 18px;
-        font-size:1rem;
-        font-weight:600;
-        color:white;
-        cursor:pointer;
-        width:100%;
+        padding:14px 10px;
+        min-height:88px;
         display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        gap:12px;
-        box-shadow:0 6px 20px rgba(0,186,242,0.35);
-        transition:0.3s;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(0,186,242,0.25);
     ">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Paytm_logo.png/512px-Paytm_logo.png"
-             style="width:30px;height:30px;object-fit:contain;">
-        Paytm
+        <img 
+            src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Paytm_logo.png/512px-Paytm_logo.png'
+            style="
+            width:50px;
+            height:28px;
+            object-fit:contain;
+            background:white;
+            padding:4px 8px;
+            border-radius:10px;
+        "
+        >
+        <span style="
+            color:white;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            Paytm
+        </span>
     </button>
 
     <!-- Amazon Pay -->
     <button
         onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#111111,#232f3e);
+        background:linear-gradient(135deg,#111827,#232f3e);
         border:none;
         border-radius:22px;
-        padding:14px 18px;
-        font-size:1rem;
-        font-weight:600;
-        color:white;
-        cursor:pointer;
-        width:100%;
+        padding:14px 10px;
+        min-height:88px;
         display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        gap:12px;
-        box-shadow:0 6px 20px rgba(255,153,0,0.25);
-        transition:0.3s;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(255,153,0,0.18);
     ">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png"
-             style="width:34px;height:24px;object-fit:contain;background:white;padding:2px 6px;border-radius:8px;">
-        Amazon Pay
+        <img 
+            src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png'
+            style="
+            width:54px;
+            height:28px;
+            object-fit:contain;
+            background:white;
+            padding:4px 8px;
+            border-radius:10px;
+        "
+        >
+        <span style="
+            color:#ff9900;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            Amazon Pay
+        </span>
     </button>
 
     <!-- SuperMoney -->
@@ -906,34 +952,77 @@ margin-top:20px;
         background:linear-gradient(135deg,#0f172a,#1e293b);
         border:none;
         border-radius:22px;
-        padding:14px 18px;
-        font-size:1rem;
-        font-weight:600;
-        color:#7dd3fc;
-        cursor:pointer;
-        width:100%;
+        padding:14px 10px;
+        min-height:88px;
         display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        gap:12px;
-        box-shadow:0 6px 20px rgba(125,211,252,0.2);
-        transition:0.3s;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(125,211,252,0.12);
     ">
         <div style="
-            width:28px;
-            height:28px;
-            border-radius:50%;
-            background:#7dd3fc;
+            width:42px;
+            height:42px;
+            border-radius:14px;
+            background:#38bdf8;
             display:flex;
             align-items:center;
             justify-content:center;
             color:#0f172a;
-            font-weight:bold;
-            font-size:0.9rem;
+            font-weight:900;
+            font-size:1rem;
         ">
             S
         </div>
-        SuperMoney
+
+        <span style="
+            color:#7dd3fc;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            SuperMoney
+        </span>
+    </button>
+
+    <!-- Any UPI -->
+    <button
+        onclick="window.location.href='upi://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:linear-gradient(135deg,#00b7ff,#3e9cff);
+        border:none;
+        border-radius:22px;
+        padding:14px 10px;
+        min-height:88px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(0,183,255,0.28);
+    ">
+        <div style="
+            width:42px;
+            height:42px;
+            border-radius:14px;
+            background:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:1.1rem;
+        ">
+            📲
+        </div>
+
+        <span style="
+            color:white;
+            font-size:0.88rem;
+            font-weight:700;
+        ">
+            Any UPI App
+        </span>
     </button>
 
 </div>
