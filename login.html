@@ -385,5 +385,118 @@
             handleAuth(email, password, true);
         });
     </script>
+    <script>
+    // Disable Right Click + Show Custom Message
+    document.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+
+        // Remove existing message if already open
+        const oldBox = document.getElementById("inspect-message-box");
+        if (oldBox) oldBox.remove();
+
+        // Create message box
+        const msgBox = document.createElement("div");
+        msgBox.id = "inspect-message-box";
+
+        msgBox.innerHTML = `
+            <div style="
+                font-size:1rem;
+                font-weight:600;
+                margin-bottom:8px;
+                color:#7bc9ff;
+                display:flex;
+                align-items:center;
+                gap:8px;
+            ">
+                <i class='fas fa-shield-alt'></i>
+                RentFlow Protected
+            </div>
+
+            <div style="
+                font-size:0.9rem;
+                line-height:1.5;
+                color:#d8ecff;
+            ">
+                This little world was built with care 💙 <br>
+                So let the magic stay hidden there.
+            </div>
+        `;
+
+        // Styling
+        Object.assign(msgBox.style, {
+            position: "fixed",
+            left: `${e.clientX}px`,
+            top: `${e.clientY}px`,
+            transform: "translate(-10%, -10%)",
+            background: "rgba(18, 25, 45, 0.92)",
+            backdropFilter: "blur(18px)",
+            border: "1px solid rgba(0,183,255,0.35)",
+            borderRadius: "22px",
+            padding: "1.3rem 1.5rem",
+            color: "white",
+            zIndex: "999999",
+            width: "320px",
+            maxWidth: "90vw",
+            fontFamily: "'Inter', sans-serif",
+            boxShadow: "0 10px 35px rgba(0,0,0,0.45), 0 0 25px rgba(0,183,255,0.18)",
+            animation: "fadeInInspect 0.25s ease"
+        });
+
+        document.body.appendChild(msgBox);
+
+        // Remove on click anywhere
+        setTimeout(() => {
+            document.addEventListener("click", removeInspectMessage, {
+                once: true
+            });
+        }, 10);
+
+        function removeInspectMessage() {
+            const box = document.getElementById("inspect-message-box");
+            if (box) {
+                box.style.opacity = "0";
+                box.style.transform = "translate(-10%, -10%) scale(0.95)";
+                setTimeout(() => box.remove(), 200);
+            }
+        }
+    });
+
+    // Disable Shortcuts
+    document.addEventListener("keydown", (e) => {
+
+        if (e.key === "F12") {
+            e.preventDefault();
+        }
+
+        if (e.ctrlKey && e.shiftKey && e.key === "I") {
+            e.preventDefault();
+        }
+
+        if (e.ctrlKey && e.shiftKey && e.key === "J") {
+            e.preventDefault();
+        }
+
+        if (e.ctrlKey && e.key === "u") {
+            e.preventDefault();
+        }
+
+        if (e.ctrlKey && e.shiftKey && e.key === "C") {
+            e.preventDefault();
+        }
+    });
+</script>
+
+<style>
+@keyframes fadeInInspect {
+    from {
+        opacity: 0;
+        transform: translate(-10%, -10%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-10%, -10%) scale(1);
+    }
+}
+</style>
 </body>
 </html>
