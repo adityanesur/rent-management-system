@@ -754,13 +754,15 @@
                 const upiID = "adityanesur@ybl";
                 const bankName = "ADITYA NESUR";
                 const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(bankName)}&am=${amount}&cu=INR&m=0`;
-                const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+                const qrLink = `https://quickchart.io/qr?text=${encodeURIComponent(upiLink)}&size=300`;
                 
-                const qrWindow = window.open("", "_blank");
+                const qrWindow = window.open("", "_blank", "width=500,height=800");
                 qrWindow.document.write(`
                     <!DOCTYPE html>
                     <html>
                     <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"><title>Pay Rent - QR Code</title>
+                    <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
                     <style>
                         * { margin:0; padding:0; box-sizing:border-box; }
                         body { font-family:'Inter',sans-serif; background:linear-gradient(135deg,#0a0f1f,#030614); color:white; display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px; }
@@ -790,11 +792,35 @@
                             </div>
                             <div class="upi-box"><p>📱 Pay to UPI ID</p><p class="upi-id">${upiID}</p><p>🏦 ${bankName}</p></div>
                             <img src="${qrLink}" alt="Payment QR Code"><div class="amount">₹${amount}</div>
-                            <p>Scan with any UPI app<br>(Google Pay, PhonePe, Paytm)</p>
-                            <div class="note">✅ After payment, admin will verify and generate receipt.</div>
-                        </div>
-                    </body>
-                    </html>
+                    <button class="pay-btn"
+    onclick="
+if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    window.location.href='${upiLink}';
+}else{
+    alert('Please scan the QR code using your mobile UPI app.');
+}
+"
+    style="
+    background:linear-gradient(135deg,#00b7ff,#3e9cff);
+    border:none;
+    border-radius:40px;
+    padding:12px 20px;
+    font-size:1rem;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    width:100%;
+    margin:10px 0;
+">
+    <i class="fas fa-mobile-alt"></i> Pay via UPI App
+</button>
+<p>Scan with any UPI app<br>(Google Pay, PhonePe, Paytm)</p>
+<div class="note">✅ After payment, admin will verify and generate receipt.</div>
+
+
+</body>
+</html>
+
                 `);
                 setTimeout(() => loadTenantData(user), 1000);
             } catch (error) {
@@ -925,5 +951,6 @@
         }
     });
 </script>
+
 </body>
 </html>
