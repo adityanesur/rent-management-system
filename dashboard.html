@@ -794,7 +794,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.mi
 
 <div style="
 display:grid;
-grid-template-columns:1fr 1fr;
+grid-template-columns:repeat(3,1fr);
 gap:12px;
 margin-top:22px;
 width:100%;
@@ -806,31 +806,28 @@ width:100%;
         style="
         background:#ffffff;
         border:none;
-        border-radius:22px;
-        padding:14px 10px;
-        min-height:88px;
+        border-radius:20px;
+        aspect-ratio:1/1;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:8px;
         cursor:pointer;
-        box-shadow:0 8px 24px rgba(255,255,255,0.08);
-    ">
-        <img 
-            src='https://img.icons8.com/color/1200/google-pay.jpg'
-            style="
-            width:42px;
-            height:42px;
-            object-fit:contain;
+        padding:10px;
         "
+    >
+        <img 
+            src='https://img.icons8.com/color/96/google-pay.png'
+            style="width:42px;height:42px;object-fit:contain;"
         >
+
         <span style="
-            color:#202124;
-            font-size:0.88rem;
-            font-weight:700;
+        color:#202124;
+        font-size:0.78rem;
+        font-weight:700;
         ">
-            Google Pay
+            GPay
         </span>
     </button>
 
@@ -838,34 +835,34 @@ width:100%;
     <button
         onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#5f259f,#7c3aed);
+        background:#5f259f;
         border:none;
-        border-radius:22px;
-        padding:14px 10px;
-        min-height:88px;
+        border-radius:20px;
+        aspect-ratio:1/1;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:8px;
         cursor:pointer;
-        box-shadow:0 8px 24px rgba(124,58,237,0.28);
-    ">
+        padding:10px;
+        "
+    >
         <img 
-            src='https://img.icons8.com/color/1200/phone-pe.jpg'
+            src='https://img.icons8.com/color/96/phone-pe.png'
             style="
             width:42px;
             height:42px;
-            object-fit:contain;
-            background:white;
             border-radius:50%;
-            padding:6px;
-        "
+            background:white;
+            padding:5px;
+            "
         >
+
         <span style="
-            color:white;
-            font-size:0.88rem;
-            font-weight:700;
+        color:white;
+        font-size:0.78rem;
+        font-weight:700;
         ">
             PhonePe
         </span>
@@ -875,34 +872,35 @@ width:100%;
     <button
         onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#002970,#00baf2);
+        background:#00baf2;
         border:none;
-        border-radius:22px;
-        padding:14px 10px;
-        min-height:88px;
+        border-radius:20px;
+        aspect-ratio:1/1;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:8px;
         cursor:pointer;
-        box-shadow:0 8px 24px rgba(0,186,242,0.25);
-    ">
+        padding:10px;
+        "
+    >
         <img 
-            src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQH3TZc7923_HIKidB0GCysjUMzAyDYb9LHLg&s'
+            src='https://img.icons8.com/color/96/paytm.png'
             style="
-            width:50px;
-            height:28px;
+            width:46px;
+            height:32px;
             object-fit:contain;
             background:white;
-            padding:4px 8px;
-            border-radius:10px;
-        "
+            padding:4px 6px;
+            border-radius:8px;
+            "
         >
+
         <span style="
-            color:white;
-            font-size:0.88rem;
-            font-weight:700;
+        color:white;
+        font-size:0.78rem;
+        font-weight:700;
         ">
             Paytm
         </span>
@@ -912,34 +910,35 @@ width:100%;
     <button
         onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#111827,#232f3e);
+        background:#232f3e;
         border:none;
-        border-radius:22px;
-        padding:14px 10px;
-        min-height:88px;
+        border-radius:20px;
+        aspect-ratio:1/1;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:8px;
         cursor:pointer;
-        box-shadow:0 8px 24px rgba(255,153,0,0.18);
-    ">
+        padding:10px;
+        "
+    >
         <img 
-            src='https://static.vecteezy.com/system/resources/thumbnails/073/494/118/small_2x/amazon-pay-logo-modern-circular-icon-with-transparent-background-free-png.png'
+            src='https://img.icons8.com/?size=100&id=vxfAoAb5vnRX&format=png&color=000000'
             style="
-            width:54px;
-            height:28px;
+            width:46px;
+            height:32px;
             object-fit:contain;
             background:white;
-            padding:4px 8px;
-            border-radius:10px;
-        "
+            padding:4px 6px;
+            border-radius:8px;
+            "
         >
+
         <span style="
-            color:#ff9900;
-            font-size:0.88rem;
-            font-weight:700;
+        color:#ff9900;
+        font-size:0.74rem;
+        font-weight:700;
         ">
             Amazon Pay
         </span>
@@ -949,35 +948,32 @@ width:100%;
     <button
         onclick="window.location.href='supermoney://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
         style="
-        background:linear-gradient(135deg,#0f172a,#1e293b);
+        background:#0f172a;
         border:none;
-        border-radius:22px;
-        padding:14px 10px;
-        min-height:88px;
+        border-radius:20px;
+        aspect-ratio:1/1;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:8px;
         cursor:pointer;
-        box-shadow:0 8px 24px rgba(125,211,252,0.12);
-    ">
+        padding:10px;
+        "
+    >
         <img 
             src='https://play-lh.googleusercontent.com/xb5kyKVpbNeeJlx3bKlUPcF_vJH6sel0c3FlyZ_KNx2cZtjEj-1pGGYOLHa-39LlXnY'
             style="
-            width:54px;
-            height:28px;
-            object-fit:contain;
-            background:white;
-            padding:4px 8px;
-            border-radius:10px;
-        "
+            width:42px;
+            height:42px;
+            border-radius:12px;
+            "
         >
 
         <span style="
-            color:#7dd3fc;
-            font-size:0.88rem;
-            font-weight:700;
+        color:#7dd3fc;
+        font-size:0.74rem;
+        font-weight:700;
         ">
             SuperMoney
         </span>
