@@ -793,13 +793,49 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.mi
                             <img src="${qrLink}" alt="Payment QR Code"><div class="amount">₹${amount}</div>
 
 <div class="upi-apps">
-<button onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}'">
+<button onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}'" style="
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+border:none;
+border-radius:40px;
+padding:12px 20px;
+font-size:1rem;
+font-weight:bold;
+color:white;
+cursor:pointer;
+width:100%;
+margin:10px 0;
+">
 PhonePe
 </button>
-<button onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'">
+
+<button onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+style="
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+border:none;
+border-radius:40px;
+padding:12px 20px;
+font-size:1rem;
+font-weight:bold;
+color:white;
+cursor:pointer;
+width:100%;
+margin:10px 0;
+">
 Google Pay
 </button>
-<button onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'">
+<button onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+style="
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+border:none;
+border-radius:40px;
+padding:12px 20px;
+font-size:1rem;
+font-weight:bold;
+color:white;
+cursor:pointer;
+width:100%;
+margin:10px 0;
+">
 Paytm
 </button>
 </div>
