@@ -792,24 +792,36 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.mi
                             <div class="upi-box"><p>📱 Pay to UPI ID</p><p class="upi-id">${upiID}</p><p>🏦 ${bankName}</p></div>
                             <img src="${qrLink}" alt="Payment QR Code"><div class="amount">₹${amount}</div>
                     <button class="pay-btn"
-    onclick="
-if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    window.location.href='${upiLink}';
-}else{
+onclick="
+if(/Android/i.test(navigator.userAgent)){
+
+    // Android UPI Intent
+    window.location.href='intent://pay?pa=${upiID}&pn=${encodeURIComponent(bankName)}&am=${amount}&cu=INR#Intent;scheme=upi;package=com.android.vending;end';
+
+}
+else if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){
+
+    // iPhone
+    window.location.href='upi://pay?pa=${upiID}&pn=${encodeURIComponent(bankName)}&am=${amount}&cu=INR';
+
+}
+else{
+
     alert('Please scan the QR code using your mobile UPI app.');
+
 }
 "
-    style="
-    background:linear-gradient(135deg,#00b7ff,#3e9cff);
-    border:none;
-    border-radius:40px;
-    padding:12px 20px;
-    font-size:1rem;
-    font-weight:bold;
-    color:white;
-    cursor:pointer;
-    width:100%;
-    margin:10px 0;
+style="
+background:linear-gradient(135deg,#00b7ff,#3e9cff);
+border:none;
+border-radius:40px;
+padding:12px 20px;
+font-size:1rem;
+font-weight:bold;
+color:white;
+cursor:pointer;
+width:100%;
+margin:10px 0;
 ">
     <i class="fas fa-mobile-alt"></i> Pay via UPI App
 </button>
