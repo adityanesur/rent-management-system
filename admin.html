@@ -686,5 +686,126 @@
             await loadTenants();
         });
     </script>
+    <script>
+        // Disable text selection
+document.body.style.userSelect = "none";
+document.body.style.webkitUserSelect = "none";
+
+// Create custom inspect popup
+const inspectMessage = document.createElement("div");
+
+inspectMessage.innerHTML = `
+    <div style="
+                font-size:1rem;
+                font-weight:600;
+                margin-bottom:8px;
+                color:#7bc9ff;
+                display:flex;
+                align-items:center;
+                gap:8px;
+            ">
+                <i class='fas fa-shield-alt'></i>
+                RentFlow Protected
+            </div>
+
+            <div style="
+                font-size:0.9rem;
+                line-height:1.5;
+                color:#d8ecff;
+            ">
+                This little world was built with care 💙 <br>
+                So let the magic stay hidden there.
+            </div>
+`;
+
+inspectMessage.style.position = "fixed";
+inspectMessage.style.zIndex = "999999";
+inspectMessage.style.padding = "18px 22px";
+inspectMessage.style.borderRadius = "22px";
+inspectMessage.style.background = "rgba(18, 25, 45, 0.92)";
+inspectMessage.style.backdropFilter = "blur(18px)";
+inspectMessage.style.webkitBackdropFilter = "blur(18px)";
+inspectMessage.style.border = "1px solid rgba(0, 183, 255, 0.25)";
+inspectMessage.style.boxShadow = `
+    0 10px 35px rgba(0,0,0,0.45),
+    0 0 20px rgba(0,183,255,0.18)
+`;
+inspectMessage.style.maxWidth = "320px";
+inspectMessage.style.opacity = "0";
+inspectMessage.style.pointerEvents = "none";
+inspectMessage.style.transition = "opacity 0.25s ease, transform 0.25s ease";
+inspectMessage.style.transform = "translateY(10px)";
+inspectMessage.style.display = "none";
+
+document.body.appendChild(inspectMessage);
+
+// Show popup on right click
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+
+    inspectMessage.style.display = "block";
+
+    let x = e.clientX;
+    let y = e.clientY;
+
+    const boxWidth = 320;
+    const boxHeight = 120;
+
+    if (x + boxWidth > window.innerWidth) {
+        x = window.innerWidth - boxWidth - 20;
+    }
+
+    if (y + boxHeight > window.innerHeight) {
+        y = window.innerHeight - boxHeight - 20;
+    }
+
+    inspectMessage.style.left = x + "px";
+    inspectMessage.style.top = y + "px";
+
+    requestAnimationFrame(() => {
+        inspectMessage.style.opacity = "1";
+        inspectMessage.style.transform = "translateY(0px)";
+    });
+});
+
+// Hide popup on click
+document.addEventListener("click", () => {
+    inspectMessage.style.opacity = "0";
+    inspectMessage.style.transform = "translateY(10px)";
+
+    setTimeout(() => {
+        inspectMessage.style.display = "none";
+    }, 250);
+});
+
+// Disable inspect shortcuts
+document.addEventListener("keydown", (e) => {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+    }
+});
+    </script>
 </body>
 </html>
