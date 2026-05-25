@@ -22,6 +22,11 @@
             overflow-x: hidden;
         }
 
+        body {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
         /* Animated background */
         body::before {
             content: '';
@@ -361,6 +366,219 @@
         }
     </style>
 </head>
+<script>
+
+    // ==============================
+    // CUSTOM RIGHT CLICK MESSAGE
+    // ==============================
+
+    let customMenu = null;
+
+    document.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+
+        // Remove old popup if exists
+        if (customMenu) {
+            customMenu.remove();
+        }
+
+        // Create popup
+        customMenu = document.createElement("div");
+
+        customMenu.innerHTML = `
+            <div style="
+                font-size:1rem;
+                font-weight:600;
+                margin-bottom:8px;
+                color:#7bc9ff;
+                display:flex;
+                align-items:center;
+                gap:8px;
+            ">
+                <i class='fas fa-shield-alt'></i>
+                RentFlow Protected
+            </div>
+
+            <div style="
+                font-size:0.9rem;
+                line-height:1.5;
+                color:#d8ecff;
+            ">
+                This little world was built with care 💙 <br>
+                So let the magic stay hidden there.
+            </div>
+        `;
+
+        customMenu.style.position = "fixed";
+        customMenu.style.left = `${e.clientX}px`;
+        customMenu.style.top = `${e.clientY}px`;
+        customMenu.style.zIndex = "999999";
+        customMenu.style.width = "280px";
+        customMenu.style.padding = "18px";
+        customMenu.style.borderRadius = "20px";
+
+        customMenu.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(10,20,40,0.95),
+                rgba(18,25,45,0.95)
+            )
+        `;
+
+        customMenu.style.border = "1px solid rgba(0,183,255,0.3)";
+        customMenu.style.backdropFilter = "blur(15px)";
+        customMenu.style.webkitBackdropFilter = "blur(15px)";
+        customMenu.style.boxShadow = `
+            0 10px 40px rgba(0,0,0,0.5),
+            0 0 25px rgba(0,183,255,0.15)
+        `;
+
+        customMenu.style.fontFamily = "'Inter', sans-serif";
+        customMenu.style.animation = "fadeInMenu 0.25s ease";
+
+        document.body.appendChild(customMenu);
+
+        // Prevent popup going outside screen
+        const rect = customMenu.getBoundingClientRect();
+
+        if (rect.right > window.innerWidth) {
+            customMenu.style.left =
+                `${window.innerWidth - rect.width - 20}px`;
+        }
+
+        if (rect.bottom > window.innerHeight) {
+            customMenu.style.top =
+                `${window.innerHeight - rect.height - 20}px`;
+        }
+    });
+
+    // Hide popup when clicking elsewhere
+    document.addEventListener("click", () => {
+        if (customMenu) {
+            customMenu.remove();
+            customMenu = null;
+        }
+    });
+
+    // ==============================
+    // DISABLE SHORTCUTS
+    // ==============================
+
+    document.addEventListener("keydown", (e) => {
+
+        // F12
+        if (e.key === "F12") {
+            e.preventDefault();
+        }
+
+        // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.key === "I") {
+            e.preventDefault();
+        }
+
+        // Ctrl+Shift+J
+        if (e.ctrlKey && e.shiftKey && e.key === "J") {
+            e.preventDefault();
+        }
+
+        // Ctrl+U
+        if (e.ctrlKey && e.key === "u") {
+            e.preventDefault();
+        }
+
+        // Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && e.key === "C") {
+            e.preventDefault();
+        }
+    });
+
+    // ==============================
+    // DEVTOOLS DETECTION
+    // ==============================
+
+    setInterval(() => {
+
+        if (
+            window.outerWidth - window.innerWidth > 160 ||
+            window.outerHeight - window.innerHeight > 160
+        ) {
+
+            document.body.innerHTML = `
+                <div style="
+                    height:100vh;
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    flex-direction:column;
+                    gap:15px;
+                    background:
+                        linear-gradient(
+                            135deg,
+                            #0a0f1f 0%,
+                            #030614 100%
+                        );
+                    color:white;
+                    font-family:'Poppins',sans-serif;
+                    text-align:center;
+                    padding:20px;
+                ">
+
+                    <div style="
+                        font-size:4rem;
+                        color:#00b7ff;
+                    ">
+                        <i class="fas fa-lock"></i>
+                    </div>
+
+                    <div style="
+                        font-size:2rem;
+                        font-weight:600;
+                        background:linear-gradient(
+                            135deg,
+                            #ffffff,
+                            #7bc9ff
+                        );
+                        -webkit-background-clip:text;
+                        -webkit-text-fill-color:transparent;
+                    ">
+                        RentFlow Security Enabled
+                    </div>
+
+                    <div style="
+                        color:#b0d0ff;
+                        max-width:600px;
+                        line-height:1.8;
+                        font-size:1rem;
+                    ">
+                        Developer tools were detected.<br>
+                        To maintain security and protect application resources,
+                        access has been restricted.
+                    </div>
+
+                </div>
+            `;
+        }
+
+    }, 1000);
+
+</script>
+
+<style>
+
+@keyframes fadeInMenu {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0px) scale(1);
+    }
+}
+
+</style>
 <body>
     <nav class="navbar">
         <div class="logo">RentFlow</div>
