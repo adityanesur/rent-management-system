@@ -364,7 +364,6 @@
             orderBy, 
             updateDoc,
             addDoc,
-            setDoc
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -386,8 +385,8 @@
 
         // Helper: get all rent records (without orderBy to avoid index issues)
         async function getAllTenantRents(tenantName, tenantRoom, userId) {
-            // Query by tenantId (user's UID)
-            const q1 = query(collection(db, "rents"), where("tenantId", "==", userId));
+            // Query by uid (user's UID)
+            const q1 = query(collection(db, "rents"), where("uid", "==", userId));
             // Query by tenantName + room (for records created by admin with different ID)
             const q2 = query(collection(db, "rents"), where("tenantName", "==", tenantName), where("room", "==", tenantRoom));
             
@@ -454,7 +453,7 @@
                 // Ensure a rent record exists for the current month (pending)
                 let rentQuery = query(
                     collection(db, "rents"),
-                    where("tenantId", "==", user.uid),
+                    where("uid", "==", user.uid),
                     where("month", "==", currentMonth)
                 );
                 let rentSnap = await getDocs(rentQuery);
@@ -476,7 +475,7 @@
                     } else {
                         // Create a new pending record
                         const newDocRef = await addDoc(collection(db, "rents"), {
-                            tenantId: user.uid,
+                            uid: user.uid,
                             tenantName: tenantName,
                             room: tenantRoom,
                             amount: monthlyRent,
@@ -722,7 +721,7 @@
 
                 const rentQuery = query(
                     collection(db, "rents"),
-                    where("tenantId", "==", user.uid),
+                    where("uid", "==", user.uid),
                     where("month", "==", currentMonth)
                 );
                 const existingRent = await getDocs(rentQuery);
@@ -740,7 +739,7 @@
                     });
                 } else {
                     await addDoc(collection(db, "rents"), {
-                        tenantId: user.uid,
+                        uid: user.uid,
                         tenantName: tenantName,
                         room: tenantRoom,
                         amount: Number(amount),
