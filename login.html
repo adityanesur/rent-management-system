@@ -261,6 +261,11 @@
                 <input type="password" id="password" placeholder="Password" >
             </div>
             
+            <!-- Forgot password link -->
+<div style="text-align: right; margin-top: -1rem; margin-bottom: 1.5rem;">
+    <a href="#" id="forgotPasswordLink" style="color: #7bc9ff; font-size: 0.85rem;">Forgot password?</a>
+</div>
+
             <button class="btn btn-primary" id="loginBtn">
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
@@ -282,10 +287,10 @@
             <div id="message"></div>
         </div>
     </div>
-
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -309,7 +314,13 @@
             loginBtn.disabled = isLoading;
             signupBtn.disabled = isLoading;
         }
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
+// Initialize App Check with your site key
+const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('YOUR_SITE_KEY_HERE'),
+    isTokenAutoRefreshEnabled: true
+});
         async function handleAuth(email, password, isSignUp) {
             if (!email || !password) {
                 message.innerHTML = "❌ Please enter email and password";
@@ -325,44 +336,77 @@
                 let userCredential;
                 
                 if (isSignUp) {
-                    userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    
-                    // Create user document with tenant role by default
-                    await setDoc(doc(db, "users", userCredential.user.uid), {
-                        email: email,
-                        role: "tenant",
-                        createdAt: new Date().toISOString()
-                    });
-                    
-                    message.innerHTML = "✅ Account created! You can now login.";
-                    message.className = "success";
-                    setLoading(false);
-                } else {
-                    userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    
-                    const uid = userCredential.user.uid;
-                    const userDoc = await getDoc(doc(db, "users", uid));
-                    
-                    if (!userDoc.exists()) {
-                        message.innerHTML = "❌ User profile not found";
-                        message.className = "error";
-                        setLoading(false);
-                        return;
-                    }
-                    
-                    const role = userDoc.data().role;
-                    
-                    message.innerHTML = "✅ Login successful! Redirecting...";
-                    message.className = "success";
-                    
-                    setTimeout(() => {
-                        if (role === "admin") {
-                            window.location.href = "admin.html";
-                        } else {
-                            window.location.href = "dashboard.html";
-                        }
-                    }, 1500);
-                }
+    userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Send verification email
+    await sendEmailVerification(user);
+    
+    // Create user document with tenant role by default
+    await setDoc(doc(db, "users", user.uid), {
+        email: email,
+        role: "tenant",
+        createdAt: new Date().toISOString(),
+        emailVerified: false
+    });
+    
+    message.innerHTML = "✅ Verification email sent! Please check your inbox (and spam). You can now login after verifying your email.";
+    message.className = "success";
+    setLoading(false);
+} else {
+    userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;   // ← Add this line
+
+    // ✅ ADD EMAIL VERIFICATION CHECK HERE
+if (!user.emailVerified) {
+    message.innerHTML = `❌ Email not verified. <a href="#" id="resendVerificationLink" style="color:#7bc9ff; text-decoration:underline;">Click here to resend verification email</a>`;
+    message.className = "error";
+    setLoading(false);
+    
+    // Add click handler for resend
+    const resendLink = document.getElementById("resendVerificationLink");
+    if (resendLink) {
+        resendLink.addEventListener("click", async (e) => {
+            e.preventDefault();
+            message.innerHTML = "⏳ Sending verification email...";
+            message.className = "info";
+            try {
+                await sendEmailVerification(user);
+                message.innerHTML = "✅ Verification email resent! Please check your inbox (and spam).";
+                message.className = "success";
+            } catch (err) {
+                message.innerHTML = "❌ Failed to resend: " + err.message;
+                message.className = "error";
+            }
+        });
+    }
+    return;
+}
+    // ---------------------------------
+
+    const uid = user.uid;   // Now use user.uid instead of userCredential.user.uid
+    const userDoc = await getDoc(doc(db, "users", uid));
+
+    if (!userDoc.exists()) {
+        message.innerHTML = "❌ User profile not found";
+        message.className = "error";
+        setLoading(false);
+        return;
+    }
+
+    const role = userDoc.data().role;
+
+    message.innerHTML = "✅ Login successful! Redirecting...";
+    message.className = "success";
+
+    setTimeout(() => {
+        if (role === "admin") {
+            window.location.href = "admin.html";
+        } else {
+            window.location.href = "dashboard.html";
+        }
+    }, 1500);
+}
             } catch (error) {
                 message.innerHTML = "❌ " + error.message;
                 message.className = "error";
@@ -388,6 +432,23 @@
             
             handleAuth(email, password, true);
         });
+        document.getElementById("forgotPasswordLink").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    if (!email) {
+        message.innerHTML = "❌ Please enter your email address first.";
+        message.className = "error";
+        return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        message.innerHTML = "✅ Password reset email sent! Check your inbox (and spam).";
+        message.className = "success";
+    } catch (error) {
+        message.innerHTML = "❌ " + error.message;
+        message.className = "error";
+    }
+});
     </script>
     <script>
     // Disable Right Click + Show Custom Message
