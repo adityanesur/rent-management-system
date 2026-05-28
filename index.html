@@ -49,6 +49,8 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 183, 255, 0.15);
+            margin-top: 25px;
+            border-radius: 25px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -493,73 +495,100 @@
     });
 
     // ==============================
-    // DEVTOOLS DETECTION
+    // SAFE DEVTOOLS DETECTION
+    // DESKTOP ONLY
     // ==============================
 
-    setInterval(() => {
+    function isMobileDevice() {
 
-        if (
-            window.outerWidth - window.innerWidth > 160 ||
-            window.outerHeight - window.innerHeight > 160
-        ) {
+        return (
+            /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i
+            .test(navigator.userAgent)
+            ||
+            window.innerWidth <= 900
+        );
+    }
 
-            document.body.innerHTML = `
-                <div style="
-                    height:100vh;
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    flex-direction:column;
-                    gap:15px;
-                    background:
-                        linear-gradient(
-                            135deg,
-                            #0a0f1f 0%,
-                            #030614 100%
-                        );
-                    color:white;
-                    font-family:'Poppins',sans-serif;
-                    text-align:center;
-                    padding:20px;
-                ">
+    // ONLY RUN ON DESKTOP
+    if (!isMobileDevice()) {
 
-                    <div style="
-                        font-size:4rem;
-                        color:#00b7ff;
-                    ">
-                        <i class="fas fa-lock"></i>
-                    </div>
+        let devtoolsOpened = false;
 
-                    <div style="
-                        font-size:2rem;
-                        font-weight:600;
-                        background:linear-gradient(
-                            135deg,
-                            #ffffff,
-                            #7bc9ff
-                        );
-                        -webkit-background-clip:text;
-                        -webkit-text-fill-color:transparent;
-                    ">
-                        RentFlow Security Enabled
-                    </div>
+        setInterval(() => {
 
-                    <div style="
-                        color:#b0d0ff;
-                        max-width:600px;
-                        line-height:1.8;
-                        font-size:1rem;
-                    ">
-                        Developer tools were detected.<br>
-                        To maintain security and protect application resources,
-                        access has been restricted.
-                    </div>
+            const widthThreshold =
+                window.outerWidth - window.innerWidth;
 
-                </div>
-            `;
-        }
+            const heightThreshold =
+                window.outerHeight - window.innerHeight;
 
-    }, 1000);
+            // Desktop-only detection
+            if (
+                widthThreshold > 220 ||
+                heightThreshold > 220
+            ) {
+
+                if (!devtoolsOpened) {
+
+                    devtoolsOpened = true;
+
+                    document.body.innerHTML = `
+                        <div style="
+                            height:100vh;
+                            display:flex;
+                            justify-content:center;
+                            align-items:center;
+                            flex-direction:column;
+                            gap:15px;
+                            background:
+                                linear-gradient(
+                                    135deg,
+                                    #0a0f1f 0%,
+                                    #030614 100%
+                                );
+                            color:white;
+                            font-family:'Poppins',sans-serif;
+                            text-align:center;
+                            padding:20px;
+                        ">
+
+                            <div style="
+                                font-size:4rem;
+                                color:#00b7ff;
+                            ">
+                                <i class="fas fa-lock"></i>
+                            </div>
+
+                            <div style="
+                                font-size:2rem;
+                                font-weight:600;
+                                background:linear-gradient(
+                                    135deg,
+                                    #ffffff,
+                                    #7bc9ff
+                                );
+                                -webkit-background-clip:text;
+                                -webkit-text-fill-color:transparent;
+                            ">
+                                RentFlow Security Enabled
+                            </div>
+
+                            <div style="
+                                color:#b0d0ff;
+                                max-width:600px;
+                                line-height:1.8;
+                                font-size:1rem;
+                            ">
+                                Developer tools detected.
+                            </div>
+
+                        </div>
+                    `;
+                }
+            }
+
+        }, 1500);
+    }
 
 </script>
 
