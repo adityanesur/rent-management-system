@@ -1,567 +1,773 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RentFlow | Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #0a0f1f 0%, #030614 100%);
-            padding: 1.5rem;
-            position: relative;
-            overflow-x: hidden;
-        }
-        body {
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-        /* Animated background */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(0, 183, 255, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, rgba(123, 201, 255, 0.1) 0%, transparent 40%);
-            pointer-events: none;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .brand {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .brand .logo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #7bc9ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-        }
-
-        .brand p {
-            color: #b0d0ff;
-            font-size: 1rem;
-        }
-
-        .login-card {
-            background: rgba(18, 25, 45, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            border-radius: 30px;
-            padding: 2.5rem;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 183, 255, 0.2);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            background: linear-gradient(135deg, #ffffff, #7bc9ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #7bc9ff;
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        input {
-            width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            background: rgba(10, 20, 40, 0.6);
-            border: 2px solid rgba(0, 183, 255, 0.2);
-            border-radius: 50px;
-            font-size: 1rem;
-            color: #ffffff;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #00b7ff;
-            box-shadow: 0 0 20px rgba(0, 183, 255, 0.3);
-            background: rgba(10, 20, 40, 0.8);
-        }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 183, 255, 0.4);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 183, 255, 0.6);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid rgba(0, 183, 255, 0.3);
-            color: #ffffff;
-        }
-
-        .btn-outline:hover {
-            border-color: #00b7ff;
-            background: rgba(0, 183, 255, 0.1);
-            transform: translateY(-3px);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-            color: #b0d0ff;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid rgba(0, 183, 255, 0.2);
-        }
-
-        .divider span {
-            padding: 0 1rem;
-            font-size: 0.9rem;
-        }
-
-        #message {
-            text-align: center;
-            font-size: 0.95rem;
-            min-height: 2rem;
-            padding: 0.5rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        .success {
-            color: #5cff9d;
-            background: rgba(92, 255, 157, 0.1);
-            border: 1px solid rgba(92, 255, 157, 0.3);
-        }
-
-        .error {
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
-        }
-
-        .info {
-            color: #7bc9ff;
-            background: rgba(123, 201, 255, 0.1);
-            border: 1px solid rgba(123, 201, 255, 0.3);
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 2rem 1.5rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .brand .logo {
-                font-size: 2rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="brand">
-            <div class="logo">RentFlow</div>
-            <p>Welcome back! Please login to continue</p>
-        </div>
-        
-        <div class="login-card">
-            <h2><i class="fas fa-lock"></i> Member Login</h2>
-            
-            <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="email" placeholder="Email address" >
-            </div>
-            
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="password" placeholder="Password" >
-            </div>
-            
-            <!-- Forgot password link -->
-<div style="text-align: right; margin-top: -1rem; margin-bottom: 1.5rem;">
-    <a href="#" id="forgotPasswordLink" style="color: #7bc9ff; font-size: 0.85rem;">Forgot password?</a>
-</div>
-
-            <button class="btn btn-primary" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-            
-            <button class="btn btn-outline" id="signupBtn">
-                <i class="fas fa-user-plus"></i> Create New Account
-            </button>
-            
-            <div class="divider">
-                <span>OR</span>
-            </div>
-            
-            <a href="index.html" style="text-decoration: none;">
-                <button class="btn btn-outline" id="homeBtn">
-                    <i class="fas fa-home"></i> Back to Home
-                </button>
-            </a>
-            
-            <div id="message"></div>
-        </div>
-    </div>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
-            authDomain: "rent-management-system-86ccc.firebaseapp.com",
-            projectId: "rent-management-system-86ccc",
-            storageBucket: "rent-management-system-86ccc.appspot.com",
-            messagingSenderId: "676999561040",
-            appId: "1:676999561040:web:f1166d818a33c5a008f655"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const message = document.getElementById("message");
-        const loginBtn = document.getElementById("loginBtn");
-        const signupBtn = document.getElementById("signupBtn");
-
-        function setLoading(isLoading) {
-            loginBtn.disabled = isLoading;
-            signupBtn.disabled = isLoading;
-        }
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
-
-// Initialize App Check with your site key
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('YOUR_SITE_KEY_HERE'),
-    isTokenAutoRefreshEnabled: true
-});
-        async function handleAuth(email, password, isSignUp) {
-            if (!email || !password) {
-                message.innerHTML = "❌ Please enter email and password";
-                message.className = "error";
-                return;
-            }
-
-            message.innerHTML = isSignUp ? "⏳ Creating account..." : "⏳ Logging in...";
-            message.className = "info";
-            setLoading(true);
-
-            try {
-                let userCredential;
-                
-                if (isSignUp) {
-    userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Send verification email
-    await sendEmailVerification(user);
-    
-    // Create user document with tenant role by default
-    await setDoc(doc(db, "users", user.uid), {
-        email: email,
-        role: "tenant",
-        createdAt: new Date().toISOString(),
-        emailVerified: false
-    });
-    
-    message.innerHTML = "✅ Verification email sent! Please check your inbox (and spam). You can now login after verifying your email.";
-    message.className = "success";
-    setLoading(false);
-} else {
-    userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;   // ← Add this line
-
-    // ✅ ADD EMAIL VERIFICATION CHECK HERE
-if (!user.emailVerified) {
-    message.innerHTML = `❌ Email not verified. <a href="#" id="resendVerificationLink" style="color:#7bc9ff; text-decoration:underline;">Click here to resend verification email</a>`;
-    message.className = "error";
-    setLoading(false);
-    
-    // Add click handler for resend
-    const resendLink = document.getElementById("resendVerificationLink");
-    if (resendLink) {
-        resendLink.addEventListener("click", async (e) => {
-            e.preventDefault();
-            message.innerHTML = "⏳ Sending verification email...";
-            message.className = "info";
-            try {
-                await sendEmailVerification(user);
-                message.innerHTML = "✅ Verification email resent! Please check your inbox (and spam).";
-                message.className = "success";
-            } catch (err) {
-                message.innerHTML = "❌ Failed to resend: " + err.message;
-                message.className = "error";
-            }
-        });
-    }
-    return;
-}
-    // ---------------------------------
-
-    const uid = user.uid;   // Now use user.uid instead of userCredential.user.uid
-    const userDoc = await getDoc(doc(db, "users", uid));
-
-    if (!userDoc.exists()) {
-        message.innerHTML = "❌ User profile not found";
-        message.className = "error";
-        setLoading(false);
-        return;
-    }
-
-    const role = userDoc.data().role;
-
-    message.innerHTML = "✅ Login successful! Redirecting...";
-    message.className = "success";
-
-    setTimeout(() => {
-        if (role === "admin") {
-            window.location.href = "admin.html";
-        } else {
-            window.location.href = "dashboard.html";
-        }
-    }, 1500);
-}
-            } catch (error) {
-                message.innerHTML = "❌ " + error.message;
-                message.className = "error";
-                setLoading(false);
-            }
-        }
-
-        loginBtn.addEventListener("click", () => {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            handleAuth(email, password, false);
-        });
-
-        signupBtn.addEventListener("click", () => {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            
-            if (password.length < 6) {
-                message.innerHTML = "❌ Password must be at least 6 characters";
-                message.className = "error";
-                return;
-            }
-            
-            handleAuth(email, password, true);
-        });
-        document.getElementById("forgotPasswordLink").addEventListener("click", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    if (!email) {
-        message.innerHTML = "❌ Please enter your email address first.";
-        message.className = "error";
-        return;
-    }
-    try {
-        await sendPasswordResetEmail(auth, email);
-        message.innerHTML = "✅ Password reset email sent! Check your inbox (and spam).";
-        message.className = "success";
-    } catch (error) {
-        message.innerHTML = "❌ " + error.message;
-        message.className = "error";
-    }
-});
-    </script>
-    <script>
-    // Disable Right Click + Show Custom Message
-    document.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-
-        // Remove existing message if already open
-        const oldBox = document.getElementById("inspect-message-box");
-        if (oldBox) oldBox.remove();
-
-        // Create message box
-        const msgBox = document.createElement("div");
-        msgBox.id = "inspect-message-box";
-
-        msgBox.innerHTML = `
-            <div style="
-                font-size:1rem;
-                font-weight:600;
-                margin-bottom:8px;
-                color:#7bc9ff;
-                display:flex;
-                align-items:center;
-                gap:8px;
-            ">
-                <i class='fas fa-shield-alt'></i>
-                RentFlow Protected
-            </div>
-
-            <div style="
-                font-size:0.9rem;
-                line-height:1.5;
-                color:#d8ecff;
-            ">
-                This little world was built with care 💙 <br>
-                So let the magic stay hidden there.
-            </div>
-        `;
-
-        // Styling
-        Object.assign(msgBox.style, {
-            position: "fixed",
-            left: `${e.clientX}px`,
-            top: `${e.clientY}px`,
-            transform: "translate(-10%, -10%)",
-            background: "rgba(18, 25, 45, 0.92)",
-            backdropFilter: "blur(18px)",
-            border: "1px solid rgba(0,183,255,0.35)",
-            borderRadius: "22px",
-            padding: "1.3rem 1.5rem",
-            color: "white",
-            zIndex: "999999",
-            width: "320px",
-            maxWidth: "90vw",
-            fontFamily: "'Inter', sans-serif",
-            boxShadow: "0 10px 35px rgba(0,0,0,0.45), 0 0 25px rgba(0,183,255,0.18)",
-            animation: "fadeInInspect 0.25s ease"
-        });
-
-        document.body.appendChild(msgBox);
-
-        // Remove on click anywhere
-        setTimeout(() => {
-            document.addEventListener("click", removeInspectMessage, {
-                once: true
-            });
-        }, 10);
-
-        function removeInspectMessage() {
-            const box = document.getElementById("inspect-message-box");
-            if (box) {
-                box.style.opacity = "0";
-                box.style.transform = "translate(-10%, -10%) scale(0.95)";
-                setTimeout(() => box.remove(), 200);
-            }
-        }
-    });
-
-    // Disable Shortcuts
-    document.addEventListener("keydown", (e) => {
-
-        if (e.key === "F12") {
-            e.preventDefault();
-        }
-
-        if (e.ctrlKey && e.shiftKey && e.key === "I") {
-            e.preventDefault();
-        }
-
-        if (e.ctrlKey && e.shiftKey && e.key === "J") {
-            e.preventDefault();
-        }
-
-        if (e.ctrlKey && e.key === "u") {
-            e.preventDefault();
-        }
-
-        if (e.ctrlKey && e.shiftKey && e.key === "C") {
-            e.preventDefault();
-        }
-    });
-</script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RentFlow | Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-@keyframes fadeInInspect {
-    from {
-        opacity: 0;
-        transform: translate(-10%, -10%) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-10%, -10%) scale(1);
-    }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --c0:#010810;
+  --c1:#030e22;
+  --cyan:#00d4ff;
+  --cyan2:#38e8ff;
+  --blue:#1a7fff;
+  --glow:rgba(0,212,255,.32);
+  --glowS:rgba(0,212,255,.12);
+  --glass:rgba(5,16,38,.75);
+  --border:rgba(0,212,255,.2);
+  --borderH:rgba(0,212,255,.55);
+  --tHi:#edf6ff;
+  --tMid:#7fb8d8;
+  --tLo:rgba(120,170,200,.45);
+  --ok:#00ffb3;
+  --err:#ff4d7a;
+  --inf:#38e8ff;
+  --r:28px;
+}
+
+html{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--c0);
+  width:100vw;height:100vh;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  user-select:none;-webkit-user-select:none;
+  position:relative;
+}
+
+/* ══════════════════════════════════
+   CANVAS + AURORA
+══════════════════════════════════ */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+.aurora{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  overflow:hidden;
+}
+.aurora-band{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  mix-blend-mode:screen;
+  animation:auroraDrift 14s ease-in-out infinite alternate;
+}
+.a1{
+  width:70vw;height:50vh;
+  background:radial-gradient(ellipse,rgba(0,180,255,.13) 0%,transparent 65%);
+  top:-10vh;left:-10vw;
+  animation-duration:16s;animation-delay:0s;
+}
+.a2{
+  width:55vw;height:60vh;
+  background:radial-gradient(ellipse,rgba(30,120,255,.10) 0%,transparent 65%);
+  bottom:-15vh;right:-8vw;
+  animation-duration:20s;animation-delay:-5s;
+}
+.a3{
+  width:40vw;height:40vh;
+  background:radial-gradient(ellipse,rgba(0,220,255,.08) 0%,transparent 65%);
+  top:40vh;left:55vw;
+  animation-duration:12s;animation-delay:-9s;
+}
+@keyframes auroraDrift{
+  0%  {transform:translate(0,0) scale(1) rotate(0deg)}
+  33% {transform:translate(3vw,2vh) scale(1.08) rotate(3deg)}
+  66% {transform:translate(-2vw,4vh) scale(.96) rotate(-2deg)}
+  100%{transform:translate(4vw,-2vh) scale(1.04) rotate(4deg)}
+}
+
+/* grid */
+.grid{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,200,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,black 30%,transparent 100%);
+  mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,black 30%,transparent 100%);
+}
+
+/* ══════════════════════════════════
+   LAYOUT
+══════════════════════════════════ */
+.wrap{
+  position:relative;z-index:3;
+  width:min(420px,calc(100vw - 2rem));
+  display:flex;flex-direction:column;align-items:center;gap:.9rem;
+}
+
+/* ══════════════════════════════════
+   BRAND
+══════════════════════════════════ */
+.brand{
+  display:flex;flex-direction:column;align-items:center;gap:.22rem;
+  animation:enterTop .7s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes enterTop{
+  from{opacity:0;transform:translateY(-24px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+.brand-row{display:flex;align-items:center;gap:.5rem}
+.brand-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;color:#fff;flex-shrink:0;
+  box-shadow:0 0 20px var(--glow),0 0 0 1px rgba(255,255,255,.15) inset;
+  animation:iconPulse 3s ease-in-out infinite;
+}
+@keyframes iconPulse{
+  0%,100%{box-shadow:0 0 20px var(--glow),0 0 0 1px rgba(255,255,255,.15) inset}
+  50%    {box-shadow:0 0 34px rgba(0,212,255,.55),0 0 0 1px rgba(255,255,255,.2) inset}
+}
+.brand-name{
+  font-family:'Syne',sans-serif;
+  font-size:1.95rem;font-weight:800;
+  background:linear-gradient(125deg,#fff 25%,var(--cyan2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-1.5px;
+}
+.brand-tag{font-size:.78rem;color:var(--tMid);font-weight:300;letter-spacing:.05em}
+
+/* ══════════════════════════════════
+   RING DECORATION
+══════════════════════════════════ */
+.ring-wrap{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:520px;height:520px;
+  pointer-events:none;z-index:1;
+  animation:enterFade 1.2s ease both .2s;
+}
+@keyframes enterFade{from{opacity:0}to{opacity:1}}
+.ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid transparent;
+}
+.ring-1{
+  border-color:rgba(0,212,255,.06);
+  animation:spin1 28s linear infinite;
+}
+.ring-2{
+  inset:30px;
+  border-color:rgba(0,212,255,.05);
+  animation:spin1 40s linear infinite reverse;
+}
+.ring-3{
+  inset:70px;
+  border-color:rgba(0,212,255,.04);
+  animation:spin1 22s linear infinite;
+}
+/* dotted orb on ring */
+.ring-1::before,.ring-2::before,.ring-3::before{
+  content:'';position:absolute;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);
+  top:50%;left:-2.5px;
+  box-shadow:0 0 8px var(--cyan),0 0 14px var(--cyan);
+}
+.ring-2::before{width:4px;height:4px;left:-2px;background:var(--cyan2)}
+.ring-3::before{width:3px;height:3px;left:-1.5px;background:var(--blue);box-shadow:0 0 6px var(--blue)}
+@keyframes spin1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* ══════════════════════════════════
+   CARD
+══════════════════════════════════ */
+.card{
+  width:100%;
+  background:var(--glass);
+  backdrop-filter:blur(32px) saturate(170%);
+  -webkit-backdrop-filter:blur(32px) saturate(170%);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:1.7rem 1.7rem 1.4rem;
+  position:relative;overflow:hidden;
+  animation:cardRise .85s cubic-bezier(.22,1,.36,1) .1s both;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 1px 0 rgba(255,255,255,.07) inset,
+    0 28px 60px rgba(0,0,0,.65),
+    0 0 80px rgba(0,0,0,.4);
+}
+@keyframes cardRise{
+  from{opacity:0;transform:translateY(30px) scale(.96)}
+  to  {opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* animated top shimmer */
+.card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--cyan2) 40%,var(--cyan) 60%,transparent 100%);
+  opacity:.6;
+  animation:shimmerSlide 4s ease-in-out infinite;
+}
+@keyframes shimmerSlide{
+  0%  {background-position:-200% 0;opacity:.3}
+  50% {opacity:.8}
+  100%{background-position:200% 0;opacity:.3}
+}
+
+/* inner corner glow */
+.card-glow{
+  position:absolute;
+  top:-80px;right:-80px;
+  width:220px;height:220px;
+  background:radial-gradient(circle,rgba(0,212,255,.1) 0%,transparent 68%);
+  pointer-events:none;
+  animation:glowPulse 5s ease-in-out infinite;
+}
+.card-glow2{
+  position:absolute;
+  bottom:-60px;left:-60px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(26,127,255,.08) 0%,transparent 68%);
+  pointer-events:none;
+  animation:glowPulse 7s ease-in-out infinite reverse;
+}
+@keyframes glowPulse{
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%    {opacity:1;transform:scale(1.12)}
+}
+
+/* ══════════════════════════════════
+   CARD HEADER
+══════════════════════════════════ */
+.card-head{
+  text-align:center;
+  margin-bottom:1.3rem;
+  animation:enterTop .7s cubic-bezier(.22,1,.36,1) .25s both;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:.35rem;
+  font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan2);
+  background:rgba(0,212,255,.08);
+  border:1px solid rgba(0,212,255,.22);
+  border-radius:100px;padding:.28rem .85rem;
+  margin-bottom:.5rem;
+  animation:badgePop .5s cubic-bezier(.34,1.56,.64,1) .5s both;
+}
+@keyframes badgePop{
+  from{opacity:0;transform:scale(.8) translateY(4px)}
+  to  {opacity:1;transform:scale(1) translateY(0)}
+}
+.badge-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+  animation:dotBlink 2s ease-in-out infinite;
+}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.card-title{
+  font-family:'Syne',sans-serif;
+  font-size:1.5rem;font-weight:700;
+  color:var(--tHi);letter-spacing:-.4px;
+  animation:enterTop .6s cubic-bezier(.22,1,.36,1) .35s both;
+}
+.card-sub{
+  font-size:.78rem;color:var(--tLo);margin-top:.18rem;font-weight:300;
+  animation:enterTop .6s cubic-bezier(.22,1,.36,1) .42s both;
+}
+
+/* ══════════════════════════════════
+   INPUT GROUPS
+══════════════════════════════════ */
+.inp-grp{
+  position:relative;margin-bottom:.75rem;
+  animation:enterLeft .55s cubic-bezier(.22,1,.36,1) both;
+}
+.inp-grp:nth-child(1){animation-delay:.45s}
+.inp-grp:nth-child(2){animation-delay:.52s}
+@keyframes enterLeft{
+  from{opacity:0;transform:translateX(-18px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+
+.inp-label{
+  display:block;
+  font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--tMid);margin-bottom:.32rem;padding-left:.35rem;
+  transition:color .25s;
+}
+.inp-grp:focus-within .inp-label{color:var(--cyan2)}
+
+.inp-shell{position:relative}
+
+.inp-ico{
+  position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  color:var(--tLo);font-size:.82rem;
+  transition:color .3s,transform .3s;
+  pointer-events:none;z-index:2;
+}
+.inp-grp:focus-within .inp-ico{
+  color:var(--cyan);
+  transform:translateY(-50%) scale(1.15);
+}
+
+input{
+  width:100%;
+  padding:.78rem 1rem .78rem 2.5rem;
+  background:rgba(2,10,26,.72);
+  border:1.5px solid var(--border);
+  border-radius:100px;
+  font-size:.88rem;color:var(--tHi);
+  font-family:'DM Sans',sans-serif;font-weight:400;
+  letter-spacing:.01em;
+  transition:border-color .3s,box-shadow .3s,background .3s;
+}
+input:focus{
+  outline:none;
+  border-color:var(--cyan);
+  background:rgba(0,12,30,.9);
+  box-shadow:0 0 0 3px rgba(0,212,255,.1),0 0 24px rgba(0,212,255,.08);
+}
+input::placeholder{color:var(--tLo);font-weight:300}
+
+/* ripple ring on focus */
+.inp-ring{
+  position:absolute;inset:-3px;border-radius:100px;
+  border:1.5px solid var(--cyan);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+  animation:none;
+}
+input:focus ~ .inp-ring{
+  opacity:1;
+  animation:ringPulse 2s ease-in-out infinite;
+}
+@keyframes ringPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.3)}
+  50%    {box-shadow:0 0 0 5px rgba(0,212,255,0)}
+}
+
+/* ── Password eye toggle ── */
+.eye-btn{
+  position:absolute;right:.9rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--tLo);cursor:pointer;
+  font-size:.82rem;padding:.2rem .3rem;transition:color .25s;
+  z-index:2;
+}
+.eye-btn:hover{color:var(--cyan)}
+
+/* ══════════════════════════════════
+   FORGOT
+══════════════════════════════════ */
+.forgot-row{
+  display:flex;justify-content:flex-end;
+  margin:-0.2rem 0 .85rem;
+  animation:enterLeft .55s cubic-bezier(.22,1,.36,1) .58s both;
+}
+.forgot-row a{
+  font-size:.76rem;color:var(--tMid);text-decoration:none;
+  transition:color .2s;position:relative;
+}
+.forgot-row a::after{
+  content:'';position:absolute;bottom:-1px;left:0;width:0;height:1px;
+  background:var(--cyan);transition:width .28s ease;
+}
+.forgot-row a:hover{color:var(--cyan2)}
+.forgot-row a:hover::after{width:100%}
+
+/* ══════════════════════════════════
+   BUTTONS
+══════════════════════════════════ */
+.btn{
+  width:100%;padding:.8rem 1rem;
+  border:none;border-radius:100px;
+  font-size:.88rem;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.45rem;
+  letter-spacing:.02em;
+  transition:transform .28s cubic-bezier(.22,1,.36,1),
+             box-shadow .28s ease,
+             background .28s ease,
+             border-color .28s ease;
+  position:relative;overflow:hidden;
+}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* shine sweep */
+.btn::after{
+  content:'';position:absolute;
+  top:0;left:-120%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  transform:skewX(-20deg);
+  transition:left .6s ease;
+  pointer-events:none;
+}
+.btn:hover:not(:disabled)::after{left:170%}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--cyan) 0%,var(--blue) 100%);
+  color:#fff;
+  box-shadow:0 4px 22px rgba(0,212,255,.4),0 1px 0 rgba(255,255,255,.18) inset;
+  margin-bottom:.65rem;
+  animation:enterUp .55s cubic-bezier(.22,1,.36,1) .62s both;
+}
+.btn-primary:hover:not(:disabled){
+  transform:translateY(-3px) scale(1.01);
+  box-shadow:0 8px 34px rgba(0,212,255,.55),0 1px 0 rgba(255,255,255,.2) inset;
+}
+.btn-primary:active:not(:disabled){transform:translateY(0)}
+
+.btn-ghost{
+  background:rgba(10,22,50,.6);
+  border:1.5px solid var(--border);
+  color:var(--tHi);
+  margin-bottom:.55rem;
+}
+.btn-ghost:hover:not(:disabled){
+  border-color:var(--borderH);
+  background:rgba(0,212,255,.06);
+  transform:translateY(-2px);
+  box-shadow:0 4px 18px rgba(0,212,255,.12);
+}
+
+@keyframes enterUp{
+  from{opacity:0;transform:translateY(18px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+.btn-ghost:nth-of-type(1){animation:enterUp .55s cubic-bezier(.22,1,.36,1) .68s both}
+.btn-ghost:nth-of-type(2){animation:enterUp .55s cubic-bezier(.22,1,.36,1) .74s both}
+
+/* loading spinner inside button */
+.btn-spinner{
+  display:none;
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.25);
+  border-top-color:#fff;
+  animation:spin1 .7s linear infinite;
+}
+.loading .btn-spinner{display:block}
+.loading .btn-text{display:none}
+
+/* ══════════════════════════════════
+   DIVIDER
+══════════════════════════════════ */
+.divider{
+  display:flex;align-items:center;gap:.7rem;
+  margin:.4rem 0;
+  animation:enterFade .5s ease .78s both;
+}
+.div-line{flex:1;height:1px;background:var(--border)}
+.divider span{font-size:.7rem;color:var(--tLo);letter-spacing:.12em;text-transform:uppercase}
+
+/* ══════════════════════════════════
+   MESSAGE
+══════════════════════════════════ */
+#msg{
+  font-size:.8rem;min-height:2rem;
+  padding:.45rem .9rem;border-radius:100px;
+  text-align:center;margin-top:.55rem;
+  transition:all .35s cubic-bezier(.22,1,.36,1);
+  line-height:1.4;letter-spacing:.01em;
+}
+.suc{color:var(--ok);background:rgba(0,255,179,.07);border:1px solid rgba(0,255,179,.25)}
+.err{color:var(--err);background:rgba(255,77,122,.07);border:1px solid rgba(255,77,122,.22)}
+.inf{color:var(--inf);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.22)}
+
+/* ══════════════════════════════════
+   CONTEXT MENU
+══════════════════════════════════ */
+@keyframes ctxIn{
+  from{opacity:0;transform:translate(-10%,-10%) scale(.88)}
+  to  {opacity:1;transform:translate(-10%,-10%) scale(1)}
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE — NO SCROLL
+══════════════════════════════════ */
+@media(max-width:440px){
+  .wrap{width:calc(100vw - 1.6rem)}
+  .card{padding:1.4rem 1.2rem 1.2rem}
+  .brand-name{font-size:1.7rem}
+  .ring-wrap{width:380px;height:380px}
+}
+@media(max-height:680px){
+  .brand{gap:.1rem}
+  .brand-name{font-size:1.65rem}
+  .card{padding:1.1rem 1.5rem 1rem}
+  .card-head{margin-bottom:.9rem}
+  .inp-grp{margin-bottom:.55rem}
+  .btn{padding:.66rem 1rem}
+  .btn-primary{margin-bottom:.5rem}
+  .divider{margin:.25rem 0}
+  .brand-tag{display:none}
+  .card-sub{display:none}
+  .wrap{gap:.6rem}
+}
+@media(max-height:580px){
+  .card-head{margin-bottom:.6rem}
+  .card-title{font-size:1.2rem}
+  .inp-grp{margin-bottom:.4rem}
+  .btn{padding:.55rem 1rem;font-size:.82rem}
+  .ring-wrap{display:none}
 }
 </style>
+</head>
+<body>
+
+<!-- Atmosphere -->
+<div class="aurora"><div class="a1 aurora-band"></div><div class="a2 aurora-band"></div><div class="a3 aurora-band"></div></div>
+<div class="grid"></div>
+<canvas id="cvs"></canvas>
+
+<!-- Spinning rings (behind card) -->
+<div class="ring-wrap">
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-row">
+      <div class="brand-icon"><i class="fas fa-building"></i></div>
+      <span class="brand-name">RentFlow</span>
+    </div>
+    <p class="brand-tag">Smart rent management platform</p>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="card-glow"></div>
+    <div class="card-glow2"></div>
+
+    <div class="card-head">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        Secure Portal
+      </div>
+      <h2 class="card-title">Welcome back</h2>
+      <p class="card-sub">Sign in to your account to continue</p>
+    </div>
+
+    <!-- Email -->
+    <div class="inp-grp">
+      <label class="inp-label" for="email">Email address</label>
+      <div class="inp-shell">
+        <i class="fas fa-envelope inp-ico"></i>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+        <div class="inp-ring"></div>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="inp-grp">
+      <label class="inp-label" for="password">Password</label>
+      <div class="inp-shell">
+        <i class="fas fa-lock inp-ico"></i>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        <button class="eye-btn" id="eyeBtn" tabindex="-1" type="button">
+          <i class="fas fa-eye" id="eyeIco"></i>
+        </button>
+        <div class="inp-ring"></div>
+      </div>
+    </div>
+
+    <!-- Forgot -->
+    <div class="forgot-row">
+      <a href="#" id="forgotLink">Forgot password?</a>
+    </div>
+
+    <!-- Login -->
+    <button class="btn btn-primary" id="loginBtn">
+      <div class="btn-spinner"></div>
+      <span class="btn-text"><i class="fas fa-arrow-right-to-bracket"></i> Sign In</span>
+    </button>
+
+    <!-- Sign up -->
+    <button class="btn btn-ghost" id="signupBtn">
+      <i class="fas fa-user-plus"></i> Create Account
+    </button>
+
+    <div class="divider"><div class="div-line"></div><span>or</span><div class="div-line"></div></div>
+
+    <a href="index.html" style="text-decoration:none;display:block">
+      <button class="btn btn-ghost" id="homeBtn">
+        <i class="fas fa-house"></i> Back to Home
+      </button>
+    </a>
+
+    <div id="msg"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     PARTICLE ENGINE
+═══════════════════════════════ -->
+<script>
+(function(){
+  const cv=document.getElementById('cvs'),cx=cv.getContext('2d');
+  let W,H,pts=[];
+
+  function rs(){
+    W=cv.width=innerWidth;H=cv.height=innerHeight;
+  }
+  rs();addEventListener('resize',rs);
+
+  /* stars */
+  const STARS=70;
+  class Star{
+    constructor(init){
+      this.x=Math.random()*W;
+      this.y=init?Math.random()*H:H+4;
+      this.r=Math.random()*1.1+.2;
+      this.vy=-(Math.random()*.25+.06);
+      this.vx=(Math.random()-.5)*.15;
+      this.a=Math.random()*.45+.08;
+      this.ph=Math.random()*Math.PI*2;
+    }
+    draw(){
+      this.y+=this.vy;this.x+=this.vx;this.ph+=.018;
+      const a=this.a*(0.6+0.4*Math.sin(this.ph));
+      cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      cx.fillStyle=`rgba(0,212,255,${a.toFixed(3)})`;cx.fill();
+      if(this.y<-4)Object.assign(this,{x:Math.random()*W,y:H+4,ph:0});
+    }
+  }
+
+  /* connection lines between nearby stars */
+  function drawLines(){
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<110){
+          cx.beginPath();
+          cx.moveTo(pts[i].x,pts[i].y);
+          cx.lineTo(pts[j].x,pts[j].y);
+          cx.strokeStyle=`rgba(0,180,255,${(0.06*(1-d/110)).toFixed(4)})`;
+          cx.lineWidth=.5;cx.stroke();
+        }
+      }
+    }
+  }
+
+  for(let i=0;i<STARS;i++)pts.push(new Star(true));
+
+  function frame(){
+    cx.clearRect(0,0,W,H);
+    drawLines();
+    pts.forEach(p=>p.draw());
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+</script>
+
+<!-- ═══════════════════════════════
+     INTERACTIONS
+═══════════════════════════════ -->
+<script>
+// Eye toggle
+document.getElementById('eyeBtn').addEventListener('click',()=>{
+  const inp=document.getElementById('password');
+  const ico=document.getElementById('eyeIco');
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  ico.className=show?'fas fa-eye-slash':'fas fa-eye';
+});
+
+// Context menu
+document.addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  document.getElementById('_cm')?.remove();
+  const b=document.createElement('div');
+  b.id='_cm';
+  b.innerHTML=`<div style="font:.6rem/1 'Syne',sans-serif;font-weight:700;color:#38e8ff;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#38e8ff;box-shadow:0 0 8px #38e8ff;flex-shrink:0"></span>RentFlow Protected</div><div style="font:.78rem/1.5 'DM Sans',sans-serif;color:#9bc8e0;font-weight:300">This little world was built with care 💙<br>Let the magic stay hidden there.</div>`;
+  Object.assign(b.style,{position:'fixed',left:e.clientX+'px',top:e.clientY+'px',transform:'translate(-10%,-10%)',background:'rgba(3,10,26,.93)',backdropFilter:'blur(22px)',WebkitBackdropFilter:'blur(22px)',border:'1px solid rgba(0,212,255,.28)',borderRadius:'18px',padding:'1rem 1.25rem',color:'#fff',zIndex:'999999',width:'270px',maxWidth:'88vw',fontFamily:"'DM Sans',sans-serif",boxShadow:'0 14px 40px rgba(0,0,0,.55),0 0 24px rgba(0,212,255,.12)',animation:'ctxIn .2s ease both'});
+  document.body.appendChild(b);
+  setTimeout(()=>document.addEventListener('click',()=>{const x=document.getElementById('_cm');if(x){x.style.opacity='0';x.style.transform='translate(-10%,-10%) scale(.95)';x.style.transition='all .18s';setTimeout(()=>x.remove(),190)}},{once:true}),20);
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='u'))e.preventDefault();
+});
+</script>
+
+<!-- ═══════════════════════════════
+     FIREBASE AUTH
+═══════════════════════════════ -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+  authDomain:"rent-management-system-86ccc.firebaseapp.com",
+  projectId:"rent-management-system-86ccc",
+  storageBucket:"rent-management-system-86ccc.appspot.com",
+  messagingSenderId:"676999561040",
+  appId:"1:676999561040:web:f1166d818a33c5a008f655"
+});
+const auth=getAuth(app),db=getFirestore(app);
+const msg=document.getElementById('msg');
+const lBtn=document.getElementById('loginBtn');
+const sBtn=document.getElementById('signupBtn');
+
+function setMsg(txt,cls){msg.innerHTML=txt;msg.className=cls}
+function setLoad(v){
+  lBtn.disabled=v;sBtn.disabled=v;
+  lBtn.classList.toggle('loading',v);
+}
+
+async function doAuth(email,pw,isUp){
+  if(!email||!pw){setMsg('❌ Please enter email and password','err');return}
+  setMsg(isUp?'⏳ Creating account…':'⏳ Signing in…','inf');
+  setLoad(true);
+  try{
+    if(isUp){
+      const uc=await createUserWithEmailAndPassword(auth,email,pw);
+      await sendEmailVerification(uc.user);
+      await setDoc(doc(db,'users',uc.user.uid),{email,role:'tenant',createdAt:new Date().toISOString(),emailVerified:false});
+      setMsg('✅ Verification email sent! Check your inbox.','suc');
+      setLoad(false);
+    }else{
+      const uc=await signInWithEmailAndPassword(auth,email,pw);
+      const u=uc.user;
+      if(!u.emailVerified){
+        setMsg('❌ Email not verified. <a href="#" id="reLink" style="color:var(--cyan2);text-decoration:underline">Resend</a>','err');
+        setLoad(false);
+        document.getElementById('reLink')?.addEventListener('click',async e=>{
+          e.preventDefault();setMsg('⏳ Sending…','inf');
+          try{await sendEmailVerification(u);setMsg('✅ Verification email resent!','suc')}
+          catch(er){setMsg('❌ '+er.message,'err')}
+        });return;
+      }
+      const ud=await getDoc(doc(db,'users',u.uid));
+      if(!ud.exists()){setMsg('❌ User profile not found','err');setLoad(false);return}
+      const role=ud.data().role;
+      setMsg('✅ Login successful! Redirecting…','suc');
+      setTimeout(()=>{window.location.href=role==='admin'?'admin.html':'dashboard.html'},1500);
+    }
+  }catch(er){setMsg('❌ '+er.message,'err');setLoad(false)}
+}
+
+lBtn.addEventListener('click',()=>doAuth(document.getElementById('email').value,document.getElementById('password').value,false));
+sBtn.addEventListener('click',()=>{
+  const pw=document.getElementById('password').value;
+  if(pw.length<6){setMsg('❌ Password must be at least 6 characters','err');return}
+  doAuth(document.getElementById('email').value,pw,true);
+});
+document.getElementById('forgotLink').addEventListener('click',async e=>{
+  e.preventDefault();
+  const em=document.getElementById('email').value;
+  if(!em){setMsg('❌ Enter your email address first.','err');return}
+  try{await sendPasswordResetEmail(auth,em);setMsg('✅ Password reset email sent!','suc')}
+  catch(er){setMsg('❌ '+er.message,'err')}
+});
+</script>
 </body>
 </html>
