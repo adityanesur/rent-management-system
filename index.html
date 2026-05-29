@@ -7,365 +7,947 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0f1f 0%, #030614 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        body {
-    user-select: none;
-    -webkit-user-select: none;
+        *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-        /* Animated background */
-        body::before {
-            content: '';
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, rgba(0, 183, 255, 0.05) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(123, 201, 255, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
+html{
+    scroll-behavior:smooth;
+}
 
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem 5%;
-            background: rgba(10, 20, 40, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0, 183, 255, 0.15);
-            margin-top: 25px;
-            border-radius: 25px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
+body{
+    font-family:'Inter',sans-serif;
+    background:
+        radial-gradient(circle at top left,#102040 0%,transparent 35%),
+        radial-gradient(circle at bottom right,#001c35 0%,transparent 35%),
+        linear-gradient(135deg,#050816 0%,#02040d 100%);
+    color:white;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+}
 
-        .logo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #7bc9ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
+/* =========================================
+   ANIMATED BACKGROUND GLOW
+========================================= */
 
-        .nav-links {
-            display: flex;
-            gap: 1rem;
-        }
+body::before,
+body::after{
+    content:'';
+    position:fixed;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    filter:blur(100px);
+    opacity:0.18;
+    z-index:-1;
+    animation:floatGlow 12s ease-in-out infinite;
+}
 
-        .nav-btn {
-            padding: 0.7rem 1.8rem;
-            border-radius: 50px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            background: rgba(255, 255, 255, 0.03);
-            color: #e0f0ff;
-            text-decoration: none;
-            font-size: 1rem;
-        }
+body::before{
+    background:#00b7ff;
+    top:-100px;
+    left:-100px;
+}
 
-        .nav-btn:hover {
-            background: rgba(0, 183, 255, 0.1);
-            border-color: #00b7ff;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 183, 255, 0.2);
-        }
+body::after{
+    background:#3e9cff;
+    bottom:-100px;
+    right:-100px;
+    animation-delay:4s;
+}
 
-        .nav-btn-primary {
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            border: none;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 183, 255, 0.3);
-        }
+@keyframes floatGlow{
+    0%{
+        transform:translateY(0px) translateX(0px);
+    }
+    50%{
+        transform:translateY(30px) translateX(20px);
+    }
+    100%{
+        transform:translateY(0px) translateX(0px);
+    }
+}
 
-        .nav-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 183, 255, 0.5);
-        }
+/* =========================================
+   NAVBAR
+========================================= */
 
-        /* Hero Section */
-        .hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 6rem 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
+.navbar{
+    width:min(95%,1300px);
+    margin:20px auto 0 auto;
 
-        .hero h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff, #7bc9ff, #a0e0ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            max-width: 900px;
-        }
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 
-        .hero p {
-            font-size: clamp(1rem, 4vw, 1.3rem);
-            color: #b0d0ff;
-            margin-bottom: 2.5rem;
-            max-width: 700px;
-            opacity: 0.9;
-        }
+    padding:16px 28px;
 
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+    background:rgba(12,18,35,0.65);
 
-        .btn {
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
 
-        .btn-primary {
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 183, 255, 0.4);
-        }
+    border:1px solid rgba(255,255,255,0.08);
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 183, 255, 0.6);
-        }
+    border-radius:24px;
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid rgba(0, 183, 255, 0.5);
-            color: #ffffff;
-        }
+    position:sticky;
+    top:15px;
 
-        .btn-outline:hover {
-            border-color: #00b7ff;
-            background: rgba(0, 183, 255, 0.1);
-            transform: translateY(-3px);
-        }
+    z-index:999;
 
-        /* Stats Section */
-        .stats {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 3rem;
-            padding: 4rem 1.5rem;
-            background: rgba(18, 25, 45, 0.3);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            margin: 2rem auto;
-            max-width: 1200px;
-            border-radius: 30px;
-            border: 1px solid rgba(0, 183, 255, 0.1);
-        }
+    box-shadow:
+        0 10px 40px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
 
-        .stat-item {
-            text-align: center;
-            min-width: 150px;
-        }
+.logo{
+    font-family:'Poppins',sans-serif;
+    font-size:2rem;
+    font-weight:700;
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #00b7ff;
-            font-family: 'Poppins', sans-serif;
-        }
+    background:linear-gradient(
+        135deg,
+        #ffffff,
+        #7bc9ff,
+        #00b7ff
+    );
 
-        .stat-label {
-            color: #b0d0ff;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
 
-        /* Features Grid */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 4rem 5%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
 
-        .feature-card {
-            background: rgba(18, 25, 45, 0.5);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 183, 255, 0.15);
-            border-radius: 25px;
-            padding: 2.5rem 2rem;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
+.nav-btn{
+    text-decoration:none;
+    color:#d9edff;
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #00b7ff, #7bc9ff, #00b7ff);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
+    padding:12px 24px;
 
-        .feature-card:hover::before {
-            transform: translateX(100%);
-        }
+    border-radius:999px;
 
-        .feature-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(0, 183, 255, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 183, 255, 0.2);
-        }
+    background:rgba(255,255,255,0.03);
 
-        .feature-icon {
-            font-size: 2.5rem;
-            color: #00b7ff;
-            margin-bottom: 1.5rem;
-        }
+    border:1px solid rgba(255,255,255,0.08);
 
-        .feature-card h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #ffffff;
-        }
+    transition:0.35s ease;
 
-        .feature-card p {
-            color: #b0d0ff;
-            line-height: 1.7;
-        }
+    font-weight:500;
+}
 
-        /* CTA Section */
-        .cta {
-            text-align: center;
-            padding: 5rem 1.5rem;
-            background: linear-gradient(135deg, rgba(0, 183, 255, 0.1), rgba(62, 156, 255, 0.1));
-            margin: 4rem 5%;
-            border-radius: 50px;
-            border: 1px solid rgba(0, 183, 255, 0.2);
-        }
+.nav-btn:hover{
+    transform:translateY(-2px);
+    background:rgba(0,183,255,0.12);
+    border-color:#00b7ff;
+}
 
-        .cta h2 {
-            font-size: clamp(1.8rem, 5vw, 2.8rem);
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ffffff, #7bc9ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.nav-btn-primary{
+    background:linear-gradient(
+        135deg,
+        #00b7ff,
+        #3e9cff
+    );
 
-        .cta p {
-            color: #b0d0ff;
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-        }
+    border:none;
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: #7f8fa6;
-            border-top: 1px solid rgba(0, 183, 255, 0.1);
-            margin-top: 2rem;
-        }
+    color:white;
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 1rem 1.5rem;
-            }
-            
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .nav-links {
-                gap: 0.5rem;
-            }
-            
-            .nav-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            .hero {
-                padding: 4rem 1rem;
-            }
-            
-            .stats {
-                gap: 1.5rem;
-                padding: 2rem 1rem;
-            }
-            
-            .stat-number {
-                font-size: 2rem;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-                padding: 2rem 1rem;
-            }
-        }
+    box-shadow:
+        0 8px 25px rgba(0,183,255,0.35);
+}
 
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .btn {
-                padding: 0.8rem 1.8rem;
-                font-size: 1rem;
-            }
-            
-            .stat-item {
-                min-width: 120px;
-            }
-        }
+.nav-btn-primary:hover{
+    transform:translateY(-3px) scale(1.03);
+}
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero{
+    width:min(92%,1300px);
+
+    margin:auto;
+
+    min-height:90vh;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+
+    position:relative;
+}
+
+.hero::before{
+    content:'';
+    position:absolute;
+
+    width:420px;
+    height:420px;
+
+    background:
+        radial-gradient(circle,
+        rgba(0,183,255,0.25),
+        transparent 70%);
+
+    filter:blur(80px);
+
+    z-index:-1;
+
+    animation:pulseGlow 5s ease-in-out infinite;
+}
+
+@keyframes pulseGlow{
+    0%{
+        transform:scale(1);
+        opacity:0.6;
+    }
+    50%{
+        transform:scale(1.15);
+        opacity:1;
+    }
+    100%{
+        transform:scale(1);
+        opacity:0.6;
+    }
+}
+
+
+
+.hero p{
+    max-width:720px;
+
+    color:#bddfff;
+
+    font-size:clamp(1rem,2vw,1.25rem);
+
+    line-height:1.8;
+
+    margin-bottom:40px;
+
+    animation:fadeUp 1.2s ease;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    justify-content:center;
+
+    animation:fadeUp 1.4s ease;
+}
+
+.btn{
+    text-decoration:none;
+
+    padding:16px 32px;
+
+    border-radius:999px;
+
+    font-weight:600;
+
+    transition:0.35s ease;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.btn-primary{
+    background:linear-gradient(
+        135deg,
+        #00b7ff,
+        #3e9cff
+    );
+
+    color:white;
+
+    box-shadow:
+        0 10px 35px rgba(0,183,255,0.35);
+}
+
+.btn-primary:hover{
+    transform:translateY(-4px) scale(1.03);
+}
+
+.btn-outline{
+    border:1px solid rgba(255,255,255,0.15);
+
+    color:white;
+
+    background:rgba(255,255,255,0.03);
+
+    backdrop-filter:blur(10px);
+}
+
+.btn-outline:hover{
+    background:rgba(0,183,255,0.08);
+    border-color:#00b7ff;
+    transform:translateY(-4px);
+}
+
+/* =========================================
+   STATS
+========================================= */
+
+.stats{
+    width:min(92%,1200px);
+
+    margin:40px auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+
+    gap:24px;
+}
+
+.stat-item{
+    background:rgba(255,255,255,0.04);
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    border-radius:28px;
+
+    padding:40px 20px;
+
+    text-align:center;
+
+    backdrop-filter:blur(14px);
+
+    transition:0.4s ease;
+}
+
+.stat-item:hover{
+    transform:translateY(-8px);
+
+    border-color:rgba(0,183,255,0.3);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,0.35);
+}
+
+.stat-number{
+    font-size:3rem;
+    font-weight:700;
+
+    color:#00b7ff;
+
+    font-family:'Poppins',sans-serif;
+}
+
+.stat-label{
+    margin-top:10px;
+    color:#cde6ff;
+}
+
+/* =========================================
+   FEATURES
+========================================= */
+
+.features{
+    width:min(92%,1300px);
+
+    margin:90px auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(320px,1fr));
+
+    gap:30px;
+}
+
+.feature-card{
+    position:relative;
+
+    padding:40px 30px;
+
+    border-radius:32px;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.05),
+            rgba(255,255,255,0.02)
+        );
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(20px);
+
+    transition:0.45s ease;
+}
+
+.feature-card::before{
+    content:'';
+
+    position:absolute;
+    inset:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,183,255,0.12),
+            transparent
+        );
+
+    opacity:0;
+
+    transition:0.4s ease;
+}
+
+.feature-card:hover::before{
+    opacity:1;
+}
+
+.feature-card:hover{
+    transform:translateY(-12px);
+
+    border-color:rgba(0,183,255,0.3);
+
+    box-shadow:
+        0 25px 50px rgba(0,0,0,0.4);
+}
+
+.feature-icon{
+    width:72px;
+    height:72px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    border-radius:22px;
+
+    font-size:1.8rem;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,183,255,0.15),
+            rgba(62,156,255,0.15)
+        );
+
+    color:#00b7ff;
+
+    margin-bottom:24px;
+}
+
+.feature-card h3{
+    font-size:1.6rem;
+    margin-bottom:14px;
+    font-family:'Poppins',sans-serif;
+}
+
+.feature-card p{
+    color:#b8d8ff;
+    line-height:1.8;
+}
+
+/* =========================================
+   CTA
+========================================= */
+
+.cta{
+    width:min(92%,1200px);
+
+    margin:100px auto;
+
+    padding:80px 30px;
+
+    border-radius:40px;
+
+    text-align:center;
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,183,255,0.12),
+            rgba(62,156,255,0.06)
+        );
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(20px);
+}
+
+.cta h2{
+    font-size:clamp(2rem,5vw,3.5rem);
+
+    margin-bottom:20px;
+
+    font-family:'Poppins',sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            white,
+            #7bc9ff
+        );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.cta p{
+    color:#c7e4ff;
+    margin-bottom:35px;
+    font-size:1.15rem;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer{
+    text-align:center;
+
+    padding:40px 20px;
+
+    color:#7e9dbd;
+
+    border-top:1px solid rgba(255,255,255,0.06);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0px);
+    }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:768px){
+
+    .navbar{
+        padding:14px 18px;
+        border-radius:20px;
+    }
+
+    .logo{
+        font-size:1.4rem;
+    }
+
+    .nav-links{
+        gap:8px;
+    }
+
+    .nav-btn{
+        padding:10px 16px;
+        font-size:0.88rem;
+    }
+
+    .hero{
+        min-height:85vh;
+    }
+
+    .hero-buttons{
+        width:100%;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .btn{
+        width:100%;
+        justify-content:center;
+        max-width:320px;
+    }
+
+    .feature-card{
+        padding:32px 24px;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:480px){
+
+    .navbar{
+        flex-direction:column;
+        gap:16px;
+    }
+
+    .nav-links{
+        width:100%;
+        justify-content:center;
+        flex-wrap:wrap;
+    }
+
+
+    .hero p{
+        font-size:1rem;
+    }
+
+    .feature-card h3{
+        font-size:1.3rem;
+    }
+
+    .cta{
+        padding:60px 20px;
+    }
+}
+.floating-particles{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-1;
+    pointer-events:none;
+}
+
+.floating-particles span{
+    position:absolute;
+    width:8px;
+    height:8px;
+    background:rgba(123,201,255,0.35);
+    border-radius:50%;
+
+    animation:floatParticle linear infinite;
+}
+
+.floating-particles span:nth-child(1){
+    left:10%;
+    animation-duration:14s;
+    animation-delay:0s;
+}
+
+.floating-particles span:nth-child(2){
+    left:30%;
+    animation-duration:18s;
+    animation-delay:2s;
+}
+
+.floating-particles span:nth-child(3){
+    left:55%;
+    animation-duration:12s;
+    animation-delay:1s;
+}
+
+.floating-particles span:nth-child(4){
+    left:75%;
+    animation-duration:20s;
+    animation-delay:4s;
+}
+
+.floating-particles span:nth-child(5){
+    left:90%;
+    animation-duration:16s;
+    animation-delay:3s;
+}
+
+@keyframes floatParticle{
+
+    from{
+        transform:
+            translateY(100vh)
+            scale(0.5);
+
+        opacity:0;
+    }
+
+    20%{
+        opacity:1;
+    }
+
+    to{
+        transform:
+            translateY(-10vh)
+            scale(1.2);
+
+        opacity:0;
+    }
+}
+/* =========================================
+   SCROLL REVEAL ANIMATIONS
+========================================= */
+
+.reveal{
+    opacity:0;
+    transform:translateY(80px);
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+.reveal.active{
+    opacity:1;
+    transform:translateY(0px);
+}
+
+/* Left reveal */
+
+.reveal-left{
+    opacity:0;
+    transform:translateX(-80px);
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+.reveal-left.active{
+    opacity:1;
+    transform:translateX(0px);
+}
+
+/* Right reveal */
+
+.reveal-right{
+    opacity:0;
+    transform:translateX(80px);
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+.reveal-right.active{
+    opacity:1;
+    transform:translateX(0px);
+}
+
+/* Zoom reveal */
+
+.reveal-zoom{
+    opacity:0;
+    transform:scale(0.8);
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+.reveal-zoom.active{
+    opacity:1;
+    transform:scale(1);
+}
+
+
+
+/* =========================================
+   STAGGER CARD ANIMATION
+========================================= */
+
+.feature-card{
+    opacity:0;
+    transform:translateY(60px);
+}
+
+.feature-card.active{
+    animation:cardReveal 0.8s ease forwards;
+}
+
+.feature-card:nth-child(2){
+    animation-delay:0.2s;
+}
+
+.feature-card:nth-child(3){
+    animation-delay:0.4s;
+}
+
+@keyframes cardReveal{
+
+    from{
+        opacity:0;
+        transform:translateY(60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0px);
+    }
+}
+
+/* =========================================
+   FLOATING HERO EFFECT
+========================================= */
+
+.hero-content{
+    animation:heroFloat 5s ease-in-out infinite;
+}
+
+@keyframes heroFloat{
+
+    0%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-10px);
+    }
+
+    100%{
+        transform:translateY(0px);
+    }
+}
+
+/* =========================================
+   GLOWING BUTTON EFFECT
+========================================= */
+
+.btn-primary::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.25),
+            transparent
+        );
+
+    transform:translateX(-100%);
+    transition:0.8s;
+}
+
+.btn-primary:hover::before{
+    transform:translateX(100%);
+}
+
+.btn-primary{
+    position:relative;
+    overflow:hidden;
+}
+
+/* =========================================
+   PREMIUM GLASS HOVER
+========================================= */
+
+.feature-card:hover{
+    backdrop-filter:blur(30px);
+    transform:
+        translateY(-12px)
+        rotateX(4deg)
+        rotateY(-4deg);
+}
+
+/* =========================================
+   CTA GLOW PULSE
+========================================= */
+
+.cta::before{
+    content:'';
+    position:absolute;
+
+    width:500px;
+    height:500px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0,183,255,0.18),
+            transparent 70%
+        );
+
+    top:-150px;
+    left:-150px;
+
+    animation:pulseMove 6s ease-in-out infinite;
+}
+
+@keyframes pulseMove{
+
+    0%{
+        transform:translate(0,0);
+    }
+
+    50%{
+        transform:translate(60px,40px);
+    }
+
+    100%{
+        transform:translate(0,0);
+    }
+}
+
+/* =========================================
+   MOBILE OPTIMIZATION
+========================================= */
+
+#typed-headline {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    line-height: 1.2;
+    max-width: 950px;
+    margin: 0 auto 24px auto;
+    background: linear-gradient(135deg, #ffffff, #8ad4ff, #00b7ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+}
+@media (max-width: 550px) {
+    #typed-headline {
+        white-space: normal;
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+}
+/* === Fixed wrapper to prevent bounce === */
+.headline-wrapper {
+    min-height: 5rem;          /* prevents vertical jumping */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+#typed-headline {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    line-height: 1.2;
+    background: linear-gradient(135deg, #ffffff, #8ad4ff, #00b7ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* On small screens, allow wrapping and adjust wrapper height */
+@media (max-width: 550px) {
+    .headline-wrapper {
+        min-height: auto;
+    }
+    #typed-headline {
+        white-space: normal;
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+}
     </style>
 </head>
 <script>
@@ -616,57 +1198,300 @@
             <a href="login.html" class="nav-btn nav-btn-primary">Get Started</a>
         </div>
     </nav>
-
+    <div class="floating-particles">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
     <section class="hero">
-        <h1>Smart Rent Collection Made Simple</h1>
-        <p>Manage tenants, collect payments, and track everything with our modern, intuitive platform.</p>
-        <div class="hero-buttons">
-            <a href="login.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get Started</a>
-            <a href="#features" class="btn btn-outline"><i class="fas fa-play"></i> See Features</a>
-        </div>
-    </section>
 
-    <div class="stats">
-        <div class="stat-item">
-            <div class="stat-number">500+</div>
-            <div class="stat-label">Happy Tenants</div>
+        <div class="headline-wrapper">
+    <h1 id="typed-headline"></h1>
+</div>
+<div class="hero-content">
+
+        <p class="reveal">
+            Manage tenants, collect payments, and track everything with our modern, intuitive platform.
+        </p>
+
+        <div class="hero-buttons reveal">
+            <a href="login.html" class="btn btn-primary">
+                <i class="fas fa-arrow-right"></i>
+                Get Started
+            </a>
+
+            <a href="#features" class="btn btn-outline">
+                <i class="fas fa-play"></i>
+                See Features
+            </a>
         </div>
-        <div class="stat-item">
-            <div class="stat-number">₹10M+</div>
-            <div class="stat-label">Rent Collected</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">98%</div>
-            <div class="stat-label">On-time Payments</div>
-        </div>
+
     </div>
+
+</section>
+
+    <div class="stats reveal-zoom">
+
+    <div class="stat-item">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Happy Tenants</div>
+    </div>
+
+    <div class="stat-item">
+        <div class="stat-number">₹10M+</div>
+        <div class="stat-label">Rent Collected</div>
+    </div>
+
+    <div class="stat-item">
+        <div class="stat-number">98%</div>
+        <div class="stat-label">On-time Payments</div>
+    </div>
+
+</div>
 
     <section class="features" id="features">
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
-            <h3>Online Payments</h3>
-            <p>Secure UPI payments with instant confirmation. Tenants can pay rent with just a scan.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
-            <h3>Smart Analytics</h3>
-            <p>Real-time insights into your rental income, pending payments, and tenant statistics.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-file-pdf"></i></div>
-            <h3>Digital Receipts</h3>
-            <p>Auto-generate professional rent receipts that tenants can download instantly.</p>
-        </div>
-    </section>
 
-    <div class="cta">
-        <h2>Ready to streamline your rent collection?</h2>
-        <p>Join hundreds of landlords who trust RentFlow.</p>
-        <a href="login.html" class="btn btn-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
+    <div class="feature-card reveal-left">
+        <div class="feature-icon">
+            <i class="fas fa-credit-card"></i>
+        </div>
+
+        <h3>Online Payments</h3>
+
+        <p>
+            Secure UPI payments with instant confirmation.
+            Tenants can pay rent with just a scan.
+        </p>
     </div>
+
+    <div class="feature-card reveal">
+        <div class="feature-icon">
+            <i class="fas fa-chart-pie"></i>
+        </div>
+
+        <h3>Smart Analytics</h3>
+
+        <p>
+            Real-time insights into your rental income,
+            pending payments, and tenant statistics.
+        </p>
+    </div>
+
+    <div class="feature-card reveal-right">
+        <div class="feature-icon">
+            <i class="fas fa-file-pdf"></i>
+        </div>
+
+        <h3>Digital Receipts</h3>
+
+        <p>
+            Auto-generate professional rent receipts
+            that tenants can download instantly.
+        </p>
+    </div>
+
+</section>
+
+    <div class="cta reveal-zoom">
+
+    <h2>
+        Ready to streamline your rent collection?
+    </h2>
+
+    <p>
+        Join hundreds of landlords who trust RentFlow.
+    </p>
+
+    <a href="login.html" class="btn btn-primary">
+        <i class="fas fa-rocket"></i>
+        Get Started Now
+    </a>
+
+</div>
 
     <footer>
         <p>© 2026 RentFlow. All rights reserved. Made with ❤️ for landlords and tenants.</p>
     </footer>
+    <script>
+
+/* =========================================
+   SCROLL REVEAL
+========================================= */
+
+const reveals = document.querySelectorAll(
+'.reveal, .reveal-left, .reveal-right, .reveal-zoom, .feature-card'
+);
+
+function revealOnScroll(){
+
+    const windowHeight = window.innerHeight;
+
+    reveals.forEach((element)=>{
+
+        const elementTop =
+            element.getBoundingClientRect().top;
+
+        const revealPoint = 120;
+
+        if(elementTop < windowHeight - revealPoint){
+
+            element.classList.add('active');
+
+        }
+        else{
+
+            element.classList.remove('active');
+
+        }
+
+    });
+}
+
+window.addEventListener('scroll', revealOnScroll);
+
+window.addEventListener('load', revealOnScroll);
+
+/* =========================================
+   3D FLOATING CARD EFFECT
+========================================= */
+
+document.querySelectorAll('.feature-card')
+.forEach((card)=>{
+
+    card.addEventListener('mousemove',(e)=>{
+
+        const rect = card.getBoundingClientRect();
+
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = ((y - centerY) / 18);
+        const rotateY = ((centerX - x) / 18);
+
+        card.style.transform = `
+            perspective(1000px)
+            rotateX(${rotateX}deg)
+            rotateY(${rotateY}deg)
+            translateY(-10px)
+        `;
+    });
+
+    card.addEventListener('mouseleave',()=>{
+
+        card.style.transform = '';
+    });
+});
+
+
+/* =========================================
+   PARALLAX HERO GLOW
+========================================= */
+
+window.addEventListener('mousemove',(e)=>{
+
+    const glow =
+        document.querySelector('.hero::before');
+
+});
+
+/* =========================================
+   SMOOTH FLOATING EFFECT
+========================================= */
+
+document.querySelectorAll('.feature-card')
+.forEach((card)=>{
+
+    card.addEventListener('mousemove',(e)=>{
+
+        const rect =
+            card.getBoundingClientRect();
+
+        const x =
+            e.clientX - rect.left;
+
+        const y =
+            e.clientY - rect.top;
+
+        const centerX =
+            rect.width / 2;
+
+        const centerY =
+            rect.height / 2;
+
+        const rotateX =
+            ((y - centerY) / 20);
+
+        const rotateY =
+            ((centerX - x) / 20);
+
+        card.style.transform = `
+            perspective(1000px)
+            rotateX(${rotateX}deg)
+            rotateY(${rotateY}deg)
+            translateY(-10px)
+        `;
+    });
+
+    card.addEventListener('mouseleave',()=>{
+
+        card.style.transform = '';
+    });
+});
+
+</script>
+<script>
+(function() {
+    const text = "Smart Rent Collection Made Simple";
+    const element = document.getElementById('typed-headline');
+    let i = 0;
+    let timeoutId = null;
+    let isDeleting = false;
+    let pauseTimeout = null;
+
+    function typeEffect() {
+        if (!isDeleting) {
+            // Typing forward
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                timeoutId = setTimeout(typeEffect, 45);
+            } else {
+                // Finished typing: pause 3 seconds, then start deleting
+                pauseTimeout = setTimeout(() => {
+                    isDeleting = true;
+                    typeEffect();
+                }, 2500);
+            }
+        } else {
+            // Deleting backward
+            if (i > 0) {
+                element.textContent = text.substring(0, i - 1);
+                i--;
+                timeoutId = setTimeout(typeEffect, 25); // faster deletion
+            } else {
+                // Finished deleting: pause 1 second, then retype
+                isDeleting = false;
+                pauseTimeout = setTimeout(() => {
+                    typeEffect();
+                }, 1000);
+            }
+        }
+    }
+
+    // Clear any existing timeouts on page unload (optional)
+    window.addEventListener('beforeunload', () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (pauseTimeout) clearTimeout(pauseTimeout);
+    });
+
+    // Start the effect when page loads
+    window.addEventListener('load', typeEffect);
+})();
+</script>
 </body>
 </html>
