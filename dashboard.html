@@ -348,7 +348,7 @@
             </div>
         </div>
     </div>
-
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -378,7 +378,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let isProcessing = false;
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
+// After `const app = initializeApp(firebaseConfig);`
+const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('YOUR_SITE_KEY_HERE'),
+    isTokenAutoRefreshEnabled: true
+});
+        
         const now = new Date();
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
@@ -704,6 +712,14 @@
         });
 
         document.getElementById("payRentBtn").addEventListener("click", async () => {
+    if (isProcessing) {
+        alert("Please wait, your payment request is being processed...");
+        return;
+    }
+    isProcessing = true;
+    const payBtn = document.getElementById("payRentBtn");
+    payBtn.disabled = true;
+    payBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
             try {
                 const amountText = document.getElementById("rentAmount").innerText;
                 const amount = amountText.replace("₹", "").trim();
@@ -979,6 +995,46 @@ width:100%;
         </span>
     </button>
 
+
+<!-- Amazon Pay -->
+    <button
+        onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#232f3e;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://img.icons8.com/?size=100&id=vxfAoAb5vnRX&format=png&color=000000'
+            style="
+            width:46px;
+            height:32px;
+            object-fit:contain;
+            background:white;
+            padding:4px 6px;
+            border-radius:8px;
+            "
+        >
+
+        <span style="
+        color:#ff9900;
+        font-size:0.74rem;
+        font-weight:700;
+        ">
+            Amazon Pay
+        </span>
+    </button>
+                    
+
 </div>
 
 <p>Scan with any UPI app<br>(Google Pay, PhonePe, Paytm)</p>
@@ -991,9 +1047,13 @@ width:100%;
                 `);
                 setTimeout(() => loadTenantData(user), 1000);
             } catch (error) {
-                console.error(error);
-                alert("Error processing payment: " + error.message);
-            }
+        console.error(error);
+        alert("Error processing payment: " + error.message);
+    } finally {
+        isProcessing = false;
+        payBtn.disabled = false;
+        payBtn.innerHTML = `<i class="fas fa-credit-card"></i> Pay Rent Now`;
+    }
         });
     </script>
     <script>
