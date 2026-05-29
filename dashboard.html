@@ -709,9 +709,7 @@ const appCheck = initializeAppCheck(app, {
     });
 
     pdf.setFontSize(22);
-    pdf.text(`₹${amount}`, 105, 224, {
-        align: "center"
-    });
+    pdf.text(`Rs. ${amount}`, 105, 224, { align: "center" });
 
     // ===== Paid Badge =====
     pdf.setFillColor(92, 255, 157);
