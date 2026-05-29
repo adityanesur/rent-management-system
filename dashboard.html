@@ -993,19 +993,19 @@ document.getElementById("payRentBtn").addEventListener("click", async () => {
     <div class="amount">₹${amount}</div>
 
     <div class="apps-grid">
-        <button class="app-btn" onclick="window.location.href='${upiLink}'" style="background:#ffffff;">
+        <button class="app-btn" onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'" style="background:#ffffff;">
             <img src="https://img.icons8.com/color/96/google-pay.png" style="width:42px;height:42px;">
             <span style="color:#202124;">GPay</span>
         </button>
-        <button class="app-btn" onclick="window.location.href='${upiLink}'" style="background:#5f259f;">
+        <button class="app-btn" onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'" style="background:#5f259f;">
             <img src="https://img.icons8.com/color/96/phone-pe.png" style="width:42px;height:42px;border-radius:50%;background:white;padding:5px;">
             <span style="color:white;">PhonePe</span>
         </button>
-        <button class="app-btn" onclick="window.location.href='${upiLink}'" style="background:#00baf2;">
+        <button class="app-btn" onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'" style="background:#00baf2;">
             <img src="https://img.icons8.com/color/96/paytm.png" style="width:46px;height:32px;object-fit:contain;background:white;padding:4px 6px;border-radius:8px;">
             <span style="color:white;">Paytm</span>
         </button>
-        <button class="app-btn" onclick="window.location.href='${upiLink}'" style="background:#232f3e;">
+        <button class="app-btn" onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'" style="background:#232f3e;">
             <img src="https://img.icons8.com/?size=100&id=vxfAoAb5vnRX&format=png&color=000000" style="width:46px;height:32px;object-fit:contain;background:white;padding:4px 6px;border-radius:8px;">
             <span style="color:#ff9900;">Amazon Pay</span>
         </button>
