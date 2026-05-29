@@ -865,24 +865,184 @@ margin-top:22px;
 width:100%;
 ">
 
-    <button onclick="window.location.href='${upiLink}'" style="
-    background: linear-gradient(135deg, #00b7ff, #3e9cff);
-    border: none;
-    border-radius: 50px;
-    padding: 14px 20px;
-    font-size: 1rem;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    margin: 15px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-">
-    <i class="fas fa-mobile-alt"></i> Pay with UPI App
-</button>
+    <!-- Google Pay -->
+    <button
+        onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#ffffff;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://img.icons8.com/color/96/google-pay.png'
+            style="width:42px;height:42px;object-fit:contain;"
+        >
+
+        <span style="
+        color:#202124;
+        font-size:0.78rem;
+        font-weight:700;
+        ">
+            GPay
+        </span>
+    </button>
+
+    <!-- PhonePe -->
+    <button
+        onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#5f259f;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://img.icons8.com/color/96/phone-pe.png'
+            style="
+            width:42px;
+            height:42px;
+            border-radius:50%;
+            background:white;
+            padding:5px;
+            "
+        >
+
+        <span style="
+        color:white;
+        font-size:0.78rem;
+        font-weight:700;
+        ">
+            PhonePe
+        </span>
+    </button>
+
+    <!-- Paytm -->
+    <button
+        onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#00baf2;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://img.icons8.com/color/96/paytm.png'
+            style="
+            width:46px;
+            height:32px;
+            object-fit:contain;
+            background:white;
+            padding:4px 6px;
+            border-radius:8px;
+            "
+        >
+
+        <span style="
+        color:white;
+        font-size:0.78rem;
+        font-weight:700;
+        ">
+            Paytm
+        </span>
+    </button>
+
+    <!-- Amazon Pay -->
+    <button
+        onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#232f3e;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://img.icons8.com/?size=100&id=vxfAoAb5vnRX&format=png&color=000000'
+            style="
+            width:46px;
+            height:32px;
+            object-fit:contain;
+            background:white;
+            padding:4px 6px;
+            border-radius:8px;
+            "
+        >
+
+        <span style="
+        color:#ff9900;
+        font-size:0.74rem;
+        font-weight:700;
+        ">
+            Amazon Pay
+        </span>
+    </button>
+
+    <!-- SuperMoney -->
+    <button
+        onclick="window.location.href='supermoney://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
+        style="
+        background:#0f172a;
+        border:none;
+        border-radius:20px;
+        aspect-ratio:1/1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        padding:10px;
+        "
+    >
+        <img 
+            src='https://play-lh.googleusercontent.com/xb5kyKVpbNeeJlx3bKlUPcF_vJH6sel0c3FlyZ_KNx2cZtjEj-1pGGYOLHa-39LlXnY'
+            style="
+            width:42px;
+            height:42px;
+            border-radius:12px;
+            "
+        >
+
+        <span style="
+        color:#7dd3fc;
+        font-size:0.74rem;
+        font-weight:700;
+        ">
+            SuperMoney
+        </span>
+    </button>
 
 </div>
 
