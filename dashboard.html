@@ -521,55 +521,104 @@ const appCheck = initializeAppCheck(app, {
         }
 
         async function loadPaymentHistory(userId, tenantName, tenantRoom, currentRecord) {
-            const historyTable = document.getElementById("paymentHistory");
-            historyTable.innerHTML = "";
-            
-            // Get all rent records from Firestore
-            let allRecords = await getAllTenantRents(tenantName, tenantRoom, userId);
-            
-            // If current record is not already in the list, add it
-            const alreadyExists = allRecords.some(rec => rec.id === currentRecord.id);
-            if (!alreadyExists && currentRecord) {
-                // Create a fake document snapshot
-                const fakeDoc = {
-                    id: currentRecord.id,
-                    data: () => currentRecord.data
-                };
-                allRecords.unshift(fakeDoc);
-            }
-            
-            if (allRecords.length === 0) {
-                historyTable.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i><p>No payment history available</p></td></tr>';
-                return;
-            }
-            
-            for (const docSnap of allRecords) {
-                const data = docSnap.data();
-                const isFullyPaid = (data.status === 'paid' && data.receiptGenerated === true);
-                const statusClass = isFullyPaid ? 'paid' : 'pending';
-                const statusText = isFullyPaid ? 'Paid' : 'Pending';
-                let paymentDate = 'N/A';
-                if (data.date) {
-                    if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-                    else if (data.date.seconds) paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-                }
-                const row = document.createElement("tr");
-                // data-label attributes for mobile card layout
-                row.innerHTML = `
-                    <td data-label="Month">${data.month || 'N/A'} ${isFullyPaid ? `<span class="month-badge">${paymentDate}</span>` : ''}</td>
-                    <td data-label="Amount">₹${data.amount || '0'}</td>
-                    <td data-label="Status"><span class="status-badge ${statusClass}" style="padding: 0.3rem 1rem;">${statusText}</span></td>
-                    <td data-label="Receipt">${isFullyPaid ? `<button class="receipt-download-btn" data-name="${document.getElementById("tenantName").innerText}" data-room="${document.getElementById("roomNumber").innerText}" data-amount="${data.amount}" data-month="${data.month}" data-date="${paymentDate}"><i class="fas fa-download"></i> Download Receipt</button>` : '<span style="color:#4a5568;">—</span>'}</td>
-                `;
-                historyTable.appendChild(row);
-            }
-            
-            // Attach receipt download listeners
-            document.querySelectorAll('.receipt-download-btn').forEach(btn => {
-                btn.removeEventListener('click', downloadReceipt);
-                btn.addEventListener('click', downloadReceipt);
-            });
+    const historyTable = document.getElementById("paymentHistory");
+    historyTable.innerHTML = "";
+    
+    // Get all rent records from Firestore
+    let allRecords = await getAllTenantRents(tenantName, tenantRoom, userId);
+    
+    // If current record is not already in the list, add it
+    const alreadyExists = allRecords.some(rec => rec.id === currentRecord.id);
+    if (!alreadyExists && currentRecord) {
+        const fakeDoc = {
+            id: currentRecord.id,
+            data: () => currentRecord.data
+        };
+        allRecords.unshift(fakeDoc);
+    }
+    
+    if (allRecords.length === 0) {
+        const noDataRow = document.createElement("tr");
+        const noDataCell = document.createElement("td");
+        noDataCell.colSpan = 4;
+        noDataCell.className = "no-data";
+        noDataCell.innerHTML = `<i class="fas fa-inbox"></i><p>No payment history available</p>`;
+        noDataRow.appendChild(noDataCell);
+        historyTable.appendChild(noDataRow);
+        return;
+    }
+    
+    for (const docSnap of allRecords) {
+        const data = docSnap.data();
+        const isFullyPaid = (data.status === 'paid' && data.receiptGenerated === true);
+        const statusClass = isFullyPaid ? 'paid' : 'pending';
+        const statusText = isFullyPaid ? 'Paid' : 'Pending';
+        
+        let paymentDate = 'N/A';
+        if (data.date) {
+            if (data.date.toDate) paymentDate = data.date.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            else if (data.date.seconds) paymentDate = new Date(data.date.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         }
+        
+        // Create row
+        const row = document.createElement("tr");
+        
+        // Month cell
+        const monthCell = document.createElement("td");
+        monthCell.setAttribute("data-label", "Month");
+        monthCell.textContent = data.month || 'N/A';
+        if (isFullyPaid) {
+            const badgeSpan = document.createElement("span");
+            badgeSpan.className = "month-badge";
+            badgeSpan.textContent = paymentDate;
+            monthCell.appendChild(badgeSpan);
+        }
+        row.appendChild(monthCell);
+        
+        // Amount cell
+        const amountCell = document.createElement("td");
+        amountCell.setAttribute("data-label", "Amount");
+        amountCell.textContent = `₹${data.amount || '0'}`;
+        row.appendChild(amountCell);
+        
+        // Status cell
+        const statusCell = document.createElement("td");
+        statusCell.setAttribute("data-label", "Status");
+        const statusSpan = document.createElement("span");
+        statusSpan.className = `status-badge ${statusClass}`;
+        statusSpan.style.padding = "0.3rem 1rem";
+        statusSpan.textContent = statusText;
+        statusCell.appendChild(statusSpan);
+        row.appendChild(statusCell);
+        
+        // Receipt cell
+        const receiptCell = document.createElement("td");
+        receiptCell.setAttribute("data-label", "Receipt");
+        if (isFullyPaid) {
+            const receiptBtn = document.createElement("button");
+            receiptBtn.className = "receipt-download-btn";
+            receiptBtn.setAttribute("data-name", document.getElementById("tenantName").innerText);
+            receiptBtn.setAttribute("data-room", document.getElementById("roomNumber").innerText);
+            receiptBtn.setAttribute("data-amount", data.amount);
+            receiptBtn.setAttribute("data-month", data.month);
+            receiptBtn.setAttribute("data-date", paymentDate);
+            receiptBtn.innerHTML = `<i class="fas fa-download"></i> Download Receipt`;
+            receiptCell.appendChild(receiptBtn);
+        } else {
+            receiptCell.textContent = "—";
+            receiptCell.style.color = "#4a5568";
+        }
+        row.appendChild(receiptCell);
+        
+        historyTable.appendChild(row);
+    }
+    
+    // Attach receipt download listeners
+    document.querySelectorAll('.receipt-download-btn').forEach(btn => {
+        btn.removeEventListener('click', downloadReceipt);
+        btn.addEventListener('click', downloadReceipt);
+    });
+}
 
         function downloadReceipt(e) {
 
@@ -816,184 +865,24 @@ margin-top:22px;
 width:100%;
 ">
 
-    <!-- Google Pay -->
-    <button
-        onclick="window.location.href='gpay://upi/pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
-        style="
-        background:#ffffff;
-        border:none;
-        border-radius:20px;
-        aspect-ratio:1/1;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        cursor:pointer;
-        padding:10px;
-        "
-    >
-        <img 
-            src='https://img.icons8.com/color/96/google-pay.png'
-            style="width:42px;height:42px;object-fit:contain;"
-        >
-
-        <span style="
-        color:#202124;
-        font-size:0.78rem;
-        font-weight:700;
-        ">
-            GPay
-        </span>
-    </button>
-
-    <!-- PhonePe -->
-    <button
-        onclick="window.location.href='phonepe://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
-        style="
-        background:#5f259f;
-        border:none;
-        border-radius:20px;
-        aspect-ratio:1/1;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        cursor:pointer;
-        padding:10px;
-        "
-    >
-        <img 
-            src='https://img.icons8.com/color/96/phone-pe.png'
-            style="
-            width:42px;
-            height:42px;
-            border-radius:50%;
-            background:white;
-            padding:5px;
-            "
-        >
-
-        <span style="
-        color:white;
-        font-size:0.78rem;
-        font-weight:700;
-        ">
-            PhonePe
-        </span>
-    </button>
-
-    <!-- Paytm -->
-    <button
-        onclick="window.location.href='paytmmp://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
-        style="
-        background:#00baf2;
-        border:none;
-        border-radius:20px;
-        aspect-ratio:1/1;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        cursor:pointer;
-        padding:10px;
-        "
-    >
-        <img 
-            src='https://img.icons8.com/color/96/paytm.png'
-            style="
-            width:46px;
-            height:32px;
-            object-fit:contain;
-            background:white;
-            padding:4px 6px;
-            border-radius:8px;
-            "
-        >
-
-        <span style="
-        color:white;
-        font-size:0.78rem;
-        font-weight:700;
-        ">
-            Paytm
-        </span>
-    </button>
-
-    <!-- Amazon Pay -->
-    <button
-        onclick="window.location.href='amazonpay://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
-        style="
-        background:#232f3e;
-        border:none;
-        border-radius:20px;
-        aspect-ratio:1/1;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        cursor:pointer;
-        padding:10px;
-        "
-    >
-        <img 
-            src='https://img.icons8.com/?size=100&id=vxfAoAb5vnRX&format=png&color=000000'
-            style="
-            width:46px;
-            height:32px;
-            object-fit:contain;
-            background:white;
-            padding:4px 6px;
-            border-radius:8px;
-            "
-        >
-
-        <span style="
-        color:#ff9900;
-        font-size:0.74rem;
-        font-weight:700;
-        ">
-            Amazon Pay
-        </span>
-    </button>
-
-    <!-- SuperMoney -->
-    <button
-        onclick="window.location.href='supermoney://pay?pa=${upiID}&pn=${bankName}&am=${amount}&cu=INR'"
-        style="
-        background:#0f172a;
-        border:none;
-        border-radius:20px;
-        aspect-ratio:1/1;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        cursor:pointer;
-        padding:10px;
-        "
-    >
-        <img 
-            src='https://play-lh.googleusercontent.com/xb5kyKVpbNeeJlx3bKlUPcF_vJH6sel0c3FlyZ_KNx2cZtjEj-1pGGYOLHa-39LlXnY'
-            style="
-            width:42px;
-            height:42px;
-            border-radius:12px;
-            "
-        >
-
-        <span style="
-        color:#7dd3fc;
-        font-size:0.74rem;
-        font-weight:700;
-        ">
-            SuperMoney
-        </span>
-    </button>
+    <button onclick="window.location.href='${upiLink}'" style="
+    background: linear-gradient(135deg, #00b7ff, #3e9cff);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+">
+    <i class="fas fa-mobile-alt"></i> Pay with UPI App
+</button>
 
 </div>
 
