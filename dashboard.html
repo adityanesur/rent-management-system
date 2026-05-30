@@ -439,16 +439,17 @@
         }
     }
 
-td > * {
-    max-width: 100%;
+.receipt-download-btn {
+    white-space: nowrap;
 }
+
+@media (max-width: 640px) {
+    .receipt-download-btn {
+        white-space: normal;
+        word-break: keep-all;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
     }
-    tr {
-    width: 100%;
-    overflow: hidden;
-}
-tbody {
-    width: 100%;
 }
 @media (max-width: 640px) {
 
@@ -480,24 +481,22 @@ tbody {
 
     tr {
         width: 100%;
-        overflow: hidden;
-        background: rgba(2,10,26,0.6);
+        background: rgba(2, 10, 26, 0.6);
         border: 1px solid var(--border);
         border-radius: 20px;
         padding: 1rem;
+        margin: 0;
     }
 
     td {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        align-items: center;
+        gap: 1rem;
         padding: 0.7rem 0;
         border-bottom: 1px solid var(--border);
         font-size: 0.85rem;
-        overflow-wrap: break-word;
-        word-break: break-word;
+        flex-wrap: wrap;
     }
 
     td:last-child {
@@ -508,27 +507,46 @@ tbody {
         content: attr(data-label);
         color: var(--cyan);
         font-weight: 600;
-        min-width: 80px;
+        min-width: 90px;
         flex-shrink: 0;
     }
-
-    td > * {
-        max-width: 100%;
-    }
-
     .month-badge {
-        display: inline-block;
-        margin-top: 4px;
-        margin-left: 0;
-        white-space: normal;
+    display: inline-block;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+    font-size: 0.65rem;
+}
+
+    /* Ensure the content inside td (button, badge) wraps properly */
+    td .receipt-download-btn {
+        width: auto;
+        min-width: 120px;
+        justify-content: center;
     }
 
-    .receipt-download-btn {
-        width: 100%;
-        justify-content: center;
-        text-align: center;
-        font-size: 0.75rem;
-        padding: 0.6rem;
+    td .month-badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        white-space: nowrap;
+    }
+
+    /* Status badge inside td */
+    td .status-badge {
+        white-space: nowrap;
+    }
+}
+@media (max-width: 768px) {
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .info-label {
+        margin-bottom: 0.2rem;
+    }
+    .info-value {
+        font-size: 1.1rem;
+        word-break: break-word;
     }
 }
 </style>
