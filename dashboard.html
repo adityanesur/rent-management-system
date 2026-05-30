@@ -440,15 +440,19 @@ tr:hover td {
 }
 
 @media (max-width: 640px) {
+
     .table-container {
         overflow-x: hidden;
         background: transparent;
         border: none;
+        padding: 0;
         width: 100%;
     }
 
-    table, thead, tbody, tr, td {
-        display: block;
+    table {
+        width: 100%;
+        min-width: 100%;
+        border-collapse: collapse;
     }
 
     thead {
@@ -456,30 +460,33 @@ tr:hover td {
     }
 
     tbody {
-        width: 100%;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        width: 100%;
     }
 
     tr {
+        display: block;
         width: 100%;
         background: rgba(2, 10, 26, 0.6);
         border: 1px solid var(--border);
         border-radius: 20px;
-        padding: 0.8rem;
-        margin: 0;
+        padding: 1rem;
+        box-sizing: border-box;
     }
 
     td {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 0.75rem;
-        align-items: start;
-        padding: 0.6rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+        padding: 0.7rem 0;
         border-bottom: 1px solid var(--border);
         font-size: 0.8rem;
         word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     td:last-child {
@@ -490,42 +497,30 @@ tr:hover td {
         content: attr(data-label);
         color: var(--cyan);
         font-weight: 600;
-        grid-column: 1 / 2;
+        min-width: 90px;
+        max-width: 90px;
+        flex-shrink: 0;
     }
 
-    /* The real content (text, badge, button) naturally goes into the second column */
-    td > *:not(style) {
-        grid-column: 2 / 3;
-        justify-self: start;
-        text-align: left;
-        width: 100%;
-        word-break: break-word;
+    td span,
+    td button {
+        text-align: right;
     }
 
-    /* Specific adjustments for status badge and receipt button */
     .status-badge {
-        white-space: normal;
-        text-align: center;
-        display: inline-flex;
         justify-content: center;
-        width: auto;
-        max-width: 100%;
-    }
-
-    .month-badge {
-        margin-left: 0.5rem;
-        white-space: nowrap;
-        font-size: 0.6rem;
     }
 
     .receipt-download-btn {
         white-space: normal;
-        word-break: keep-all;
-        padding: 0.4rem 0.6rem;
-        font-size: 0.7rem;
         width: auto;
         max-width: 100%;
-        justify-content: center;
+        text-align: center;
+    }
+
+    .month-badge {
+        display: inline-block;
+        margin-top: 0.3rem;
     }
 }
 
