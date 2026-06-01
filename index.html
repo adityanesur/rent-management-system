@@ -948,6 +948,15 @@ footer{
         font-size: clamp(1.5rem, 5vw, 2rem);
     }
 }
+/* prevent flash of unstyled buttons while Firebase loads */
+.nav-links, .hero-buttons {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+body.loaded .nav-links,
+body.loaded .hero-buttons {
+    opacity: 1;
+}
     </style>
 </head>
 <script>
@@ -1492,6 +1501,75 @@ document.querySelectorAll('.feature-card')
     // Start the effect when page loads
     window.addEventListener('load', typeEffect);
 })();
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
+    authDomain: "rent-management-system-86ccc.firebaseapp.com",
+    projectId: "rent-management-system-86ccc",
+    storageBucket: "rent-management-system-86ccc.appspot.com",
+    messagingSenderId: "676999561040",
+    appId: "1:676999561040:web:f1166d818a33c5a008f655"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Get DOM elements
+  const navLinks = document.querySelector('.nav-links');
+  const heroButtons = document.querySelector('.hero-buttons');
+
+  // Function to update buttons based on auth state
+  function updateUIForAuth(user) {
+    if (user) {
+      // User is logged in → show Dashboard buttons
+      navLinks.innerHTML = `
+        <a href="dashboard.html" class="nav-btn nav-btn-primary">Dashboard</a>
+        <a href="login.html" class="nav-btn" id="logoutFromHome">Logout</a>
+      `;
+      heroButtons.innerHTML = `
+        <a href="dashboard.html" class="btn btn-primary">
+          <i class="fas fa-arrow-right"></i> Go to Dashboard
+        </a>
+        <a href="#features" class="btn btn-outline">
+          <i class="fas fa-play"></i> See Features
+        </a>
+      `;
+
+      // Add logout functionality
+      const logoutBtn = document.getElementById('logoutFromHome');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
+            .then(({ signOut }) => signOut(auth))
+            .then(() => window.location.reload());
+        });
+      }
+    } else {
+      // User not logged in → show Login / Get Started
+      navLinks.innerHTML = `
+        <a href="login.html" class="nav-btn">Login</a>
+        <a href="login.html" class="nav-btn nav-btn-primary">Get Started</a>
+      `;
+      heroButtons.innerHTML = `
+        <a href="login.html" class="btn btn-primary">
+          <i class="fas fa-arrow-right"></i> Get Started
+        </a>
+        <a href="#features" class="btn btn-outline">
+          <i class="fas fa-play"></i> See Features
+        </a>
+      `;
+    }
+  }
+document.body.classList.add('loaded');
+  // Listen for auth changes
+  onAuthStateChanged(auth, (user) => {
+    updateUIForAuth(user);
+  });
 </script>
 </body>
 </html>
