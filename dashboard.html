@@ -546,6 +546,18 @@ tr:hover td {
         margin-left: 0;
         margin-top: 0.2rem;
     }
+    .header-right {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .header-btn {
+        flex: 1 1 auto;
+        min-width: 80px;
+        text-align: center;
+        justify-content: center;
+    }
 }
 </style>
 </head>
@@ -571,12 +583,19 @@ tr:hover td {
                 <p>Manage your rent and payments</p>
             </div>
             <div class="header-right">
-                <button class="header-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button class="header-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+    <button class="header-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <button class="header-btn" id="homeBtn"><i class="fas fa-home"></i> Home</button>
+    <button class="header-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div>
         </div>
 
         <div class="main-card">
+            <div id="sessionExpiredMessage" style="display: none; text-align: center; padding: 3rem;">
+    <i class="fas fa-lock" style="font-size: 3rem; color: var(--cyan); margin-bottom: 1rem;"></i>
+    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Session Expired</h2>
+    <p style="color: var(--tMid); margin-bottom: 1.5rem;">You have been logged out from another tab or browser. Please login again to continue.</p>
+    <button id="redirectLoginBtn" class="pay-btn" style="margin: 0 auto;">Go to Login</button>
+</div>
             <div id="loadingMessage" class="loading">
                 <i class="fas fa-spinner"></i> Loading your dashboard...
             </div>
@@ -1027,14 +1046,53 @@ const appCheck = initializeAppCheck(app, {
     pdf.save(`rent_receipt_${month.replace(/\s/g, "_")}.pdf`);
 }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) window.location.href = "login.html";
-            else await loadTenantData(user);
-        });
+        // Function to show session expired message and hide dashboard content
+function showSessionExpired() {
+    document.getElementById("loadingMessage").style.display = "none";
+    document.getElementById("content").style.display = "none";
+    document.getElementById("sessionExpiredMessage").style.display = "block";
+    // Also clear any sensitive data from DOM
+    document.getElementById("tenantName").innerText = "";
+    document.getElementById("roomNumber").innerText = "";
+    document.getElementById("rentAmount").innerText = "";
+    document.getElementById("paymentStatusDisplay").innerHTML = "";
+    const historyBody = document.getElementById("paymentHistory");
+    if (historyBody) historyBody.innerHTML = "";
+}
+
+// Listen for auth state changes (logout in any tab/browser)
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        // User is not authenticated – show expired message instead of redirecting immediately
+        showSessionExpired();
+        return;
+    }
+    // User is authenticated, load the dashboard
+    // But first ensure the session expired message is hidden
+    document.getElementById("sessionExpiredMessage").style.display = "none";
+    await loadTenantData(user);
+});
+
+// Add a backup: listen for visibility change (user returns to tab after logout)
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && auth.currentUser === null) {
+        showSessionExpired();
+    }
+});
+
+// Add a storage event listener to catch logout from another tab (Firebase triggers onAuthStateChanged anyway, but this is extra)
+window.addEventListener("storage", (event) => {
+    if (event.key === "firebase:authUser:..." || (auth.currentUser === null && document.getElementById("content").style.display !== "none")) {
+        showSessionExpired();
+    }
+});
 
         document.getElementById("logoutBtn").addEventListener("click", () => {
             signOut(auth).then(() => window.location.href = "login.html");
         });
+        document.getElementById("homeBtn").addEventListener("click", () => {
+    window.location.href = "index.html";
+});
 
         document.getElementById("refreshBtn").addEventListener("click", () => {
             if (auth.currentUser) loadTenantData(auth.currentUser);
@@ -1339,6 +1397,9 @@ document.getElementById("payRentBtn").addEventListener("click", async () => {
         payBtn.disabled = false;
         payBtn.innerHTML = `<i class="fas fa-credit-card"></i> Pay Rent Now`;
     }
+});
+document.getElementById("redirectLoginBtn").addEventListener("click", () => {
+    window.location.href = "login.html";
 });
     </script>
     <script>
