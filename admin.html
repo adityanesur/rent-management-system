@@ -467,6 +467,158 @@ tr:hover td {
 @media (max-width: 480px) {
     td::before { min-width: 60px; }
 }
+/* Custom Logout Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+}
+.modal-container {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    animation: modalFadeIn 0.3s ease;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+.modal-icon {
+    font-size: 3rem;
+    color: var(--cyan);
+    margin-bottom: 1rem;
+}
+.modal-title {
+    font-size: 1.5rem;
+    font-family: 'Syne', sans-serif;
+    margin-bottom: 0.5rem;
+    color: var(--tHi);
+}
+.modal-message {
+    color: var(--tMid);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.modal-btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 0.9rem;
+    min-width: 100px;
+}
+.modal-btn-cancel {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    color: var(--tHi);
+}
+.modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+.modal-btn-confirm {
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+.modal-btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+}
+@media (max-width: 480px) {
+    .modal-container {
+        padding: 1.5rem;
+        width: 85%;
+    }
+    .modal-title {
+        font-size: 1.3rem;
+    }
+    .modal-btn {
+        padding: 0.6rem 1rem;
+        min-width: 80px;
+    }
+}
+/* Pay button style – same as dashboard */
+.submit-btn {
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+}
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+}
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+}
+/* Session expired message – mobile responsive */
+@media (max-width: 640px) {
+    #sessionExpiredMessage {
+        padding: 2rem 1rem !important;
+    }
+    #sessionExpiredMessage h2 {
+        font-size: 1.2rem !important;
+    }
+    #sessionExpiredMessage p {
+        font-size: 0.85rem !important;
+        padding: 0 0.5rem;
+    }
+    #redirectLoginBtn {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        display: block;
+        text-align: center;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+@media (max-width: 480px) {
+    #sessionExpiredMessage {
+        padding: 1.5rem 0.8rem !important;
+    }
+    #sessionExpiredMessage h2 {
+        font-size: 1rem !important;
+    }
+    #redirectLoginBtn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+}
 </style>
 </head>
 <body>
@@ -491,11 +643,18 @@ tr:hover td {
                 <p>Manage tenants and track payments</p>
             </div>
             <div class="header-right">
-                <button class="admin-btn" id="viewPaymentsBtn"><i class="fas fa-credit-card"></i> Payments</button>
-                <button class="admin-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button class="admin-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+    <button class="admin-btn" id="viewPaymentsBtn"><i class="fas fa-credit-card"></i> Payments</button>
+    <button class="admin-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <button class="admin-btn" id="homeBtn"><i class="fas fa-home"></i> Home</button>
+    <button class="admin-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div>
         </div>
+        <div id="sessionExpiredMessage" style="display: none; text-align: center; padding: 3rem;">
+    <i class="fas fa-lock" style="font-size: 3rem; color: var(--cyan); margin-bottom: 1rem;"></i>
+    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Session Expired</h2>
+    <p style="color: var(--tMid); margin-bottom: 1.5rem;">You have been logged out from another tab or browser. Please login again to continue.</p>
+    <button id="redirectLoginBtn" class="submit-btn" style="margin: 0 auto;">Go to Login</button>
+</div>
         <div id="message" class="message"></div>
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-label">Total Tenants</div><div class="stat-value" id="totalTenants">0</div></div>
@@ -643,18 +802,19 @@ tr:hover td {
 
         // Get server timestamp using a temporary document
         async function getServerTimestamp() {
-            const tempRef = doc(collection(db, "_temp"));
-            try {
-                await setDoc(tempRef, { createdAt: serverTimestamp() });
-                const snap = await getDoc(tempRef);
-                const serverDate = snap.data().createdAt.toDate();
-                await deleteDoc(tempRef);
-                return serverDate;
-            } catch (err) {
-                console.error("Failed to get server timestamp:", err);
-                return new Date();
-            }
-        }
+    const tempRef = doc(collection(db, "_temp"));
+    try {
+        await setDoc(tempRef, { createdAt: serverTimestamp() });
+        const snap = await getDoc(tempRef);
+        const serverDate = snap.data().createdAt.toDate();
+        await deleteDoc(tempRef);
+        console.log("✅ Server timestamp obtained:", serverDate);
+        return serverDate;
+    } catch (err) {
+        console.error("❌ Failed to get server timestamp:", err);
+        return new Date();
+    }
+}
 
         // Escape HTML to prevent XSS
         function escapeHtml(str) {
@@ -668,67 +828,73 @@ tr:hover td {
         }
 
         async function loadTenants() {
-            const tenantTable = document.getElementById("tenantTable");
-            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...';
-            const querySnapshot = await getDocs(collection(db, "tenants"));
-            tenantTable.innerHTML = "";
-            let totalTenants = 0, totalRent = 0, paidRent = 0;
-            const serverDate = await getServerTimestamp();
-            const currentMonth = serverDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    console.log("loadTenants() started");
+    const tenantTable = document.getElementById("tenantTable");
+    tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></td>';
+    try {
+        const querySnapshot = await getDocs(collection(db, "tenants"));
+        tenantTable.innerHTML = "";
+        let totalTenants = 0, totalRent = 0, paidRent = 0;
+        const serverDate = await getServerTimestamp();
+        const currentMonth = serverDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-            for (const docSnap of querySnapshot.docs) {
-                const data = docSnap.data();
-                totalTenants++;
-                let currentStatus = "pending";
-                let displayRent = data.rent || 0;
-                let errorFetching = false;
-                let errMsg = '';
+        for (const docSnap of querySnapshot.docs) {
+            const data = docSnap.data();
+            totalTenants++;
+            let currentStatus = "pending";
+            let displayRent = data.rent || 0;
+            let errorFetching = false;
+            let errMsg = '';
 
-                try {
-                    const rentRecord = await findCurrentMonthRentRecord(docSnap.id, data, currentMonth);
-                    if (rentRecord) {
-                        currentStatus = rentRecord.data.status;
-                        displayRent = rentRecord.data.amount || data.rent || 0;
-                    }
-                } catch (err) {
-                    console.error(`Error fetching rent for ${data.name}:`, err);
-                    errorFetching = true;
-                    errMsg = err.message;
+            try {
+                const rentRecord = await findCurrentMonthRentRecord(docSnap.id, data, currentMonth);
+                if (rentRecord) {
+                    currentStatus = rentRecord.data.status;
+                    displayRent = rentRecord.data.amount || data.rent || 0;
                 }
-
-                if (currentStatus === "paid") paidRent += displayRent;
-                totalRent += (data.rent || 0);
-
-                let statusHtml = '';
-                if (errorFetching) {
-                    statusHtml = `<span class="status-badge status-error" title="${escapeHtml(errMsg)}">⚠️ Error</span>`;
-                } else {
-                    let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
-                    statusHtml = `<span class="status-badge ${statusClass}">${escapeHtml(currentStatus)}</span>`;
-                }
-
-                const joiningDate = formatJoiningDate(data.joiningDate);
-                const row = document.createElement("tr");
-                // Use textContent via escaped values to avoid XSS
-                row.innerHTML = `
-    <td data-label="Name">${escapeHtml(data.name) || "N/A"}</td>
-    <td data-label="Room">${escapeHtml(data.room) || "N/A"}</td>
-    <td data-label="Joined">${escapeHtml(joiningDate)}</td>
-    <td data-label="Rent (₹)">₹${displayRent}</td>
-    <td data-label="Status">${statusHtml}</td>
-    <td data-label="Actions">
-        <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
-        <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button>
-    </td>
-`;
-                tenantTable.appendChild(row);
+            } catch (err) {
+                console.error(`Error fetching rent for ${data.name}:`, err);
+                errorFetching = true;
+                errMsg = err.message;
             }
 
-            document.getElementById("totalTenants").innerText = totalTenants;
-            document.getElementById("totalRent").innerText = `₹${totalRent}`;
-            document.getElementById("paidRent").innerText = `₹${paidRent}`;
-            document.getElementById("pendingRent").innerText = `₹${totalRent - paidRent}`;
+            if (currentStatus === "paid") paidRent += displayRent;
+            totalRent += (data.rent || 0);
+
+            let statusHtml = '';
+            if (errorFetching) {
+                statusHtml = `<span class="status-badge status-error" title="${escapeHtml(errMsg)}">⚠️ Error</span>`;
+            } else {
+                let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
+                statusHtml = `<span class="status-badge ${statusClass}">${escapeHtml(currentStatus)}</span>`;
+            }
+
+            const joiningDate = formatJoiningDate(data.joiningDate);
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td data-label="Name">${escapeHtml(data.name) || "N/A"}</td>
+                <td data-label="Room">${escapeHtml(data.room) || "N/A"}</td>
+                <td data-label="Joined">${escapeHtml(joiningDate)}</td>
+                <td data-label="Rent (₹)">₹${displayRent}</td>
+                <td data-label="Status">${statusHtml}</td>
+                <td data-label="Actions">
+                    <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
+                    <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button>
+                </td>
+            `;
+            tenantTable.appendChild(row);
         }
+
+        document.getElementById("totalTenants").innerText = totalTenants;
+        document.getElementById("totalRent").innerText = `₹${totalRent}`;
+        document.getElementById("paidRent").innerText = `₹${paidRent}`;
+        document.getElementById("pendingRent").innerText = `₹${totalRent - paidRent}`;
+    } catch (err) {
+        console.error("ERROR in loadTenants:", err);
+        tenantTable.innerHTML = `<td><td colspan="6" style="text-align: center; padding: 2rem; color: #ff6b6b;">❌ ${err.message}</td></tr>`;
+        showMessage("Failed to load tenants: " + err.message, "error");
+    }
+}
 
         window.deleteTenant = async (tenantId) => {
             if (confirm("Are you sure? This will delete all rent records for this tenant.")) {
@@ -832,7 +998,37 @@ tr:hover td {
 
         document.getElementById("viewPaymentsBtn").addEventListener("click", () => window.location.href = "admin-payments.html");
         document.getElementById("refreshBtn").addEventListener("click", loadTenants);
-        document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth).then(() => window.location.href = "login.html"));
+        // Show confirmation modal
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    document.getElementById("logoutModal").style.display = "flex";
+});
+
+// Cancel logout
+document.getElementById("cancelLogoutBtn").addEventListener("click", () => {
+    document.getElementById("logoutModal").style.display = "none";
+});
+
+// Confirm logout
+document.getElementById("confirmLogoutBtn").addEventListener("click", () => {
+    document.getElementById("logoutModal").style.display = "none";
+    signOut(auth).then(() => {
+        window.location.href = "login.html";
+    }).catch((error) => {
+        console.error("Logout error:", error);
+        alert("Error logging out. Please try again.");
+    });
+});
+
+// Close modal if clicking outside
+window.addEventListener("click", (event) => {
+    const modal = document.getElementById("logoutModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+});
+        document.getElementById("homeBtn").addEventListener("click", () => {
+    window.location.href = "index.html";
+});
 
         function showMessage(text, type) {
             const msg = document.getElementById("message");
@@ -842,19 +1038,53 @@ tr:hover td {
             setTimeout(() => msg.style.display = "none", 3000);
         }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-                return;
-            }
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (!userDoc.exists() || userDoc.data().role !== "admin") {
-                alert("Access denied. Admin only.");
-                window.location.href = "dashboard.html";
-                return;
-            }
-            await loadTenants();
-        });
+        function showSessionExpired() {
+    // Hide all main content
+    document.querySelector('.stats-grid').style.display = 'none';
+document.querySelector('.two-column').style.display = 'none';
+    document.getElementById("message").style.display = "none";
+    document.getElementById("sessionExpiredMessage").style.display = "block";
+    // Optionally clear any sensitive data
+}
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        // User is not authenticated – show expired message
+        showSessionExpired();
+        return;
+    }
+    // User is authenticated, hide expired message and load data
+    document.getElementById("sessionExpiredMessage").style.display = "none";
+    document.querySelector('.stats-grid').style.display = 'grid';
+document.querySelector('.two-column').style.display = 'grid';
+    
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+        alert("Access denied. Admin only.");
+        window.location.href = "dashboard.html";
+        return;
+    }
+    await loadTenants();
+});
+
+// Add visibility change and storage event listeners (same as dashboard)
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && auth.currentUser === null) {
+        showSessionExpired();
+    }
+});
+
+window.addEventListener("storage", (event) => {
+    if (event.key === "firebase:authUser:..." || (auth.currentUser === null && document.getElementById("stats-grid").style.display !== "none")) {
+        showSessionExpired();
+    }
+});
+
+// Redirect from session expired message
+document.getElementById("redirectLoginBtn").addEventListener("click", () => {
+    window.location.href = "login.html";
+});
     </script>
 
     <!-- DevTools detection (same as dashboard) -->
@@ -944,5 +1174,19 @@ if (!isMobileDevice()) {
     }, 1500);
 }
     </script>
+    <!-- Custom Logout Confirmation Modal -->
+<div id="logoutModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <div class="modal-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h3 class="modal-title">Confirm Logout</h3>
+        <p class="modal-message">Are you sure you want to logout? You will need to login again to access your dashboard.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" id="cancelLogoutBtn">Cancel</button>
+            <button class="modal-btn modal-btn-confirm" id="confirmLogoutBtn">Logout</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
