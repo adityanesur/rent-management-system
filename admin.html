@@ -919,8 +919,19 @@ tr:hover td {
         });
 
         // DevTools size detection (same as dashboard)
-        setInterval(() => {
-            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        // DevTools size detection – only on desktop
+function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) || window.innerWidth <= 900;
+}
+
+if (!isMobileDevice()) {
+    let devtoolsOpened = false;
+    setInterval(() => {
+        const widthThreshold = window.outerWidth - window.innerWidth;
+        const heightThreshold = window.outerHeight - window.innerHeight;
+        if (widthThreshold > 220 || heightThreshold > 220) {
+            if (!devtoolsOpened) {
+                devtoolsOpened = true;
                 document.body.innerHTML = `
                     <div style="height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:15px;background:linear-gradient(135deg,#0a0f1f 0%,#030614 100%);color:white;font-family:'Poppins',sans-serif;text-align:center;padding:20px;">
                         <div style="font-size:4rem;color:#00b7ff;"><i class="fas fa-lock"></i></div>
@@ -929,7 +940,9 @@ tr:hover td {
                     </div>
                 `;
             }
-        }, 1000);
+        }
+    }, 1500);
+}
     </script>
 </body>
 </html>
