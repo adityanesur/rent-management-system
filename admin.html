@@ -633,6 +633,28 @@ tr:hover td {
         overflow: hidden;
     }
 }
+.form-group {
+    min-width: 0;
+}
+
+.form-control {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+}
+@media (max-width: 640px) {
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
 </style>
 </head>
 <body>
