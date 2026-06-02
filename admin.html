@@ -7,373 +7,483 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* === UPDATED STYLES – FULLY RESPONSIVE === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { max-width: 100%; overflow-x: hidden; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at 20% 30%, rgba(0, 183, 255, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, rgba(123, 201, 255, 0.15) 0%, transparent 40%),
-                        linear-gradient(135deg, #0a0f1f 0%, #030614 100%);
-            background-blend-mode: overlay;
-            color: #ffffff;
-            min-height: 100vh;
-            padding: 1.5rem 1rem;
-            position: relative;
-        }
-        .admin-container { max-width: 1400px; margin: 0 auto; width: 100%; }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-        }
-        .header-left h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
-            background: linear-gradient(135deg, #ffffff, #7bc9ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.2rem;
-        }
-        .header-left p { color: #b0d0ff; font-size: 0.9rem; }
-        .header-right { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-        .admin-btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            border: 1px solid rgba(0, 183, 255, 0.3);
-            background: rgba(18, 25, 45, 0.6);
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .admin-btn:hover { border-color: #00b7ff; background: rgba(0, 183, 255, 0.1); transform: translateY(-2px); }
-        .admin-btn.logout { background: rgba(255, 75, 75, 0.2); border-color: rgba(255, 75, 75, 0.4); }
-        .admin-btn.logout:hover { background: rgba(255, 75, 75, 0.3); border-color: #ff4b4b; }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: rgba(18, 25, 45, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            border-radius: 20px;
-            padding: 1.2rem;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-5px); border-color: #00b7ff; box-shadow: 0 20px 40px rgba(0, 183, 255, 0.15); }
-        .stat-icon { font-size: 1.8rem; color: #00b7ff; margin-bottom: 0.5rem; }
-        .stat-label { color: #b0d0ff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; }
-        .stat-value { font-size: 1.5rem; font-weight: 600; font-family: 'Poppins', sans-serif; }
-        
-        /* Two Column Layout */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        /* Form Card */
-        .form-card {
-            background: rgba(18, 25, 45, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            border-radius: 25px;
-            padding: 1.5rem;
-        }
-        .form-card h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.3rem;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .form-card h3 i { color: #00b7ff; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.3rem; color: #b0d0ff; font-size: 0.9rem; }
-        .form-control {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(10, 20, 40, 0.6);
-            border: 2px solid rgba(0, 183, 255, 0.2);
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus { outline: none; border-color: #00b7ff; box-shadow: 0 0 20px rgba(0, 183, 255, 0.2); }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: linear-gradient(135deg, #00b7ff, #3e9cff);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 183, 255, 0.4); }
-        
-        /* Table Card */
-        .table-card {
-            background: rgba(18, 25, 45, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            border-radius: 25px;
-            padding: 1.5rem;
-        }
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-        }
-        .table-header h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .table-header h3 i { color: #00b7ff; }
-        .generate-btn {
-            padding: 0.5rem 1rem;
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid #ffd700;
-            border-radius: 50px;
-            color: #ffd700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-        }
-        .generate-btn:hover { background: rgba(255, 215, 0, 0.3); transform: translateY(-2px); }
-        
-        /* Desktop table styling – scrollable if needed */
-        .table-container {
-            overflow-x: auto;
-            border-radius: 15px;
-            background: rgba(10, 20, 40, 0.5);
-            border: 1px solid rgba(0, 183, 255, 0.15);
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-            max-width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 650px;
-        }
-        th {
-            text-align: left;
-            padding: 0.8rem;
-            color: #b0d0ff;
-            font-weight: 500;
-            border-bottom: 2px solid rgba(0, 183, 255, 0.2);
-            font-size: 0.85rem;
-        }
-        td {
-            padding: 0.8rem;
-            border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-            font-size: 0.85rem;
-            word-break: break-word;
-            overflow-wrap: break-word;
-        }
-        tr:hover td { background: rgba(0, 183, 255, 0.05); }
-        .status-badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
-        .status-paid { background: rgba(92, 255, 157, 0.2); color: #5cff9d; border: 1px solid rgba(92, 255, 157, 0.3); }
-        .status-pending { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
-        .status-overdue { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
-        .delete-btn, .view-btn {
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.75rem;
-            margin: 0 0.2rem;
-        }
-        .delete-btn { background: rgba(255, 75, 75, 0.2); border: 1px solid #ff4b4b; color: #ff4b4b; }
-        .delete-btn:hover { background: rgba(255, 75, 75, 0.3); }
-        .view-btn { background: rgba(0, 183, 255, 0.2); border: 1px solid #00b7ff; color: #00b7ff; }
-        .view-btn:hover { background: rgba(0, 183, 255, 0.3); }
-        
-        .message {
-            padding: 0.8rem;
-            border-radius: 15px;
-            margin-bottom: 1.5rem;
-            display: none;
-            font-size: 0.9rem;
-        }
-        .message.success { background: rgba(92, 255, 157, 0.1); border: 1px solid #5cff9d; color: #5cff9d; }
-        .message.error { background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; color: #ff6b6b; }
-        .message.info { background: rgba(123, 201, 255, 0.1); border: 1px solid #7bc9ff; color: #7bc9ff; }
-        
-        /* Mobile breakpoints */
-        @media (max-width: 1024px) {
-            .two-column { grid-template-columns: 1fr; gap: 1rem; }
-        }
-        @media (max-width: 768px) {
-            .admin-header { flex-direction: column; align-items: flex-start; }
-            .header-right { width: 100%; }
-            .admin-btn { flex: 1; justify-content: center; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-        padding: 1rem;
-    }
-
-    .stat-card {
-        padding: 0.8rem;
-    }
-
-    .stat-value {
-        font-size: 1.2rem;
-    }
-
-    .form-card,
-    .table-card {
-        padding: 1rem;
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* FIXED MOBILE TABLE LAYOUT */
-
-    .table-container {
-        overflow-x: hidden;
-        background: transparent;
-        border: none;
-        padding: 0;
-        width: 100%;
-    }
-
-    table {
-        width: 100%;
-        min-width: 100%;
-        border-collapse: collapse;
-    }
-
-    thead {
-        display: none;
-    }
-
-    tbody {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-    }
-
-    tr {
-        display: block;
-        width: 100%;
-        background: rgba(10, 20, 40, 0.55);
-        border: 1px solid rgba(0, 183, 255, 0.2);
-        border-radius: 20px;
-        padding: 1rem;
-        box-sizing: border-box;
-    }
-
-    td {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        width: 100%;
-        padding: 0.7rem 0;
-        border-bottom: 1px solid rgba(0, 183, 255, 0.1);
-        font-size: 0.85rem;
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-
-    td:last-child {
-        border-bottom: none;
-    }
-
-    td::before {
-        content: attr(data-label);
-        color: #7bc9ff;
-        font-weight: 600;
-        min-width: 90px;
-        max-width: 90px;
-        flex-shrink: 0;
-    }
-
-    td span,
-    td button {
-        text-align: right;
-    }
-
-    .delete-btn,
-    .view-btn {
-        padding: 0.35rem 0.7rem;
-        font-size: 0.72rem;
-    }
-
-    .status-badge {
-        padding: 0.3rem 0.7rem;
-        font-size: 0.75rem;
-    }
-
-    /* Prevent form overflow */
-
-    .form-control {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .submit-btn,
-    .generate-btn,
-    .admin-btn {
-        max-width: 100%;
-    }
-
-    .table-header {
-        width: 100%;
-    }
+:root {
+    --c0: #010810;
+    --c1: #030e22;
+    --cyan: #00d4ff;
+    --cyan2: #38e8ff;
+    --blue: #1a7fff;
+    --glow: rgba(0, 212, 255, 0.32);
+    --glowS: rgba(0, 212, 255, 0.12);
+    --glass: rgba(5, 16, 38, 0.75);
+    --border: rgba(0, 212, 255, 0.2);
+    --borderH: rgba(0, 212, 255, 0.55);
+    --tHi: #edf6ff;
+    --tMid: #7fb8d8;
+    --tLo: rgba(120, 170, 200, 0.45);
+    --ok: #00ffb3;
+    --pending: #ffd700;
+    --err: #ff4d7a;
 }
-    </style>
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--c0);
+    color: var(--tHi);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ===== AURORA BACKGROUND ===== */
+.aurora {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    overflow: hidden;
+}
+.aurora-band {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    mix-blend-mode: screen;
+    animation: auroraDrift 14s ease-in-out infinite alternate;
+}
+.a1 {
+    width: 70vw; height: 50vh;
+    background: radial-gradient(ellipse, rgba(0,180,255,0.13) 0%, transparent 65%);
+    top: -10vh; left: -10vw;
+    animation-duration: 16s;
+}
+.a2 {
+    width: 55vw; height: 60vh;
+    background: radial-gradient(ellipse, rgba(30,120,255,0.10) 0%, transparent 65%);
+    bottom: -15vh; right: -8vw;
+    animation-duration: 20s; animation-delay: -5s;
+}
+.a3 {
+    width: 40vw; height: 40vh;
+    background: radial-gradient(ellipse, rgba(0,220,255,0.08) 0%, transparent 65%);
+    top: 40vh; left: 55vw;
+    animation-duration: 12s; animation-delay: -9s;
+}
+@keyframes auroraDrift {
+    0%   { transform: translate(0,0) scale(1) rotate(0deg); }
+    33%  { transform: translate(3vw,2vh) scale(1.08) rotate(3deg); }
+    66%  { transform: translate(-2vw,4vh) scale(0.96) rotate(-2deg); }
+    100% { transform: translate(4vw,-2vh) scale(1.04) rotate(4deg); }
+}
+
+/* ===== GRID ===== */
+.grid {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: 
+        linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 30%, transparent 100%);
+    mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* ===== SPINNING RINGS ===== */
+.ring-wrap {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 520px; height: 520px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+}
+.ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid transparent;
+}
+.ring-1 {
+    border-color: rgba(0,212,255,0.06);
+    animation: spin1 28s linear infinite;
+}
+.ring-2 {
+    inset: 30px;
+    border-color: rgba(0,212,255,0.05);
+    animation: spin1 40s linear infinite reverse;
+}
+.ring-3 {
+    inset: 70px;
+    border-color: rgba(0,212,255,0.04);
+    animation: spin1 22s linear infinite;
+}
+.ring-1::before, .ring-2::before, .ring-3::before {
+    content: '';
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--cyan);
+    top: 50%; left: -2.5px;
+    box-shadow: 0 0 8px var(--cyan);
+}
+@keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ===== ADMIN CONTAINER ===== */
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== HEADER ===== */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    background: linear-gradient(135deg, #ffffff, var(--cyan2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.2rem;
+}
+.header-left p {
+    color: var(--tMid);
+    font-size: 0.85rem;
+}
+.header-right {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+.admin-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: rgba(18, 25, 45, 0.6);
+    color: var(--tHi);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+.admin-btn:hover {
+    border-color: var(--cyan);
+    background: rgba(0, 212, 255, 0.1);
+    transform: translateY(-2px);
+}
+.admin-btn.logout {
+    background: rgba(255, 75, 75, 0.15);
+    border-color: rgba(255, 75, 75, 0.4);
+}
+.admin-btn.logout:hover {
+    background: rgba(255, 75, 75, 0.3);
+    border-color: #ff4b4b;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.2rem;
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--cyan);
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+}
+.stat-icon {
+    font-size: 1.8rem;
+    color: var(--cyan);
+    margin-bottom: 0.5rem;
+}
+.stat-label {
+    color: var(--tMid);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.3rem;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.form-card, .table-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+.form-card h3, .table-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--tHi);
+}
+.form-card h3 i, .table-header h3 i {
+    color: var(--cyan);
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--tMid);
+    font-size: 0.9rem;
+}
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(2, 10, 26, 0.6);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--tHi);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+.submit-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+}
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+.generate-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid var(--pending);
+    border-radius: 50px;
+    color: var(--pending);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+.generate-btn:hover {
+    background: rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
+}
+.table-container {
+    overflow-x: auto;
+    border-radius: 15px;
+    background: rgba(2, 10, 26, 0.5);
+    border: 1px solid var(--border);
+    width: 100%;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+th {
+    text-align: left;
+    padding: 0.8rem;
+    color: var(--tMid);
+    font-weight: 500;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.8rem;
+}
+td {
+    padding: 0.8rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+tr:hover td {
+    background: rgba(0, 212, 255, 0.05);
+}
+.status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.status-paid {
+    background: rgba(0, 255, 179, 0.15);
+    color: var(--ok);
+    border: 1px solid rgba(0, 255, 179, 0.3);
+}
+.status-pending {
+    background: rgba(255, 215, 0, 0.15);
+    color: var(--pending);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+.status-overdue {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.delete-btn, .view-btn {
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.7rem;
+    margin: 0 0.2rem;
+}
+.delete-btn {
+    background: rgba(255, 75, 75, 0.15);
+    border: 1px solid #ff4b4b;
+    color: #ff4b4b;
+}
+.delete-btn:hover {
+    background: rgba(255, 75, 75, 0.3);
+}
+.view-btn {
+    background: rgba(0, 212, 255, 0.15);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+}
+.view-btn:hover {
+    background: rgba(0, 212, 255, 0.3);
+}
+.message {
+    padding: 0.8rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    display: none;
+    font-size: 0.9rem;
+}
+.message.success {
+    background: rgba(0, 255, 179, 0.1);
+    border: 1px solid var(--ok);
+    color: var(--ok);
+}
+.message.error {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+}
+.message.info {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .two-column { grid-template-columns: 1fr; gap: 1rem; }
+}
+@media (max-width: 768px) {
+    .admin-header { flex-direction: column; align-items: flex-start; }
+    .header-right { width: 100%; }
+    .admin-btn { flex: 1; justify-content: center; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    body { padding: 1rem; }
+    .admin-container { padding: 1rem; }
+    .stat-card { padding: 0.8rem; }
+    .stat-value { font-size: 1.2rem; }
+    .form-card, .table-card { padding: 1rem; width: 100%; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .table-container { overflow-x: hidden; background: transparent; border: none; padding: 0; width: 100%; }
+    table { width: 100%; min-width: 100%; }
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+    tr { display: block; width: 100%; background: rgba(2, 10, 26, 0.6); border: 1px solid var(--border); border-radius: 20px; padding: 1rem; box-sizing: border-box; }
+    td { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; width: 100%; padding: 0.7rem 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; word-break: break-word; overflow-wrap: break-word; }
+    td:last-child { border-bottom: none; }
+    td::before { content: attr(data-label); color: var(--cyan); font-weight: 600; min-width: 90px; max-width: 90px; flex-shrink: 0; }
+    td span, td button { text-align: right; }
+    .delete-btn, .view-btn { padding: 0.35rem 0.7rem; font-size: 0.7rem; }
+    .status-badge { padding: 0.3rem 0.6rem; font-size: 0.7rem; }
+}
+@media (max-width: 480px) {
+    td::before { min-width: 60px; }
+}
+</style>
 </head>
 <body>
+    <!-- Atmosphere (same as dashboard) -->
+<div class="aurora">
+    <div class="a1 aurora-band"></div>
+    <div class="a2 aurora-band"></div>
+    <div class="a3 aurora-band"></div>
+</div>
+<div class="grid"></div>
+
+<!-- Spinning rings -->
+<div class="ring-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+</div>
     <div class="admin-container">
         <div class="admin-header">
             <div class="header-left">
@@ -439,7 +549,7 @@
                             </tr>
                         </thead>
                         <tbody id="tenantTable">
-                            <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>
+                            <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...
                         </tbody>
                     </table>
                 </div>
@@ -449,7 +559,21 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, query, where, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            orderBy, 
+            updateDoc,
+            addDoc,
+            setDoc,
+            deleteDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -463,7 +587,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Helper: normalise string (trim, lower case)
+        // Flag to prevent double clicks on Generate Monthly Rent
+        let isGenerating = false;
+
+        // Helper: normalise string
         function normalise(str) {
             return String(str).trim().toLowerCase();
         }
@@ -479,7 +606,7 @@
             } catch (e) { return 'Invalid date'; }
         }
 
-        // Enhanced: find current month's rent record using normalised matching
+        // Find current month's rent record
         async function findCurrentMonthRentRecord(tenantDocId, data, currentMonth) {
             const tenantName = data.name;
             const tenantRoom = data.room;
@@ -487,10 +614,7 @@
             const normalisedRoom = normalise(tenantRoom);
 
             // Strategy 1: by tenantName + room (normalised)
-            let q = query(
-                collection(db, "rents"),
-                where("month", "==", currentMonth)
-            );
+            let q = query(collection(db, "rents"), where("month", "==", currentMonth));
             let snap = await getDocs(q);
             let found = null;
             snap.forEach(docSnap => {
@@ -504,66 +628,99 @@
             if (found) return found;
 
             // Strategy 2: by tenantId (document ID)
-            q = query(
-                collection(db, "rents"),
-                where("tenantId", "==", tenantDocId),
-                where("month", "==", currentMonth)
-            );
+            q = query(collection(db, "rents"), where("tenantId", "==", tenantDocId), where("month", "==", currentMonth));
             snap = await getDocs(q);
             if (!snap.empty) return { doc: snap.docs[0], data: snap.docs[0].data() };
 
             // Strategy 3: by stored uid
             if (data.uid) {
-                q = query(
-                    collection(db, "rents"),
-                    where("tenantId", "==", data.uid),
-                    where("month", "==", currentMonth)
-                );
+                q = query(collection(db, "rents"), where("tenantId", "==", data.uid), where("month", "==", currentMonth));
                 snap = await getDocs(q);
                 if (!snap.empty) return { doc: snap.docs[0], data: snap.docs[0].data() };
             }
             return null;
         }
 
+        // Get server timestamp using a temporary document
+        async function getServerTimestamp() {
+            const tempRef = doc(collection(db, "_temp"));
+            try {
+                await setDoc(tempRef, { createdAt: serverTimestamp() });
+                const snap = await getDoc(tempRef);
+                const serverDate = snap.data().createdAt.toDate();
+                await deleteDoc(tempRef);
+                return serverDate;
+            } catch (err) {
+                console.error("Failed to get server timestamp:", err);
+                return new Date();
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
         async function loadTenants() {
             const tenantTable = document.getElementById("tenantTable");
-            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...</td></tr>';
+            tenantTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading tenants...';
             const querySnapshot = await getDocs(collection(db, "tenants"));
             tenantTable.innerHTML = "";
             let totalTenants = 0, totalRent = 0, paidRent = 0;
-            const now = new Date();
-            const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const serverDate = await getServerTimestamp();
+            const currentMonth = serverDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
             for (const docSnap of querySnapshot.docs) {
                 const data = docSnap.data();
                 totalTenants++;
                 let currentStatus = "pending";
                 let displayRent = data.rent || 0;
+                let errorFetching = false;
+                let errMsg = '';
 
-                const rentRecord = await findCurrentMonthRentRecord(docSnap.id, data, currentMonth);
-                if (rentRecord) {
-                    currentStatus = rentRecord.data.status;
-                    displayRent = rentRecord.data.amount || data.rent || 0;
+                try {
+                    const rentRecord = await findCurrentMonthRentRecord(docSnap.id, data, currentMonth);
+                    if (rentRecord) {
+                        currentStatus = rentRecord.data.status;
+                        displayRent = rentRecord.data.amount || data.rent || 0;
+                    }
+                } catch (err) {
+                    console.error(`Error fetching rent for ${data.name}:`, err);
+                    errorFetching = true;
+                    errMsg = err.message;
                 }
 
                 if (currentStatus === "paid") paidRent += displayRent;
                 totalRent += (data.rent || 0);
 
-                let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
+                let statusHtml = '';
+                if (errorFetching) {
+                    statusHtml = `<span class="status-badge status-error" title="${escapeHtml(errMsg)}">⚠️ Error</span>`;
+                } else {
+                    let statusClass = currentStatus === "paid" ? "status-paid" : (currentStatus === "overdue" ? "status-overdue" : "status-pending");
+                    statusHtml = `<span class="status-badge ${statusClass}">${escapeHtml(currentStatus)}</span>`;
+                }
+
                 const joiningDate = formatJoiningDate(data.joiningDate);
                 const row = document.createElement("tr");
-                // data-label attributes for mobile card layout
+                // Use textContent via escaped values to avoid XSS
                 row.innerHTML = `
-                    <td data-label="Name">${data.name || "N/A"}</td>
-                    <td data-label="Room">${data.room || "N/A"}</td>
-                    <td data-label="Joined">${joiningDate}</td>
-                    <td data-label="Rent (₹)">₹${displayRent}</td>
-                    <td data-label="Status"><span class="status-badge ${statusClass}">${currentStatus}</span></td>
-                    <td data-label="Actions">
-                        <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
-                        <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button>
-                    </td>
-                `;
+    <td data-label="Name">${escapeHtml(data.name) || "N/A"}</td>
+    <td data-label="Room">${escapeHtml(data.room) || "N/A"}</td>
+    <td data-label="Joined">${escapeHtml(joiningDate)}</td>
+    <td data-label="Rent (₹)">₹${displayRent}</td>
+    <td data-label="Status">${statusHtml}</td>
+    <td data-label="Actions">
+        <button class="delete-btn" onclick="window.deleteTenant('${docSnap.id}')"><i class="fas fa-trash"></i></button>
+        <button class="view-btn" onclick="window.viewTenant('${docSnap.id}')"><i class="fas fa-eye"></i></button>
+    </td>
+`;
                 tenantTable.appendChild(row);
             }
 
@@ -597,8 +754,8 @@
             }
             const tenantRef = doc(db, "tenants", userUid);
             await setDoc(tenantRef, {
-                name: name,
-                room: room,
+                name: name.trim(),
+                room: room.trim(),
                 rent: Number(rent),
                 joiningDate: new Date(joiningDate),
                 uid: userUid,
@@ -613,50 +770,64 @@
             loadTenants();
         });
 
-        // Generate monthly rent – now reliably checks for existing record (paid or pending)
+        // Generate monthly rent with cooldown
         document.getElementById("generateRentBtn").addEventListener("click", async () => {
-            const tenants = await getDocs(collection(db, "tenants"));
-            const now = new Date();
-            const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-            const currentYear = now.getFullYear();
-            const currentMonthIndex = now.getMonth();
-            let generatedCount = 0, skippedCount = 0;
+            if (isGenerating) {
+                showMessage("Please wait, rent generation is already in progress...", "info");
+                return;
+            }
+            isGenerating = true;
+            const genBtn = document.getElementById("generateRentBtn");
+            genBtn.disabled = true;
+            genBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
 
-            for (const tenantDoc of tenants.docs) {
-                const data = tenantDoc.data();
-                const joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
-                if (joiningDate) {
-                    const joinYear = joiningDate.getFullYear();
-                    const joinMonth = joiningDate.getMonth();
-                    if (joinYear > currentYear || (joinYear === currentYear && joinMonth > currentMonthIndex)) {
+            try {
+                const tenants = await getDocs(collection(db, "tenants"));
+                const serverDate = await getServerTimestamp();
+                const currentMonth = serverDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const currentYear = serverDate.getFullYear();
+                const currentMonthIndex = serverDate.getMonth();
+                let generatedCount = 0, skippedCount = 0;
+
+                for (const tenantDoc of tenants.docs) {
+                    const data = tenantDoc.data();
+                    const joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
+                    if (joiningDate) {
+                        const joinYear = joiningDate.getFullYear();
+                        const joinMonth = joiningDate.getMonth();
+                        if (joinYear > currentYear || (joinYear === currentYear && joinMonth > currentMonthIndex)) {
+                            skippedCount++;
+                            continue;
+                        }
+                    }
+                    const existingRecord = await findCurrentMonthRentRecord(tenantDoc.id, data, currentMonth);
+                    if (existingRecord) {
                         skippedCount++;
                         continue;
                     }
+                    const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
+                    await addDoc(collection(db, "rents"), {
+                        tenantId: tenantIdForRent,
+                        tenantName: data.name,
+                        room: data.room,
+                        amount: data.rent,
+                        month: currentMonth,
+                        status: "pending",
+                        date: serverTimestamp(), // Use server timestamp for accuracy
+                        receiptGenerated: false
+                    });
+                    generatedCount++;
                 }
-
-                // Use normalised matching to check if any rent record exists for this tenant in this month
-                const existingRecord = await findCurrentMonthRentRecord(tenantDoc.id, data, currentMonth);
-                if (existingRecord) {
-                    skippedCount++;
-                    continue;
-                }
-
-                // No record exists – create a new pending rent record
-                const tenantIdForRent = data.uid ? data.uid : tenantDoc.id;
-                await addDoc(collection(db, "rents"), {
-                    tenantId: tenantIdForRent,
-                    tenantName: data.name,
-                    room: data.room,
-                    amount: data.rent,
-                    month: currentMonth,
-                    status: "pending",
-                    date: new Date(),
-                    receiptGenerated: false
-                });
-                generatedCount++;
+                showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed (paid or pending).`, "success");
+                loadTenants();
+            } catch (error) {
+                console.error(error);
+                showMessage("❌ Error generating rent: " + error.message, "error");
+            } finally {
+                isGenerating = false;
+                genBtn.disabled = false;
+                genBtn.innerHTML = `<i class="fas fa-file-invoice"></i> Generate Monthly Rent`;
             }
-            showMessage(`✅ Generated ${generatedCount} new rent records. ${skippedCount} already existed (paid or pending).`, "success");
-            loadTenants();
         });
 
         document.getElementById("viewPaymentsBtn").addEventListener("click", () => window.location.href = "admin-payments.html");
@@ -685,126 +856,80 @@
             await loadTenants();
         });
     </script>
+
+    <!-- DevTools detection (same as dashboard) -->
     <script>
-        // Disable text selection
-document.body.style.userSelect = "none";
-document.body.style.webkitUserSelect = "none";
+        // Disable text selection & right-click (already present)
+        document.body.style.userSelect = "none";
+        document.body.style.webkitUserSelect = "none";
 
-// Create custom inspect popup
-const inspectMessage = document.createElement("div");
-
-inspectMessage.innerHTML = `
-    <div style="
-                font-size:1rem;
-                font-weight:600;
-                margin-bottom:8px;
-                color:#7bc9ff;
-                display:flex;
-                align-items:center;
-                gap:8px;
-            ">
-                <i class='fas fa-shield-alt'></i>
-                RentFlow Protected
+        // Custom right-click message (same as dashboard)
+        const inspectMessage = document.createElement("div");
+        inspectMessage.innerHTML = `
+            <div style="font-size:1rem;font-weight:600;margin-bottom:8px;color:#7bc9ff;display:flex;align-items:center;gap:8px;">
+                <i class='fas fa-shield-alt'></i> RentFlow Protected
             </div>
-
-            <div style="
-                font-size:0.9rem;
-                line-height:1.5;
-                color:#d8ecff;
-            ">
-                This little world was built with care 💙 <br>
-                So let the magic stay hidden there.
+            <div style="font-size:0.9rem;line-height:1.5;color:#d8ecff;">
+                This little world was built with care 💙<br>So let the magic stay hidden there.
             </div>
-`;
-
-inspectMessage.style.position = "fixed";
-inspectMessage.style.zIndex = "999999";
-inspectMessage.style.padding = "18px 22px";
-inspectMessage.style.borderRadius = "22px";
-inspectMessage.style.background = "rgba(18, 25, 45, 0.92)";
-inspectMessage.style.backdropFilter = "blur(18px)";
-inspectMessage.style.webkitBackdropFilter = "blur(18px)";
-inspectMessage.style.border = "1px solid rgba(0, 183, 255, 0.25)";
-inspectMessage.style.boxShadow = `
-    0 10px 35px rgba(0,0,0,0.45),
-    0 0 20px rgba(0,183,255,0.18)
-`;
-inspectMessage.style.maxWidth = "320px";
-inspectMessage.style.opacity = "0";
-inspectMessage.style.pointerEvents = "none";
-inspectMessage.style.transition = "opacity 0.25s ease, transform 0.25s ease";
-inspectMessage.style.transform = "translateY(10px)";
-inspectMessage.style.display = "none";
-
-document.body.appendChild(inspectMessage);
-
-// Show popup on right click
-document.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-
-    inspectMessage.style.display = "block";
-
-    let x = e.clientX;
-    let y = e.clientY;
-
-    const boxWidth = 320;
-    const boxHeight = 120;
-
-    if (x + boxWidth > window.innerWidth) {
-        x = window.innerWidth - boxWidth - 20;
-    }
-
-    if (y + boxHeight > window.innerHeight) {
-        y = window.innerHeight - boxHeight - 20;
-    }
-
-    inspectMessage.style.left = x + "px";
-    inspectMessage.style.top = y + "px";
-
-    requestAnimationFrame(() => {
-        inspectMessage.style.opacity = "1";
-        inspectMessage.style.transform = "translateY(0px)";
-    });
-});
-
-// Hide popup on click
-document.addEventListener("click", () => {
-    inspectMessage.style.opacity = "0";
-    inspectMessage.style.transform = "translateY(10px)";
-
-    setTimeout(() => {
+        `;
+        inspectMessage.style.position = "fixed";
+        inspectMessage.style.zIndex = "999999";
+        inspectMessage.style.padding = "18px 22px";
+        inspectMessage.style.borderRadius = "22px";
+        inspectMessage.style.background = "rgba(18, 25, 45, 0.92)";
+        inspectMessage.style.backdropFilter = "blur(18px)";
+        inspectMessage.style.border = "1px solid rgba(0, 183, 255, 0.25)";
+        inspectMessage.style.boxShadow = "0 10px 35px rgba(0,0,0,0.45), 0 0 20px rgba(0,183,255,0.18)";
+        inspectMessage.style.maxWidth = "320px";
+        inspectMessage.style.opacity = "0";
+        inspectMessage.style.pointerEvents = "none";
+        inspectMessage.style.transition = "opacity 0.25s ease, transform 0.25s ease";
+        inspectMessage.style.transform = "translateY(10px)";
         inspectMessage.style.display = "none";
-    }, 250);
-});
+        document.body.appendChild(inspectMessage);
 
-// Disable inspect shortcuts
-document.addEventListener("keydown", (e) => {
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            inspectMessage.style.display = "block";
+            let x = e.clientX, y = e.clientY;
+            const boxWidth = 320, boxHeight = 120;
+            if (x + boxWidth > window.innerWidth) x = window.innerWidth - boxWidth - 20;
+            if (y + boxHeight > window.innerHeight) y = window.innerHeight - boxHeight - 20;
+            inspectMessage.style.left = x + "px";
+            inspectMessage.style.top = y + "px";
+            requestAnimationFrame(() => {
+                inspectMessage.style.opacity = "1";
+                inspectMessage.style.transform = "translateY(0px)";
+            });
+        });
+        document.addEventListener("click", () => {
+            inspectMessage.style.opacity = "0";
+            inspectMessage.style.transform = "translateY(10px)";
+            setTimeout(() => { inspectMessage.style.display = "none"; }, 250);
+        });
 
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-    }
+        // Disable shortcuts
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "F12") e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") e.preventDefault();
+            if (e.ctrlKey && e.key.toLowerCase() === "u") e.preventDefault();
+        });
 
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-    }
-});
+        // DevTools size detection (same as dashboard)
+        setInterval(() => {
+            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+                document.body.innerHTML = `
+                    <div style="height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:15px;background:linear-gradient(135deg,#0a0f1f 0%,#030614 100%);color:white;font-family:'Poppins',sans-serif;text-align:center;padding:20px;">
+                        <div style="font-size:4rem;color:#00b7ff;"><i class="fas fa-lock"></i></div>
+                        <div style="font-size:2rem;font-weight:600;background:linear-gradient(135deg,#ffffff,#7bc9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">RentFlow Security Enabled</div>
+                        <div style="color:#b0d0ff;max-width:600px;line-height:1.8;font-size:1rem;">Developer tools were detected.<br>To maintain security and protect application resources, access has been restricted.</div>
+                    </div>
+                `;
+            }
+        }, 1000);
     </script>
 </body>
 </html>
