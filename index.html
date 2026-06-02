@@ -1502,9 +1502,10 @@ document.querySelectorAll('.feature-card')
     window.addEventListener('load', typeEffect);
 })();
 </script>
-<script type="module">
+<<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -1517,39 +1518,13 @@ document.querySelectorAll('.feature-card')
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  // Get DOM elements
   const navLinks = document.querySelector('.nav-links');
   const heroButtons = document.querySelector('.hero-buttons');
 
-  // Function to update buttons based on auth state
-  function updateUIForAuth(user) {
-    if (user) {
-      // User is logged in → show Dashboard buttons
-      navLinks.innerHTML = `
-        <a href="dashboard.html" class="nav-btn nav-btn-primary">Dashboard</a>
-        <a href="login.html" class="nav-btn" id="logoutFromHome">Logout</a>
-      `;
-      heroButtons.innerHTML = `
-        <a href="dashboard.html" class="btn btn-primary">
-          <i class="fas fa-arrow-right"></i> Go to Dashboard
-        </a>
-        <a href="#features" class="btn btn-outline">
-          <i class="fas fa-play"></i> See Features
-        </a>
-      `;
-
-      // Add logout functionality
-      const logoutBtn = document.getElementById('logoutFromHome');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
-            .then(({ signOut }) => signOut(auth))
-            .then(() => window.location.reload());
-        });
-      }
-    } else {
+  async function updateUIForAuth(user) {
+    if (!user) {
       // User not logged in → show Login / Get Started
       navLinks.innerHTML = `
         <a href="login.html" class="nav-btn">Login</a>
@@ -1563,10 +1538,48 @@ document.querySelectorAll('.feature-card')
           <i class="fas fa-play"></i> See Features
         </a>
       `;
+      document.body.classList.add('loaded');
+      return;
     }
+
+    // User is logged in – determine role
+    let dashboardUrl = "dashboard.html";
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists() && userDoc.data().role === "admin") {
+        dashboardUrl = "admin.html";
+      }
+    } catch (err) {
+      console.error("Error fetching user role:", err);
+    }
+
+    // Update navbar
+    navLinks.innerHTML = `
+      <a href="${dashboardUrl}" class="nav-btn nav-btn-primary">Dashboard</a>
+      <a href="login.html" class="nav-btn" id="logoutFromHome">Logout</a>
+    `;
+
+    // Update hero buttons
+    heroButtons.innerHTML = `
+      <a href="${dashboardUrl}" class="btn btn-primary">
+        <i class="fas fa-arrow-right"></i> Go to Dashboard
+      </a>
+      <a href="#features" class="btn btn-outline">
+        <i class="fas fa-play"></i> See Features
+      </a>
+    `;
+
+    // Add logout functionality
+    const logoutBtn = document.getElementById('logoutFromHome');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        signOut(auth).then(() => window.location.reload());
+      });
+    }
+    document.body.classList.add('loaded');
   }
-document.body.classList.add('loaded');
-  // Listen for auth changes
+
   onAuthStateChanged(auth, (user) => {
     updateUIForAuth(user);
   });
