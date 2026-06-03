@@ -919,7 +919,7 @@ footer{
 }
 /* === Fixed wrapper to prevent bounce === */
 .headline-wrapper {
-    min-height: 5rem;          /* prevents vertical jumping */
+    min-height: 6rem;          /* Enough for 2 lines on mobile + safety */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -939,10 +939,10 @@ footer{
     white-space: nowrap;
 }
 
-/* On small screens, allow wrapping and adjust wrapper height */
+/* On small screens, allow wrapping but keep wrapper height fixed */
 @media (max-width: 550px) {
     .headline-wrapper {
-        min-height: auto;
+        min-height: 6rem;      /* Same or slightly more if needed */
     }
     #typed-headline {
         white-space: normal;
