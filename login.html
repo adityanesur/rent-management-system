@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>RentFlow | Login</title>
+<title>Rentovate | Login</title>
 <link rel="icon" type="image/png" href="logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -534,7 +534,7 @@ input:focus ~ .inp-ring{
   <div class="brand">
     <div class="brand-row">
       <div class="brand-icon"><i class="fas fa-building"></i></div>
-      <span class="brand-name">RentFlow</span>
+      <span class="brand-name">Rentovate</span>
     </div>
     <p class="brand-tag">Smart rent management platform</p>
   </div>
@@ -686,7 +686,7 @@ document.addEventListener('contextmenu',e=>{
   document.getElementById('_cm')?.remove();
   const b=document.createElement('div');
   b.id='_cm';
-  b.innerHTML=`<div style="font:.6rem/1 'Syne',sans-serif;font-weight:700;color:#38e8ff;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#38e8ff;box-shadow:0 0 8px #38e8ff;flex-shrink:0"></span>RentFlow Protected</div><div style="font:.78rem/1.5 'DM Sans',sans-serif;color:#9bc8e0;font-weight:300">This little world was built with care 💙<br>Let the magic stay hidden there.</div>`;
+  b.innerHTML=`<div style="font:.6rem/1 'Syne',sans-serif;font-weight:700;color:#38e8ff;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#38e8ff;box-shadow:0 0 8px #38e8ff;flex-shrink:0"></span>Rentovate Protected</div><div style="font:.78rem/1.5 'DM Sans',sans-serif;color:#9bc8e0;font-weight:300">This little world was built with care 💙<br>Let the magic stay hidden there.</div>`;
   Object.assign(b.style,{position:'fixed',left:e.clientX+'px',top:e.clientY+'px',transform:'translate(-10%,-10%)',background:'rgba(3,10,26,.93)',backdropFilter:'blur(22px)',WebkitBackdropFilter:'blur(22px)',border:'1px solid rgba(0,212,255,.28)',borderRadius:'18px',padding:'1rem 1.25rem',color:'#fff',zIndex:'999999',width:'270px',maxWidth:'88vw',fontFamily:"'DM Sans',sans-serif",boxShadow:'0 14px 40px rgba(0,0,0,.55),0 0 24px rgba(0,212,255,.12)',animation:'ctxIn .2s ease both'});
   document.body.appendChild(b);
   setTimeout(()=>document.addEventListener('click',()=>{const x=document.getElementById('_cm');if(x){x.style.opacity='0';x.style.transform='translate(-10%,-10%) scale(.95)';x.style.transition='all .18s';setTimeout(()=>x.remove(),190)}},{once:true}),20);
