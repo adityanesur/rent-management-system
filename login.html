@@ -729,13 +729,26 @@ async function doAuth(email,pw,isUp){
   setMsg(isUp?'⏳ Creating account…':'⏳ Signing in…','inf');
   setLoad(true);
   try{
-    if(isUp){
-      const uc=await createUserWithEmailAndPassword(auth,email,pw);
-      await sendEmailVerification(uc.user);
-      await setDoc(doc(db,'users',uc.user.uid),{email,role:'tenant',createdAt:new Date().toISOString(),emailVerified:false});
-      setMsg('✅ Verification email sent! Check your inbox.','suc');
-      setLoad(false);
-    }else{
+    if (isUp) {
+  const uc = await createUserWithEmailAndPassword(auth, email, pw);
+  // Disable default Firebase email
+  // await sendEmailVerification(uc.user);
+  
+  // Call the custom verification Cloud Function
+  const { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js');
+  const functions = getFunctions(app, 'us-central1');
+  const verifyFunc = httpsCallable(functions, 'sendVerificationEmail');
+  await verifyFunc({ email });
+  
+  await setDoc(doc(db, 'users', uc.user.uid), {
+    email,
+    role: 'tenant',
+    createdAt: new Date().toISOString(),
+    emailVerified: false
+  });
+  setMsg('✅ Verification email sent! Check your inbox.', 'suc');
+  setLoad(false);
+}else{
       const uc=await signInWithEmailAndPassword(auth,email,pw);
       const u=uc.user;
       if(!u.emailVerified){
@@ -743,8 +756,37 @@ async function doAuth(email,pw,isUp){
         setLoad(false);
         document.getElementById('reLink')?.addEventListener('click',async e=>{
           e.preventDefault();setMsg('⏳ Sending…','inf');
-          try{await sendEmailVerification(u);setMsg('✅ Verification email resent!','suc')}
-          catch(er){setMsg('❌ '+er.message,'err')}
+          try{const { getFunctions, httpsCallable } =
+  await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js');
+
+const functions = getFunctions(app, 'us-central1');
+const verifyFunc = httpsCallable(functions, 'sendVerificationEmail');
+
+const result = await verifyFunc({ email: u.email });
+
+setMsg(
+  result.data.message ||
+  "✅ Verification email sent successfully.",
+  "suc"
+);}
+          catch (er) {
+
+  console.error(er);
+
+  let msg =
+    "Unable to send verification email. Please try again later.";
+
+  if (
+    er.message?.includes("multiple times") ||
+    er.message?.includes("short period") ||
+    er.code === "functions/resource-exhausted"
+  ) {
+    msg =
+      "⚠️ You've requested verification emails several times recently. Please wait 10-15 minutes before requesting another email.";
+  }
+
+  setMsg(msg, "err");
+}
         });return;
       }
       const ud=await getDoc(doc(db,'users',u.uid));
@@ -753,7 +795,22 @@ async function doAuth(email,pw,isUp){
       setMsg('✅ Login successful! Redirecting…','suc');
       setTimeout(()=>{window.location.href=role==='admin'?'admin.html':'dashboard.html'},1500);
     }
-  }catch(er){setMsg('❌ '+er.message,'err');setLoad(false)}
+  }catch (er) {
+  console.error("FULL AUTH ERROR:", er);
+
+  if (
+    er.code === "auth/user-not-found" ||
+    er.code === "auth/wrong-password" ||
+    er.code === "auth/invalid-credential" ||
+    er.code === "auth/invalid-email"
+  ) {
+    setMsg("❌ Invalid email or password.", "err");
+  } else {
+    setMsg("❌ Login failed. Please try again later.", "err");
+  }
+
+  setLoad(false);
+}
 }
 
 lBtn.addEventListener('click',()=>doAuth(document.getElementById('email').value,document.getElementById('password').value,false));
@@ -762,12 +819,26 @@ sBtn.addEventListener('click',()=>{
   if(pw.length<6){setMsg('❌ Password must be at least 6 characters','err');return}
   doAuth(document.getElementById('email').value,pw,true);
 });
-document.getElementById('forgotLink').addEventListener('click',async e=>{
+document.getElementById('forgotLink').addEventListener('click', async (e) => {
   e.preventDefault();
-  const em=document.getElementById('email').value;
-  if(!em){setMsg('❌ Enter your email address first.','err');return}
-  try{await sendPasswordResetEmail(auth,em);setMsg('✅ Password reset email sent!','suc')}
-  catch(er){setMsg('❌ '+er.message,'err')}
+  const email = document.getElementById('email').value;
+  if (!email) {
+    setMsg('❌ Enter your email address first.', 'err');
+    return;
+  }
+  setMsg('⏳ Sending reset link...', 'inf');
+  try {
+    // Firebase Functions SDK (already imported? no, dynamic import is fine)
+    const { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js');
+    // Use the global app instance (which is defined above)
+    const functions = getFunctions(app, 'us-central1');
+    const resetPasswordFunc = httpsCallable(functions, 'sendPasswordReset');
+    await resetPasswordFunc({ email });
+    setMsg('✅ Password reset email sent! Check your inbox.', 'suc');
+  } catch (error) {
+    console.error('Error:', error);
+    setMsg('❌ ' + (error.message || 'Unknown error'), 'err');
+  }
 });
 </script>
 </body>
