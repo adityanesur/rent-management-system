@@ -660,6 +660,314 @@ tr:hover td {
         min-width: 80px;
     }
 }
+/* ===== CLEAN PROFILE MODAL ===== */
+.profile-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.profile-modal {
+    width: min(100%, 500px);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(145deg, #0a1225, #050a18);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 28px;
+    padding: 1.5rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* scrollbar */
+.profile-modal::-webkit-scrollbar {
+    width: 5px;
+}
+.profile-modal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.profile-modal::-webkit-scrollbar-thumb {
+    background: var(--cyan);
+    border-radius: 10px;
+}
+
+/* header */
+.profile-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+.profile-modal-header h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: white;
+}
+/* ===== PROFILE AVATAR (top-right) - MAKE IT VISIBLE ===== */
+.profile-section {
+    cursor: pointer;
+}
+.profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3), 0 4px 12px rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+}
+.profile-avatar:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.5), 0 8px 25px rgba(0, 212, 255, 0.5);
+    background: linear-gradient(135deg, var(--cyan2), var(--blue));
+}
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+.close-modal:hover {
+    color: var(--cyan);
+    background: rgba(0, 212, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+/* hero section (single avatar) */
+.profile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+}
+.profile-avatar-large {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+}
+.profile-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 0.2rem;
+}
+.profile-email {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    word-break: break-word;
+}
+
+/* profile fields */
+.profile-field {
+    margin-bottom: 1rem;
+}
+.premium-field {
+    background: rgba(10, 20, 45, 0.6);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: 20px;
+    padding: 0.8rem 1rem;
+    transition: all 0.2s;
+}
+.premium-field:hover {
+    border-color: rgba(0, 212, 255, 0.4);
+    background: rgba(10, 20, 50, 0.8);
+}
+.field-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.field-label {
+    color: var(--cyan);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+.field-value {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* edit buttons */
+/* edit buttons - pencil yellow, save green */
+.edit-field-btn {
+    background: rgba(255, 215, 0, 0.15);
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--pending);  /* #ffd700 */
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+.edit-field-btn:hover {
+    background: var(--pending);
+    color: #010810;
+    transform: scale(1.05);
+}
+
+.save-field-btn {
+    background: rgba(0, 255, 179, 0.15);
+    border: none;
+    padding: 0 12px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--ok);  /* #00ffb3 */
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+.save-field-btn:hover {
+    background: var(--ok);
+    color: #010810;
+    transform: scale(1.02);
+}
+
+/* edit input */
+.edit-input {
+    width: calc(100% - 50px);
+    padding: 0.6rem 0.8rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 14px;
+    color: white;
+    font-size: 0.9rem;
+}
+.edit-input:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
+
+/* progress bar */
+.profile-progress {
+    margin-top: 1.5rem;
+    padding: 0.8rem;
+    background: rgba(0, 212, 255, 0.05);
+    border-radius: 18px;
+    border: 1px solid rgba(0, 212, 255, 0.1);
+}
+.progress-text {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--blue));
+    width: 0%;
+    border-radius: 10px;
+}
+
+/* logout button - clean & elegant */
+.btn-logout {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+.btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* mobile responsiveness */
+@media (max-width: 640px) {
+    .profile-modal {
+        width: 95%;
+        padding: 1rem;
+        border-radius: 24px;
+    }
+    .profile-avatar-large {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+    .profile-name {
+        font-size: 1.1rem;
+    }
+    .profile-email {
+        font-size: 0.75rem;
+    }
+    .premium-field {
+        padding: 0.7rem;
+    }
+    .field-value {
+        font-size: 0.9rem;
+    }
+    .edit-field-btn, .save-field-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
 </style>
 </head>
 <body>
@@ -679,16 +987,32 @@ tr:hover td {
 </div>
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <div class="header-left">
-                <h1><i class="fas fa-home"></i> Tenant Dashboard</h1>
-                <p>Manage your rent and payments</p>
-            </div>
-            <div class="header-right">
-    <button class="header-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-    <button class="header-btn" id="homeBtn"><i class="fas fa-home"></i> Home</button>
-    <button class="header-btn logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <div class="header-left">
+        <h1><i class="fas fa-home"></i> Tenant Dashboard</h1>
+        <p>Manage your rent and payments</p>
+    </div>
+    <div class="header-right">
+        <button class="header-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <button class="header-btn" id="homeBtn"><i class="fas fa-home"></i> Home</button>
+        <div class="profile-section" id="profileTrigger" title="My Profile">
+    <div class="profile-avatar" id="profileAvatar">U</div>
 </div>
+    </div>
+</div>
+
+<!-- Premium Profile Modal -->
+<div id="profileModal" class="profile-modal-overlay" style="display: none;">
+    <div class="profile-modal">
+        <div class="profile-modal-header">
+            <h3><i class="fas fa-user-circle"></i> My Account</h3>
+            <button class="close-modal" id="closeProfileModal">&times;</button>
         </div>
+        <div id="profileContent">
+            <!-- dynamic content will be inserted here -->
+        </div>
+        <button class="btn-logout" id="modalLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</div>
 
         <div class="main-card">
             <div id="sessionExpiredMessage" style="display: none; text-align: center; padding: 3rem;">
@@ -768,19 +1092,21 @@ tr:hover td {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            orderBy, 
-            updateDoc,
-            addDoc,
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    orderBy,
+    updateDoc,
+    addDoc,
+    setDoc,
+    writeBatch
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
@@ -873,6 +1199,12 @@ const appCheck = initializeAppCheck(app, {
                 document.getElementById("tenantName").innerText = tenantName;
                 document.getElementById("roomNumber").innerText = tenantRoom;
                 document.getElementById("rentAmount").innerText = "₹" + monthlyRent;
+
+
+                // ===== LOAD USER PROFILE DATA =====
+const userProfile = await loadUserProfile(user.uid);
+currentUserData = userProfile;
+updateProfileAvatar();
 
                 // Ensure a rent record exists for the current month (pending)
                 let rentQuery = query(
@@ -1161,6 +1493,276 @@ const appCheck = initializeAppCheck(app, {
     pdf.save(`rent_receipt_${month.replace(/\s/g, "_")}.pdf`);
 }
 
+// Profile management
+let currentUserData = null;
+
+async function loadUserProfile(userId) {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (userDoc.exists()) {
+        currentUserData = userDoc.data();
+    } else {
+        currentUserData = { firstName: '', lastName: '', fullName: '', dob: '', email: '' };
+    }
+    // Also get displayName from Auth if needed
+    return currentUserData;
+}
+
+function updateProfileAvatar() {
+    const avatarDiv = document.getElementById('profileAvatar');
+    if (!avatarDiv) return;
+    let displayLetter = 'U';
+    if (currentUserData && currentUserData.firstName && currentUserData.firstName.length > 0) {
+        displayLetter = currentUserData.firstName.charAt(0).toUpperCase();
+    }
+    avatarDiv.textContent = displayLetter;
+    // Also update the large avatar inside the modal if it exists
+    const modalAvatar = document.getElementById('modalAvatar');
+    if (modalAvatar) modalAvatar.textContent = displayLetter;
+}
+
+function calculateProfileCompletion() {
+    let completed = 0;
+    let total = 3; // firstName, lastName, dob
+    if (currentUserData.firstName && currentUserData.firstName.trim() !== '') completed++;
+    if (currentUserData.lastName && currentUserData.lastName.trim() !== '') completed++;
+    if (currentUserData.dob && currentUserData.dob.trim() !== '') completed++;
+    return Math.round((completed / total) * 100);
+}
+
+function renderProfileModal() {
+    const container = document.getElementById('profileContent');
+    if (!container) return;
+    const email = currentUserData.email || auth.currentUser?.email || '';
+    const completion = calculateProfileCompletion();
+    
+    container.innerHTML = `
+    <div class="profile-hero">
+
+        <div class="profile-avatar-large">
+            ${(currentUserData.firstName || email || 'U')
+                .charAt(0)
+                .toUpperCase()}
+        </div>
+
+        <div class="profile-name">
+            ${escapeHtml(
+                `${currentUserData.firstName || ''} ${currentUserData.lastName || ''}`
+            ).trim() || 'User'}
+        </div>
+
+        <div class="profile-email">
+            ${escapeHtml(email)}
+        </div>
+
+    </div>
+
+    <div class="profile-field premium-field" id="field-firstName">
+
+        <div class="field-top">
+
+            <div class="field-label">
+                First Name
+            </div>
+
+            <button class="edit-field-btn" data-field="firstName">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+
+        </div>
+
+        <div class="field-value">
+            ${escapeHtml(currentUserData.firstName || 'Not Added')}
+        </div>
+
+    </div>
+
+    <div class="profile-field premium-field" id="field-lastName">
+
+        <div class="field-top">
+
+            <div class="field-label">
+                Last Name
+            </div>
+
+            <button class="edit-field-btn" data-field="lastName">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+
+        </div>
+
+        <div class="field-value">
+            ${escapeHtml(currentUserData.lastName || 'Not Added')}
+        </div>
+
+    </div>
+
+    <div class="profile-field premium-field" id="field-dob">
+
+        <div class="field-top">
+
+            <div class="field-label">
+                Date Of Birth
+            </div>
+
+            <button class="edit-field-btn" data-field="dob">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
+
+        </div>
+
+        <div class="field-value">
+            ${currentUserData.dob || 'Not Added'}
+        </div>
+
+    </div>
+
+    <div class="profile-progress">
+
+        <div class="progress-text">
+            Profile Completion ${completion}%
+        </div>
+
+        <div class="progress-bar">
+            <div
+                class="progress-fill"
+                style="width:${completion}%"
+            ></div>
+        </div>
+
+    </div>
+`;
+    
+    // Attach event listeners to edit buttons (using event delegation to avoid re-attachment issues)
+    document.querySelectorAll('#profileContent .edit-field-btn').forEach(btn => {
+        btn.removeEventListener('click', handleEditClick);
+        btn.addEventListener('click', handleEditClick);
+    });
+}
+
+function handleEditClick(e) {
+    const btn = e.currentTarget;
+    const field = btn.dataset.field;
+    if (field) activateInlineEdit(field);
+}
+
+function activateInlineEdit(field) {
+    const fieldDiv = document.getElementById(`field-${field}`);
+    if (!fieldDiv) {
+        console.error("Field container not found:", field);
+        return;
+    }
+    const valueSpan = fieldDiv.querySelector('.field-value');
+    if (!valueSpan) return;
+    const currentValue = valueSpan.textContent === 'Not Added' ? '' : valueSpan.textContent.trim();
+    let inputHtml = '';
+    
+    if (field === 'firstName' || field === 'lastName') {
+        inputHtml = `<input type="text" class="edit-input" value="${escapeHtml(currentValue)}" id="inline-edit-${field}" style="width:100%; margin-bottom:0.5rem;" autofocus>`;
+    } else if (field === 'dob') {
+        inputHtml = `<input type="date" class="edit-input" value="${currentValue !== 'Not Added' ? currentValue : ''}" id="inline-edit-${field}" style="width:100%; margin-bottom:0.5rem;" autofocus>`;
+    }
+    
+    const saveHtml = `<button class="save-field-btn" data-field="${field}" style="margin-top:0.5rem; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-check-circle"></i><span>Save</span></button>`;
+    
+    // Clear the existing field-top and field-value, replace with edit controls
+    const fieldTop = fieldDiv.querySelector('.field-top');
+    const fieldValueDiv = fieldDiv.querySelector('.field-value');
+    if (fieldTop) fieldTop.style.display = 'none';
+    if (fieldValueDiv) {
+        // Replace the value div with input + save button
+        fieldValueDiv.innerHTML = `${inputHtml}<div style="display:flex; justify-content:flex-end;">${saveHtml}</div>`;
+    }
+    
+    const saveBtn = fieldDiv.querySelector('.save-field-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            const input = document.getElementById(`inline-edit-${field}`);
+            if (!input) return;
+            const newValue = input.value.trim();
+            if (field === 'firstName' && !newValue) {
+                alert('First name cannot be empty.');
+                return;
+            }
+            
+            // Update currentUserData
+            if (field === 'firstName') currentUserData.firstName = newValue;
+            if (field === 'lastName') currentUserData.lastName = newValue || null;
+            if (field === 'dob') currentUserData.dob = newValue || null;
+            
+            const fullName = (currentUserData.firstName && currentUserData.lastName) 
+                ? `${currentUserData.firstName} ${currentUserData.lastName}` 
+                : (currentUserData.firstName || '');
+            currentUserData.fullName = fullName;
+            
+            try {
+                const userId = auth.currentUser.uid;
+                await setDoc(doc(db, "users", userId), {
+                    firstName: currentUserData.firstName,
+                    lastName: currentUserData.lastName,
+                    fullName: fullName,
+                    dob: currentUserData.dob,
+                    email: auth.currentUser.email
+                }, { merge: true });
+                await updateProfile(auth.currentUser, { displayName: fullName });
+
+                // Update tenants collection
+                const tenantRef = doc(db, "tenants", userId);
+                await setDoc(tenantRef, { name: fullName }, { merge: true });
+                
+                // Update all rent records
+                const rentsQuery = query(collection(db, "rents"), where("uid", "==", userId));
+                const rentsSnap = await getDocs(rentsQuery);
+                const batch = writeBatch(db);
+                rentsSnap.forEach((rentDoc) => {
+                    batch.update(rentDoc.ref, { tenantName: fullName });
+                });
+                await batch.commit();
+
+                updateProfileAvatar();
+                renderProfileModal(); // refresh modal
+                await loadTenantData(auth.currentUser); // refresh dashboard
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error(error);
+                alert('Failed to save: ' + error.message);
+            }
+        });
+    }
+}
+
+function showProfileModal() {
+    renderProfileModal();
+    document.getElementById('profileModal').style.display = 'flex';
+}
+
+async function saveProfileChanges() {
+    // This function is deprecated – inline editing is used instead
+    console.warn("saveProfileChanges is deprecated");
+}
+
+// Add event listeners after DOM ready
+document.getElementById('profileTrigger')?.addEventListener('click', showProfileModal);
+document.getElementById('closeProfileModal')?.addEventListener('click', () => {
+    document.getElementById('profileModal').style.display = 'none';
+});
+
+// Logout from inside profile modal
+document.getElementById('modalLogoutBtn')?.addEventListener('click', () => {
+    document.getElementById('profileModal').style.display = 'none';
+    document.getElementById('logoutModal').style.display = 'flex';
+});
+
+// Escape HTML helper (if not already defined)
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
         // Function to show session expired message and hide dashboard content
 function showSessionExpired() {
     document.getElementById("loadingMessage").style.display = "none";
@@ -1202,10 +1804,6 @@ window.addEventListener("storage", (event) => {
     }
 });
 
-        // Show custom confirmation modal on logout click
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    document.getElementById("logoutModal").style.display = "flex";
-});
 
 // Cancel logout
 document.getElementById("cancelLogoutBtn").addEventListener("click", () => {
