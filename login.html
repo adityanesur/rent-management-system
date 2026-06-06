@@ -30,15 +30,39 @@
   --r:28px;
 }
 
-html{height:100%;overflow:hidden}
-body{
+html {
+  height: 100%;
+
+}
+body {
   font-family:'DM Sans',sans-serif;
   background:var(--c0);
-  width:100vw;height:100vh;
-  overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  user-select:none;-webkit-user-select:none;
+  min-height: 100vh;
+  overflow-y: auto;  /* enable vertical scroll */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  -webkit-user-select:none;
   position:relative;
+  padding: 1rem;
+}
+@media (max-height: 650px) {
+  .card {
+    padding: 1rem;
+  }
+  .inp-grp {
+    margin-bottom: 0.5rem;
+  }
+  .mode-switch {
+    margin-bottom: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  .mode-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
 }
 
 /* ══════════════════════════════════
@@ -512,6 +536,44 @@ input:focus ~ .inp-ring{
   .btn{padding:.55rem 1rem;font-size:.82rem}
   .ring-wrap{display:none}
 }
+/* ===== MODE SWITCHING & EXTRA FIELDS ===== */
+.mode-switch {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+.mode-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--tMid);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.mode-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+.auth-mode {
+  transition: opacity 0.3s ease;
+}
+.auth-mode.hidden {
+  display: none;
+}
+.extra-fields {
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+  overflow: hidden;
+}
+.extra-fields.hidden {
+  display: none;
+}
+input[type="date"] {
+  color-scheme: dark;
+}
 </style>
 </head>
 <body>
@@ -545,60 +607,94 @@ input:focus ~ .inp-ring{
     <div class="card-glow2"></div>
 
     <div class="card-head">
-      <div class="badge">
-        <div class="badge-dot"></div>
-        Secure Portal
-      </div>
-      <h2 class="card-title">Welcome back</h2>
-      <p class="card-sub">Sign in to your account to continue</p>
+  <div class="badge">
+    <div class="badge-dot"></div>
+    Secure Portal
+  </div>
+  <!-- Mode switch buttons -->
+  <div class="mode-switch">
+    <button class="mode-btn active" data-mode="login">Sign In</button>
+    <button class="mode-btn" data-mode="signup">Create Account</button>
+  </div>
+</div>
+
+    <!-- Login Form (visible by default) -->
+<div id="loginMode" class="auth-mode">
+  <div class="inp-grp">
+    <label class="inp-label" for="email">Email address</label>
+    <div class="inp-shell">
+      <i class="fas fa-envelope inp-ico"></i>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      <div class="inp-ring"></div>
     </div>
-
-    <!-- Email -->
-    <div class="inp-grp">
-      <label class="inp-label" for="email">Email address</label>
-      <div class="inp-shell">
-        <i class="fas fa-envelope inp-ico"></i>
-        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
-        <div class="inp-ring"></div>
-      </div>
+  </div>
+  <div class="inp-grp">
+    <label class="inp-label" for="password">Password</label>
+    <div class="inp-shell">
+      <i class="fas fa-lock inp-ico"></i>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      <button class="eye-btn" id="eyeBtn" tabindex="-1" type="button"><i class="fas fa-eye" id="eyeIco"></i></button>
+      <div class="inp-ring"></div>
     </div>
+  </div>
+  <div class="forgot-row"><a href="#" id="forgotLink">Forgot password?</a></div>
+  <button class="btn btn-primary" id="loginBtn">
+    <div class="btn-spinner"></div>
+    <span class="btn-text"><i class="fas fa-arrow-right-to-bracket"></i> Sign In</span>
+  </button>
+</div>
 
-    <!-- Password -->
-    <div class="inp-grp">
-      <label class="inp-label" for="password">Password</label>
-      <div class="inp-shell">
-        <i class="fas fa-lock inp-ico"></i>
-        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-        <button class="eye-btn" id="eyeBtn" tabindex="-1" type="button">
-          <i class="fas fa-eye" id="eyeIco"></i>
-        </button>
-        <div class="inp-ring"></div>
-      </div>
+<!-- Signup Form (hidden initially) -->
+<div id="signupMode" class="auth-mode hidden">
+  <div class="inp-grp">
+    <label class="inp-label" for="firstName">First Name</label>
+    <div class="inp-shell">
+      <i class="fas fa-user inp-ico"></i>
+      <input type="text" id="firstName" placeholder="First name" autocomplete="given-name">
+      <div class="inp-ring"></div>
     </div>
-
-    <!-- Forgot -->
-    <div class="forgot-row">
-      <a href="#" id="forgotLink">Forgot password?</a>
+  </div>
+  <div class="inp-grp">
+    <label class="inp-label" for="lastName">Last Name (Optional)</label>
+    <div class="inp-shell">
+      <i class="fas fa-user inp-ico"></i>
+      <input type="text" id="lastName" placeholder="Last name" autocomplete="family-name">
+      <div class="inp-ring"></div>
     </div>
+  </div>
+  <div class="inp-grp">
+    <label class="inp-label" for="dob">Date of Birth (Optional)</label>
+    <div class="inp-shell">
+      <i class="fas fa-calendar-alt inp-ico"></i>
+      <input type="date" id="dob" placeholder="YYYY-MM-DD">
+      <div class="inp-ring"></div>
+    </div>
+  </div>
+  <div class="inp-grp">
+    <label class="inp-label" for="signupEmail">Email address</label>
+    <div class="inp-shell">
+      <i class="fas fa-envelope inp-ico"></i>
+      <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+      <div class="inp-ring"></div>
+    </div>
+  </div>
+  <div class="inp-grp">
+    <label class="inp-label" for="signupPassword">Password</label>
+    <div class="inp-shell">
+      <i class="fas fa-lock inp-ico"></i>
+      <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+      <button class="eye-btn" id="signupEyeBtn" tabindex="-1" type="button"><i class="fas fa-eye" id="signupEyeIco"></i></button>
+      <div class="inp-ring"></div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> Create Account</button>
+</div>
 
-    <!-- Login -->
-    <button class="btn btn-primary" id="loginBtn">
-      <div class="btn-spinner"></div>
-      <span class="btn-text"><i class="fas fa-arrow-right-to-bracket"></i> Sign In</span>
-    </button>
+<div class="divider"><div class="div-line"></div><span>or</span><div class="div-line"></div></div>
 
-    <!-- Sign up -->
-    <button class="btn btn-ghost" id="signupBtn">
-      <i class="fas fa-user-plus"></i> Create Account
-    </button>
-
-    <div class="divider"><div class="div-line"></div><span>or</span><div class="div-line"></div></div>
-
-    <a href="index.html" style="text-decoration:none;display:block">
-      <button class="btn btn-ghost" id="homeBtn">
-        <i class="fas fa-house"></i> Back to Home
-      </button>
-    </a>
+<a href="index.html" style="text-decoration:none;display:block">
+  <button class="btn btn-ghost" id="homeBtn"><i class="fas fa-house"></i> Back to Home</button>
+</a>
 
     <div id="msg"></div>
   </div>
@@ -671,7 +767,7 @@ input:focus ~ .inp-ring{
      INTERACTIONS
 ═══════════════════════════════ -->
 <script>
-// Eye toggle
+// Eye toggle for login form
 document.getElementById('eyeBtn').addEventListener('click',()=>{
   const inp=document.getElementById('password');
   const ico=document.getElementById('eyeIco');
@@ -680,17 +776,40 @@ document.getElementById('eyeBtn').addEventListener('click',()=>{
   ico.className=show?'fas fa-eye-slash':'fas fa-eye';
 });
 
-// Context menu
-document.addEventListener('contextmenu',e=>{
-  e.preventDefault();
-  document.getElementById('_cm')?.remove();
-  const b=document.createElement('div');
-  b.id='_cm';
-  b.innerHTML=`<div style="font:.6rem/1 'Syne',sans-serif;font-weight:700;color:#38e8ff;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#38e8ff;box-shadow:0 0 8px #38e8ff;flex-shrink:0"></span>Rentovate Protected</div><div style="font:.78rem/1.5 'DM Sans',sans-serif;color:#9bc8e0;font-weight:300">This little world was built with care 💙<br>Let the magic stay hidden there.</div>`;
-  Object.assign(b.style,{position:'fixed',left:e.clientX+'px',top:e.clientY+'px',transform:'translate(-10%,-10%)',background:'rgba(3,10,26,.93)',backdropFilter:'blur(22px)',WebkitBackdropFilter:'blur(22px)',border:'1px solid rgba(0,212,255,.28)',borderRadius:'18px',padding:'1rem 1.25rem',color:'#fff',zIndex:'999999',width:'270px',maxWidth:'88vw',fontFamily:"'DM Sans',sans-serif",boxShadow:'0 14px 40px rgba(0,0,0,.55),0 0 24px rgba(0,212,255,.12)',animation:'ctxIn .2s ease both'});
-  document.body.appendChild(b);
-  setTimeout(()=>document.addEventListener('click',()=>{const x=document.getElementById('_cm');if(x){x.style.opacity='0';x.style.transform='translate(-10%,-10%) scale(.95)';x.style.transition='all .18s';setTimeout(()=>x.remove(),190)}},{once:true}),20);
+// Eye toggle for signup form
+const signupEyeBtn = document.getElementById('signupEyeBtn');
+if (signupEyeBtn) {
+  signupEyeBtn.addEventListener('click',()=>{
+    const inp=document.getElementById('signupPassword');
+    const ico=document.getElementById('signupEyeIco');
+    const show=inp.type==='password';
+    inp.type=show?'text':'password';
+    ico.className=show?'fas fa-eye-slash':'fas fa-eye';
+  });
+}
+
+// Mode switching (Login / Signup)
+const loginMode = document.getElementById('loginMode');
+const signupMode = document.getElementById('signupMode');
+const modeBtns = document.querySelectorAll('.mode-btn');
+
+modeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    modeBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (mode === 'login') {
+      loginMode.classList.remove('hidden');
+      signupMode.classList.add('hidden');
+    } else {
+      loginMode.classList.add('hidden');
+      signupMode.classList.remove('hidden');
+    }
+  });
 });
+
+// Context menu
+
 
 document.addEventListener('keydown',e=>{
   if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='u'))e.preventDefault();
@@ -702,7 +821,7 @@ document.addEventListener('keydown',e=>{
 ═══════════════════════════════ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification,updateProfile}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const app=initializeApp({
@@ -730,25 +849,64 @@ async function doAuth(email,pw,isUp){
   setLoad(true);
   try{
     if (isUp) {
-  const uc = await createUserWithEmailAndPassword(auth, email, pw);
-  // Disable default Firebase email
-  // await sendEmailVerification(uc.user);
-  
-  // Call the custom verification Cloud Function
-  const { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js');
-  const functions = getFunctions(app, 'us-central1');
-  const verifyFunc = httpsCallable(functions, 'sendVerificationEmail');
-  await verifyFunc({ email });
-  
-  await setDoc(doc(db, 'users', uc.user.uid), {
-    email,
+  // Get signup form values
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const dob = document.getElementById('dob').value;
+  const signupEmail = document.getElementById('signupEmail').value.trim();
+  const signupPassword = document.getElementById('signupPassword').value;
+
+  if (!firstName) {
+    setMsg('❌ First name is required.', 'err');
+    setLoad(false);
+    return;
+  }
+  if (!signupEmail || !signupPassword) {
+    setMsg('❌ Please enter email and password', 'err');
+    setLoad(false);
+    return;
+  }
+  if (signupPassword.length < 6) {
+    setMsg('❌ Password must be at least 6 characters', 'err');
+    setLoad(false);
+    return;
+  }
+
+  const uc = await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
+  const user = uc.user;
+
+  // Update Firebase Auth displayName
+  const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+  await updateProfile(user, { displayName: fullName });
+
+  // Save to Firestore with all fields
+  await setDoc(doc(db, 'users', user.uid), {
+    email: signupEmail,
+    firstName,
+    lastName: lastName || null,
+    fullName,
+    dob: dob || null,
     role: 'tenant',
     createdAt: new Date().toISOString(),
     emailVerified: false
   });
+
+  // Call the custom verification Cloud Function
+  const { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js');
+  const functions = getFunctions(app, 'us-central1');
+  const verifyFunc = httpsCallable(functions, 'sendVerificationEmail');
+  await verifyFunc({ email: signupEmail });
+
   setMsg('✅ Verification email sent! Check your inbox.', 'suc');
   setLoad(false);
-}else{
+  // Clear signup fields (optional)
+  document.getElementById('firstName').value = '';
+  document.getElementById('lastName').value = '';
+  document.getElementById('dob').value = '';
+  document.getElementById('signupEmail').value = '';
+  document.getElementById('signupPassword').value = '';
+}
+else{
       const uc=await signInWithEmailAndPassword(auth,email,pw);
       const u=uc.user;
       if(!u.emailVerified){
@@ -815,9 +973,13 @@ setMsg(
 
 lBtn.addEventListener('click',()=>doAuth(document.getElementById('email').value,document.getElementById('password').value,false));
 sBtn.addEventListener('click',()=>{
-  const pw=document.getElementById('password').value;
-  if(pw.length<6){setMsg('❌ Password must be at least 6 characters','err');return}
-  doAuth(document.getElementById('email').value,pw,true);
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  if (password.length < 6) {
+    setMsg('❌ Password must be at least 6 characters', 'err');
+    return;
+  }
+  doAuth(email, password, true);
 });
 document.getElementById('forgotLink').addEventListener('click', async (e) => {
   e.preventDefault();
