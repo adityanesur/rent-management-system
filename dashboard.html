@@ -1538,6 +1538,88 @@ tr:hover td {
 .profile-avatar.has-avatar::after {
     display: none !important;
 }
+/* ===== GOOGLE LINK BUTTON (matches premium fields) ===== */
+.google-link-field {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.google-link-field .premium-field {
+    background: rgba(10, 20, 45, 0.6);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: 18px;
+    padding: 0.9rem 1.1rem;
+    transition: all 0.25s ease;
+}
+
+.google-link-field .premium-field:hover {
+    border-color: rgba(0, 212, 255, 0.4);
+    background: rgba(10, 20, 50, 0.8);
+}
+
+.google-link-field .field-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.google-link-field .field-label {
+    color: rgba(0, 212, 255, 0.65);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.google-link-field .field-label i {
+    font-size: 0.7rem;
+    color: var(--cyan);
+}
+
+#linkGoogleBtn {
+    width: 100%;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid var(--cyan);
+    border-radius: 30px;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cyan);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+    font-family: 'DM Sans', sans-serif;
+}
+
+#linkGoogleBtn:hover:not(:disabled) {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: var(--cyan2);
+    transform: translateY(-2px);
+    color: white;
+}
+
+#linkGoogleBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .google-link-field .premium-field {
+        padding: 0.75rem 0.9rem;
+    }
+    #linkGoogleBtn {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+}
 </style>
 </head>
 <body>
@@ -1787,7 +1869,7 @@ tr:hover td {
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import {
     getFirestore,
     doc,
@@ -1821,7 +1903,15 @@ tr:hover td {
 
         const storage = getStorage(app);
         // Create hidden file input once — only ONE global input, no duplicates
-const avatarHiddenInput = document.createElement('input');
+const avatarHiddenInput = document.getElementById('globalAvatarFileInput') || (() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'globalAvatarFileInput';
+    input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    return input;
+})();
 avatarHiddenInput.type = 'file';
 avatarHiddenInput.id = 'globalAvatarFileInput';
 avatarHiddenInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
@@ -2272,6 +2362,85 @@ function calculateProfileCompletion() {
     if (currentUserData.dob && currentUserData.dob.trim() !== '') completed++;
     return Math.round((completed / total) * 100);
 }
+async function saveUserProfileField(field, value) {
+    const user = auth.currentUser;
+    if (!user) {
+        showToast('You must be logged in', 'error');
+        return false;
+    }
+    try {
+        // Store old full name before any changes
+        const oldFirstName = currentUserData.firstName || "";
+        const oldLastName = currentUserData.lastName || "";
+        const oldFullName = `${oldFirstName} ${oldLastName}`.trim();
+
+        // Update users collection
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, { [field]: value }, { merge: true });
+        currentUserData[field] = value;
+
+        // If first or last name changed, update tenant & all rents
+        const newFirstName = currentUserData.firstName || "";
+        const newLastName = currentUserData.lastName || "";
+        const newFullName = `${newFirstName} ${newLastName}`.trim();
+
+        if ((field === "firstName" || field === "lastName") && newFullName !== oldFullName && newFullName !== "") {
+            await updateTenantAndRentsName(user.uid, oldFullName, newFullName);
+            
+            // Also update the dashboard's displayed tenant name
+            const tenantNameElement = document.getElementById("tenantName");
+            if (tenantNameElement) tenantNameElement.innerText = newFullName;
+            
+            // Refresh payment history rows that show tenant name (optional, but good)
+            // Reload the whole dashboard data to be fully consistent
+            await loadTenantData(user);
+        }
+
+        // Update auth display name (optional)
+        if (field === 'firstName' || field === 'lastName') {
+            if (newFullName) {
+                await updateProfile(user, { displayName: newFullName });
+            }
+        }
+
+        showToast(`${field} updated successfully`, 'success');
+        return true;
+    } catch (err) {
+        console.error(err);
+        showToast('Failed to update: ' + err.message, 'error');
+        return false;
+    }
+}
+
+async function updateTenantAndRentsName(userId, oldFullName, newFullName) {
+    if (!userId || !newFullName) return;
+    try {
+        // 1. Update tenants collection
+        const tenantRef = doc(db, "tenants", userId);
+        await updateDoc(tenantRef, { name: newFullName }).catch(() => {
+            // If tenant doc doesn't exist, create it with basic info
+            return setDoc(tenantRef, { name: newFullName, room: "", rent: 0 }, { merge: true });
+        });
+
+        // 2. Update all rents documents for this user
+        const rentsQuery = query(collection(db, "rents"), where("uid", "==", userId));
+        const rentsSnapshot = await getDocs(rentsQuery);
+        
+        // Use batch for efficiency
+        const batch = writeBatch(db);
+        rentsSnapshot.forEach(docSnap => {
+            batch.update(docSnap.ref, { tenantName: newFullName });
+        });
+        await batch.commit();
+
+        console.log(`Updated tenant name to "${newFullName}" for user ${userId}`);
+    } catch (err) {
+        console.error("Error updating tenant/rents name:", err);
+        throw err;
+    }
+}
+
+
 document.getElementById('cancelCropBtn').addEventListener('click', () => {
     const cropModal = document.getElementById('cropModal');
     const cropImg = document.getElementById('cropImage');
@@ -2376,9 +2545,82 @@ async function updateChangePictureButton() {
     editBtn.innerHTML = `<i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture`;
     editBtn.style.opacity = '1';
 }
+
+function handleEditClick(event) {
+    const btn = event.currentTarget;
+    const field = btn.dataset.field;
+    const fieldDiv = btn.closest('.premium-field');
+    const valueDiv = fieldDiv.querySelector('.field-value');
+    const currentValue = (valueDiv.innerText === 'Not Added') ? '' : valueDiv.innerText;
+
+    // Replace with input + save button
+    let inputHtml;
+if (field === 'dob') {
+    const dateValue = formatDateForInput(currentValue);
+    inputHtml = `
+        <input type="date" id="editInput_${field}" class="edit-input" value="${dateValue}">
+        <button class="save-field-btn" data-field="${field}"><i class="fas fa-save"></i> Save</button>
+    `;
+} else {
+    inputHtml = `
+        <input type="text" id="editInput_${field}" class="edit-input" value="${escapeHtml(currentValue)}" placeholder="Enter ${field.replace(/([A-Z])/g, ' $1')}">
+        <button class="save-field-btn" data-field="${field}"><i class="fas fa-save"></i> Save</button>
+    `;
+}
+    valueDiv.style.display = 'none';
+    const tempDiv = document.createElement('div');
+    tempDiv.className = 'edit-controls';
+    tempDiv.innerHTML = inputHtml;
+    fieldDiv.appendChild(tempDiv);
+
+    // Focus input
+    const input = tempDiv.querySelector('input');
+    input.focus();
+
+    // Save button listener
+    const saveBtn = tempDiv.querySelector('.save-field-btn');
+    saveBtn.addEventListener('click', async () => {
+        const newValue = input.value.trim();
+        if (!newValue && field !== 'dob') {
+            showToast(`${field} cannot be empty`, 'error');
+            return;
+        }
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        const success = await saveUserProfileField(field, newValue);
+        if (success) {
+            // Update the valueDiv text
+            valueDiv.innerText = newValue || 'Not Added';
+            // Update progress bar
+            const newCompletion = calculateProfileCompletion();
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            if (progressFill) progressFill.style.width = `${newCompletion}%`;
+            if (progressPercent) progressPercent.innerText = `${newCompletion}%`;
+        }
+        // Remove edit controls and show value again
+        tempDiv.remove();
+        valueDiv.style.display = 'block';
+        saveBtn.disabled = false;
+    });
+
+    // Optional: cancel on blur after delay
+    const handleBlur = () => {
+        setTimeout(() => {
+            if (tempDiv.parentNode) {
+                tempDiv.remove();
+                valueDiv.style.display = 'block';
+            }
+        }, 200);
+    };
+    input.addEventListener('blur', handleBlur);
+}
+
 function renderProfileModal() {
     const container = document.getElementById('profileContent');
     if (!container) return;
+    
     const email = currentUserData.email || auth.currentUser?.email || '';
     const completion = calculateProfileCompletion();
     const firstName = currentUserData.firstName || '';
@@ -2388,24 +2630,22 @@ function renderProfileModal() {
 
     container.innerHTML = `
     <div class="profile-hero">
-    <div class="profile-avatar-large-wrap">
-        <div class="profile-avatar-ring"></div>
-        <div class="profile-avatar-ring-mask"></div>
-        <div class="profile-avatar-large" id="modalAvatar" style="${currentUserData.avatarURL ? `background-image: url('${currentUserData.avatarURL}'); background-size: cover; background-position: center;` : ''}">
-    ${currentUserData.avatarURL ? '' : initial}
-</div>
+        <div class="profile-avatar-large-wrap">
+            <div class="profile-avatar-ring"></div>
+            <div class="profile-avatar-ring-mask"></div>
+            <div class="profile-avatar-large" id="modalAvatar" style="${currentUserData.avatarURL ? `background-image: url('${currentUserData.avatarURL}'); background-size: cover; background-position: center;` : ''}">
+                ${currentUserData.avatarURL ? '' : initial}
+            </div>
+        </div>
+        <div class="profile-name">${escapeHtml(fullName)}</div>
+        <div class="profile-email">${escapeHtml(email)}</div>
+        <div class="profile-tier-badge">
+            <i class="fas fa-star"></i> Active Tenant
+        </div>
+        <button id="editAvatarBtn" class="edit-picture-btn" style="margin-top: 12px; background: rgba(0,212,255,0.1); border: 1px solid var(--cyan); border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; color: var(--cyan); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture
+        </button>
     </div>
-    <div class="profile-name">${escapeHtml(fullName)}</div>
-    <div class="profile-email">${escapeHtml(email)}</div>
-    <div class="profile-tier-badge">
-        <i class="fas fa-star"></i> Active Tenant
-    </div>
-    <!-- 👇 NEW: Edit picture button below the avatar -->
-    <button id="editAvatarBtn" class="edit-picture-btn" style="margin-top: 12px; background: rgba(0,212,255,0.1); border: 1px solid var(--cyan); border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; color: var(--cyan); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
-        <i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture
-    </button>
-</div>
-    <!-- No per-render file input; global avatarHiddenInput is used -->
 
     <div class="profile-fields-section">
         <div class="profile-field premium-field" id="field-firstName">
@@ -2413,7 +2653,7 @@ function renderProfileModal() {
                 <div class="field-label"><i class="fas fa-user"></i> First Name</div>
                 <button class="edit-field-btn" data-field="firstName"><i class="fas fa-pencil-alt"></i></button>
             </div>
-            <div class="field-value">${escapeHtml(firstName || 'Not Added')}</div>
+            <div class="field-value" data-field="firstName">${escapeHtml(firstName || 'Not Added')}</div>
         </div>
 
         <div class="profile-field premium-field" id="field-lastName">
@@ -2421,7 +2661,7 @@ function renderProfileModal() {
                 <div class="field-label"><i class="fas fa-user"></i> Last Name</div>
                 <button class="edit-field-btn" data-field="lastName"><i class="fas fa-pencil-alt"></i></button>
             </div>
-            <div class="field-value">${escapeHtml(lastName || 'Not Added')}</div>
+            <div class="field-value" data-field="lastName">${escapeHtml(lastName || 'Not Added')}</div>
         </div>
 
         <div class="profile-field premium-field" id="field-dob">
@@ -2429,35 +2669,87 @@ function renderProfileModal() {
                 <div class="field-label"><i class="fas fa-calendar-alt"></i> Date of Birth</div>
                 <button class="edit-field-btn" data-field="dob"><i class="fas fa-pencil-alt"></i></button>
             </div>
-            <div class="field-value">${escapeHtml(currentUserData.dob || 'Not Added')}</div>
+            <div class="field-value" data-field="dob">${formatDateForDisplay(currentUserData.dob)}</div>
         </div>
     </div>
+
+    <div id="google-link-placeholder" style="margin: 1rem 0;"></div>
 
     <div class="profile-progress">
         <div class="progress-header">
             <span class="progress-text">Profile Completion</span>
-            <span class="progress-pct">${completion}%</span>
+            <span class="progress-pct" id="progressPercent">${completion}%</span>
         </div>
         <div class="progress-bar">
-            <div class="progress-fill" style="width:0%"></div>
+            <div class="progress-fill" id="progressFill" style="width: ${completion}%"></div>
         </div>
     </div>
     `;
-    // Connect the "Change Picture" button to the ONE global hidden input
+
+    // --- Attach edit button listeners ---
+    document.querySelectorAll('.edit-field-btn').forEach(btn => {
+        btn.removeEventListener('click', handleEditClick);
+        btn.addEventListener('click', handleEditClick);
+    });
+
+    // --- Google link section (unchanged) ---
+    const hasGoogle = auth.currentUser?.providerData?.some(p => p.providerId === 'google.com');
+    const googlePlaceholder = document.getElementById('google-link-placeholder');
+    if (googlePlaceholder && !hasGoogle) {
+        googlePlaceholder.innerHTML = `
+            <div class="google-link-field">
+                <div class="premium-field">
+                    <div class="field-top">
+                        <div class="field-label">
+                            <i class="fab fa-google"></i> Google Account
+                        </div>
+                    </div>
+                    <button id="linkGoogleBtn" class="google-link-btn">
+                        <i class="fab fa-google"></i> Link Google Account
+                    </button>
+                </div>
+            </div>
+        `;
+        const linkBtn = document.getElementById('linkGoogleBtn');
+        if (linkBtn) {
+            linkBtn.addEventListener('click', async () => {
+                linkBtn.disabled = true;
+                linkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Linking...';
+                try {
+                    const provider = new GoogleAuthProvider();
+                    const result = await signInWithPopup(auth, provider);
+                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    await linkWithCredential(auth.currentUser, credential);
+                    showToast('Google account linked successfully!', 'success');
+                    renderProfileModal();
+                } catch (error) {
+                    console.error(error);
+                    let msg = 'Failed to link Google account.';
+                    if (error.code === 'auth/credential-already-in-use') msg = 'This Google account is already linked to another user.';
+                    else if (error.code === 'auth/provider-already-linked') msg = 'Google account is already linked to this account.';
+                    showToast(msg, 'error');
+                    linkBtn.disabled = false;
+                    linkBtn.innerHTML = '<i class="fab fa-google"></i> Link Google Account';
+                }
+            });
+        }
+    } else if (googlePlaceholder && hasGoogle) {
+        googlePlaceholder.innerHTML = '';
+    }
+
+    // --- Change picture button ---
     const editAvatarBtn = document.getElementById('editAvatarBtn');
     if (editAvatarBtn) {
-        // Clone to remove any previously attached listeners before adding fresh one
         const freshBtn = editAvatarBtn.cloneNode(true);
         editAvatarBtn.parentNode.replaceChild(freshBtn, editAvatarBtn);
         freshBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            // Reset value first so 'change' fires even if same file is picked again
             avatarHiddenInput.value = '';
             avatarHiddenInput.click();
         });
     }
 }
+
 
 function disableBodyScroll(disable) {
     if (disable) {
@@ -2500,6 +2792,28 @@ function escapeHtml(str) {
         return m;
     });
 }
+
+// Convert stored date (YYYY-MM-DD or any format) to YYYY-MM-DD for date input
+function formatDateForInput(dateStr) {
+    if (!dateStr || dateStr === 'Not Added') return '';
+    // If already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    // Try to parse common formats like "15 Jan 1990"
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().split('T')[0];
+    }
+    return '';
+}
+
+// Convert stored date (YYYY-MM-DD) to readable format e.g., "15 Jan 1990"
+function formatDateForDisplay(dateStr) {
+    if (!dateStr || dateStr === 'Not Added') return 'Not Added';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 // Compress image using canvas (max 150x150px, quality 0.7 JPEG)
 async function compressAndUpload(file, userId) {
     return new Promise((resolve, reject) => {
