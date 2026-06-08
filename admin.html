@@ -902,11 +902,8 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     <div class="two-column">
         <div class="form-card">
             <h3><i class="fas fa-user-plus"></i> Add New Tenant</h3>
-            <div class="form-group">
-                <label>Tenant Name</label>
-                <input type="text" id="name" class="form-control" placeholder="Enter full name">
-            </div>
             <div class="form-row">
+
                 <div class="form-group">
                     <label>Room Number</label>
                     <input type="text" id="room" class="form-control" placeholder="e.g., 101">
@@ -923,7 +920,8 @@ tr:hover td { background: rgba(0,212,255,0.05); }
             <div class="form-group">
                 <label>Firebase User UID</label>
                 <input type="text" id="userUid" class="form-control" placeholder="Paste the user's UID">
-                <small style="color:#7bc9ff;">Required: Get the UID from Firebase Console → Authentication → Users</small>
+                <small style="color:#7bc9ff;">Required: Get the UID from Firebase Console → Authentication → Users</small><br>
+                <small style="color:#7bc9ff;">The tenant name will be taken from the user's profile (first + last name).</small>
             </div>
             <button class="submit-btn" id="addTenant"><i class="fas fa-plus-circle"></i> Add Tenant</button>
         </div>
@@ -1097,19 +1095,45 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     window.viewTenant = (tenantId) => alert(`View details for tenant ID: ${tenantId}`);
 
     document.getElementById("addTenant").addEventListener("click", async () => {
-        const name = document.getElementById("name").value;
-        const room = document.getElementById("room").value;
-        const rent = document.getElementById("rent").value;
-        const joiningDate = document.getElementById("joiningDate").value;
-        const userUid = document.getElementById("userUid").value;
-        if (!name || !room || !rent || !joiningDate || !userUid) { showMessage("Please fill all fields including User UID", "error"); return; }
-        const tenantRef = doc(db, "tenants", userUid);
-        await setDoc(tenantRef, { name: name.trim(), room: room.trim(), rent: Number(rent), joiningDate: new Date(joiningDate), uid: userUid, status: "pending" });
-        showMessage("Tenant added successfully!", "success");
-        ["name","room","rent","userUid"].forEach(id => document.getElementById(id).value = "");
-        document.getElementById("joiningDate").value = new Date().toISOString().split('T')[0];
-        loadTenants();
+    const room = document.getElementById("room").value.trim();
+    const rent = document.getElementById("rent").value;
+    const joiningDate = document.getElementById("joiningDate").value;
+    const userUid = document.getElementById("userUid").value.trim();
+
+    if (!room || !rent || !joiningDate || !userUid) {
+        showMessage("Please fill all fields (Room, Rent, Joining Date, UID)", "error");
+        return;
+    }
+
+    // Fetch the user's profile from Firestore to get name
+    const userDocRef = doc(db, "users", userUid);
+    const userSnap = await getDoc(userDocRef);
+    if (!userSnap.exists()) {
+        showMessage("User with this UID does not exist. Please check the UID.", "error");
+        return;
+    }
+    const userData = userSnap.data();
+    const tenantName = userData.fullName || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || "Unknown User";
+
+    // Create tenant document using the UID as document ID
+    const tenantRef = doc(db, "tenants", userUid);
+    await setDoc(tenantRef, {
+        name: tenantName,
+        room: room,
+        rent: Number(rent),
+        joiningDate: new Date(joiningDate),
+        uid: userUid,
+        status: "pending"
     });
+
+    showMessage("Tenant added successfully!", "success");
+    // Clear form
+    document.getElementById("room").value = "";
+    document.getElementById("rent").value = "";
+    document.getElementById("joiningDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("userUid").value = "";
+    loadTenants();
+});
 
     document.getElementById("generateRentBtn").addEventListener("click", async () => {
         if (isGenerating) { showMessage("Please wait, rent generation is already in progress...", "info"); return; }
@@ -1188,14 +1212,14 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     }
 
     function updateAdminAvatar() {
-        const avatarDiv = document.getElementById('profileAvatar');
-        if (!avatarDiv) return;
-        let letter = 'A';
-        if (currentAdminData?.firstName?.length > 0) letter = currentAdminData.firstName.charAt(0).toUpperCase();
-        avatarDiv.textContent = letter;
-        const modalAvatar = document.getElementById('modalAvatarLarge');
-        if (modalAvatar) modalAvatar.textContent = letter;
-    }
+    const avatarDiv = document.getElementById('profileAvatar');
+    if (!avatarDiv) return;
+    let letter = 'A';
+    if (currentAdminData?.firstName?.length > 0) letter = currentAdminData.firstName.charAt(0).toUpperCase();
+    avatarDiv.textContent = letter;
+    const modalAvatar = document.getElementById('modalAvatarLarge');
+    if (modalAvatar) modalAvatar.textContent = letter;
+}
 
     function calculateAdminCompletion() {
         let completed = 0;
@@ -1259,10 +1283,11 @@ tr:hover td { background: rgba(0,212,255,0.05); }
             <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
         </div>`;
 
-        setTimeout(() => {
-            const fill = container.querySelector('.progress-fill');
-            if (fill) fill.style.width = completion + '%';
-        }, 100);
+        // Animate progress bar after DOM update
+requestAnimationFrame(() => {
+    const fill = document.querySelector('#profileContent .progress-fill');
+    if (fill) fill.style.width = completion + '%';
+});
 
         document.querySelectorAll('#profileContent .edit-field-btn').forEach(btn => {
             btn.removeEventListener('click', handleAdminEditClick);
@@ -1276,47 +1301,67 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     }
 
     function activateAdminInlineEdit(field) {
-        const fieldDiv = document.getElementById(`field-${field}`);
-        if (!fieldDiv) return;
-        const valueSpan = fieldDiv.querySelector('.field-value');
-        if (!valueSpan) return;
-        const currentValue = valueSpan.textContent === 'Not Added' ? '' : valueSpan.textContent.trim();
-        let inputHtml = (field === 'dob')
-            ? `<input type="date" class="edit-input" value="${currentValue !== 'Not Added' ? currentValue : ''}" id="inline-edit-${field}" autofocus>`
-            : `<input type="text" class="edit-input" value="${escapeHtml(currentValue)}" id="inline-edit-${field}" autofocus>`;
-        const saveHtml = `<button class="save-field-btn" data-field="${field}"><i class="fas fa-check-circle"></i><span>Save</span></button>`;
-        const fieldTop = fieldDiv.querySelector('.field-top');
-        const fieldValueDiv = fieldDiv.querySelector('.field-value');
-        if (fieldTop) fieldTop.style.display = 'none';
-        if (fieldValueDiv) fieldValueDiv.innerHTML = `${inputHtml}<div style="display:flex;justify-content:flex-end;margin-top:0.4rem;">${saveHtml}</div>`;
-        const saveBtn = fieldDiv.querySelector('.save-field-btn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', async () => {
-                const input = document.getElementById(`inline-edit-${field}`);
-                if (!input) return;
-                const newValue = input.value.trim();
-                if (field === 'firstName' && !newValue) { alert('First name cannot be empty.'); return; }
-                if (field === 'firstName') currentAdminData.firstName = newValue;
-                if (field === 'lastName') currentAdminData.lastName = newValue || null;
-                if (field === 'dob') currentAdminData.dob = newValue || null;
-                const fullName = (currentAdminData.firstName && currentAdminData.lastName)
-                    ? `${currentAdminData.firstName} ${currentAdminData.lastName}`
-                    : (currentAdminData.firstName || '');
-                currentAdminData.fullName = fullName;
-                try {
-                    const userId = auth.currentUser.uid;
-                    await setDoc(doc(db, "users", userId), {
-                        firstName: currentAdminData.firstName, lastName: currentAdminData.lastName,
-                        fullName, dob: currentAdminData.dob, email: auth.currentUser.email
-                    }, { merge: true });
-                    await updateProfile(auth.currentUser, { displayName: fullName });
-                    updateAdminAvatar();
-                    renderAdminProfileModal();
-                    alert('Profile updated successfully!');
-                } catch (error) { alert('Failed to save: ' + error.message); }
-            });
-        }
+    const fieldDiv = document.getElementById(`field-${field}`);
+    if (!fieldDiv) {
+        console.error("Field container not found:", field);
+        return;
     }
+    const valueSpan = fieldDiv.querySelector('.field-value');
+    if (!valueSpan) return;
+    const currentValue = valueSpan.textContent === 'Not Added' ? '' : valueSpan.textContent.trim();
+    let inputHtml = '';
+    
+    if (field === 'firstName' || field === 'lastName') {
+        inputHtml = `<input type="text" class="edit-input" value="${escapeHtml(currentValue)}" id="inline-edit-${field}" autofocus>`;
+    } else if (field === 'dob') {
+        inputHtml = `<input type="date" class="edit-input" value="${currentValue !== 'Not Added' ? currentValue : ''}" id="inline-edit-${field}" autofocus>`;
+    }
+    
+    const saveHtml = `<button class="save-field-btn" data-field="${field}"><i class="fas fa-check-circle"></i><span>Save</span></button>`;
+    
+    const fieldTop = fieldDiv.querySelector('.field-top');
+    if (fieldTop) fieldTop.style.display = 'none';
+    
+    // Replace the .field-value content with input + save button
+    valueSpan.innerHTML = `${inputHtml}<div style="display:flex; justify-content:flex-end; margin-top:0.4rem;">${saveHtml}</div>`;
+    
+    const saveBtn = fieldDiv.querySelector('.save-field-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            const input = document.getElementById(`inline-edit-${field}`);
+            if (!input) return;
+            const newValue = input.value.trim();
+            if (field === 'firstName' && !newValue) {
+                alert('First name cannot be empty.');
+                return;
+            }
+            if (field === 'firstName') currentAdminData.firstName = newValue;
+            if (field === 'lastName') currentAdminData.lastName = newValue || null;
+            if (field === 'dob') currentAdminData.dob = newValue || null;
+            const fullName = (currentAdminData.firstName && currentAdminData.lastName) 
+                ? `${currentAdminData.firstName} ${currentAdminData.lastName}` 
+                : (currentAdminData.firstName || '');
+            currentAdminData.fullName = fullName;
+            try {
+                const userId = auth.currentUser.uid;
+                await setDoc(doc(db, "users", userId), {
+                    firstName: currentAdminData.firstName,
+                    lastName: currentAdminData.lastName,
+                    fullName: fullName,
+                    dob: currentAdminData.dob,
+                    email: auth.currentUser.email
+                }, { merge: true });
+                await updateProfile(auth.currentUser, { displayName: fullName });
+                updateAdminAvatar();
+                renderAdminProfileModal(); // refresh modal
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error(error);
+                alert('Failed to save: ' + error.message);
+            }
+        });
+    }
+}
 
     function disableBodyScroll(disable) {
         document.body.style.overflow = disable ? 'hidden' : '';
