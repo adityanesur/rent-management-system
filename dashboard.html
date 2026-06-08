@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="logo.svg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <style>
 * {
     margin: 0;
@@ -1483,6 +1485,59 @@ tr:hover td {
         margin: 0 1rem 1.4rem;
     }
 }
+/* ===== CIRCULAR CROPPER OVERRIDES ===== */
+/* Make the crop box appear as a perfect circle */
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50% !important;
+}
+/* Keep the crop lines and handles subtle on a circle */
+.cropper-view-box {
+    outline: 3px solid rgba(0, 212, 255, 0.85) !important;
+    outline-offset: 0 !important;
+}
+.cropper-line {
+    opacity: 0 !important;  /* hide grid lines inside circle */
+}
+.cropper-point {
+    border-radius: 50%;
+    background-color: var(--cyan) !important;
+    opacity: 0.85;
+    width: 10px !important;
+    height: 10px !important;
+}
+/* Dim outside-crop area more so circle stands out */
+.cropper-modal {
+    background: rgba(0,0,0,0.75) !important;
+    opacity: 1 !important;
+}
+/* Remove default border on cropper wrap */
+.cropper-wrap-box,
+.cropper-canvas {
+    border-radius: 0 !important;
+}
+/* Responsive cropper container */
+.cropper-container {
+    touch-action: none;
+}
+@media (max-width: 480px) {
+    .cropper-point {
+        width: 14px !important;
+        height: 14px !important;
+    }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+/* Hide spinning ring when avatar image is set */
+.profile-avatar.has-avatar::before,
+.profile-avatar.has-avatar::after {
+    display: none !important;
+}
 </style>
 </head>
 <body>
@@ -1524,6 +1579,103 @@ tr:hover td {
             </div>
         </div>
     </nav>
+    <!-- Crop Image Modal — z-index above profile modal, circular crop, mobile-friendly -->
+<div id="cropModal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 3, 14, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 20000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+">
+    <div style="
+        background: linear-gradient(160deg, rgba(6,14,32,0.98) 0%, rgba(3,8,20,0.99) 100%);
+        border: 1px solid rgba(0,212,255,0.22);
+        border-radius: 28px;
+        padding: 1.5rem;
+        width: min(95vw, 520px);
+        max-height: 92vh;
+        overflow-y: auto;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,212,255,0.15);
+        position: relative;
+    ">
+        <!-- Shimmer top line -->
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.7),rgba(123,47,255,0.7),transparent);border-radius:28px 28px 0 0;"></div>
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.2rem;">
+            <div style="width:34px;height:34px;border-radius:50%;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:0.9rem;flex-shrink:0;">
+                <i class="fas fa-crop-alt"></i>
+            </div>
+            <div>
+                <div style="font-family:'Poppins',sans-serif;font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--tMid);font-weight:600;">Crop Profile Picture</div>
+                <div style="font-size:0.72rem;color:rgba(127,184,216,0.6);margin-top:1px;">Drag to reposition · Pinch/scroll to zoom</div>
+            </div>
+        </div>
+
+        <!-- Cropper container — constrained height so it fits on mobile -->
+        <div style="
+            width: 100%;
+            max-height: 55vh;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid rgba(0,212,255,0.12);
+            background: #000;
+            margin-bottom: 1.2rem;
+        ">
+            <img id="cropImage" src="" alt="Crop preview" style="display:block;max-width:100%;">
+        </div>
+
+        <!-- Info note -->
+        <div style="font-size:0.72rem;color:rgba(127,184,216,0.65);text-align:center;margin-bottom:1rem;">
+            <i class="fas fa-info-circle" style="color:var(--cyan);margin-right:4px;"></i>
+            Profile picture can be changed once every 24 hours
+        </div>
+
+        <!-- Buttons — large enough for touch -->
+        <div style="display:flex;gap:0.8rem;">
+            <button id="cancelCropBtn" style="
+                flex:1;
+                padding: 0.85rem 1rem;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,0.1);
+                background: rgba(255,255,255,0.05);
+                color: var(--tHi);
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: inherit;
+            ">
+                <i class="fas fa-times" style="margin-right:6px;"></i>Cancel
+            </button>
+            <button id="confirmCropBtn" style="
+                flex:2;
+                padding: 0.85rem 1rem;
+                border-radius: 14px;
+                border: none;
+                background: linear-gradient(135deg, var(--cyan), var(--blue));
+                color: white;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                box-shadow: 0 4px 20px rgba(0,212,255,0.35);
+                font-family: inherit;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            ">
+                <i class="fas fa-check-circle"></i> Crop &amp; Upload
+            </button>
+        </div>
+    </div>
+</div>
     <!-- Premium Profile avatar -->
     <div class="profile-section" id="profileTrigger" title="My Profile">
         <div class="profile-avatar" id="profileAvatar">U</div>
@@ -1630,10 +1782,11 @@ tr:hover td {
     </div>
 </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module">
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import {
     getFirestore,
@@ -1654,7 +1807,7 @@ tr:hover td {
             apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
             authDomain: "rent-management-system-86ccc.firebaseapp.com",
             projectId: "rent-management-system-86ccc",
-            storageBucket: "rent-management-system-86ccc.appspot.com",
+            storageBucket: "rent-management-system-86ccc.firebasestorage.app",
             messagingSenderId: "676999561040",
             appId: "1:676999561040:web:f1166d818a33c5a008f655"
         };
@@ -1663,13 +1816,80 @@ tr:hover td {
         const auth = getAuth(app);
         const db = getFirestore(app);
         let isProcessing = false;
-        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
+        let cropper = null;
+        let selectedFile = null;
 
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('YOUR_SITE_KEY_HERE'),
-    isTokenAutoRefreshEnabled: true
-});
-        
+        const storage = getStorage(app);
+        // Create hidden file input once — only ONE global input, no duplicates
+const avatarHiddenInput = document.createElement('input');
+avatarHiddenInput.type = 'file';
+avatarHiddenInput.id = 'globalAvatarFileInput';
+avatarHiddenInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
+avatarHiddenInput.setAttribute('capture', 'user'); // hints iOS to offer camera/library
+avatarHiddenInput.style.display = 'none';
+document.body.appendChild(avatarHiddenInput);
+
+// Attach change handler ONCE — never re-attach
+avatarHiddenInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const userId = auth.currentUser?.uid;
+    if (!userId) { showToast('Please login again.', 'error'); return; }
+
+    // Rate-limit: once per 24h
+    try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        const lastUpdate = userDoc.data()?.lastAvatarUpdate?.toDate?.();
+        if (lastUpdate) {
+            const diffHours = (Date.now() - lastUpdate.getTime()) / 3600000;
+            if (diffHours < 24) {
+                const remaining = Math.ceil(24 - diffHours);
+                showToast(`You can change picture again in ${remaining}h.`, 'error');
+                avatarHiddenInput.value = '';
+                return;
+            }
+        }
+    } catch (_) { /* if doc doesn't exist yet, proceed */ }
+
+    // Read file as object URL, show crop modal immediately
+    const objectURL = URL.createObjectURL(file);
+    const cropImg = document.getElementById('cropImage');
+
+    // Reset src first to force onload to fire even if same image
+    cropImg.src = '';
+
+    // Destroy previous cropper instance if any
+    if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+
+    // Show crop modal BEFORE image loads (so it's visible on slow devices)
+    const cropModal = document.getElementById('cropModal');
+    cropModal.style.display = 'flex';
+
+    // Initialize cropper once image has loaded into the DOM
+    cropImg.onload = () => {
+        // Small rAF delay ensures browser has painted the modal before Cropper.js measures
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+                cropper = new Cropper(cropImg, {
+                    aspectRatio: 1,          // enforce 1:1 square → visually a circle
+                    viewMode: 1,             // restrict crop box inside canvas
+                    dragMode: 'move',        // default: drag moves the image
+                    autoCropArea: 0.8,       // crop box = 80% of the canvas
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    responsive: true,
+                    restore: false,
+                    checkCrossOrigin: false,
+                });
+            });
+        });
+    };
+
+    cropImg.src = objectURL;
+}, { once: false }); // single persistent listener
         const now = new Date();
         const currentMonth = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById("currentMonth").innerText = currentMonth;
@@ -2001,16 +2221,49 @@ async function loadUserProfile(userId) {
 
 function updateProfileAvatar() {
     const avatarDiv = document.getElementById('profileAvatar');
-    if (!avatarDiv) return;
-    let displayLetter = 'U';
-    if (currentUserData && currentUserData.firstName && currentUserData.firstName.length > 0) {
-        displayLetter = currentUserData.firstName.charAt(0).toUpperCase();
-    }
-    avatarDiv.textContent = displayLetter;
     const modalAvatar = document.getElementById('modalAvatar');
-    if (modalAvatar) modalAvatar.textContent = displayLetter;
-}
+    const avatarURL = currentUserData?.avatarURL;
 
+    const setAvatarImage = (el) => {
+        if (!el) return;
+        if (avatarURL) {
+            el.classList.add('has-avatar');
+            // Completely remove the gradient background
+            el.style.background = 'none';
+            el.style.backgroundImage = `url(${avatarURL})`;
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.style.backgroundRepeat = 'no-repeat';
+            el.textContent = ''; // Hide the initial letter
+        } else {
+            el.classList.remove('has-avatar');
+            // Restore the original gradient
+            el.style.background = '';
+            el.style.backgroundImage = '';
+            el.style.backgroundSize = '';
+            el.style.backgroundPosition = '';
+            el.style.backgroundRepeat = '';
+            const letter = (currentUserData?.firstName?.[0] || 'U').toUpperCase();
+            el.textContent = letter;
+        }
+    };
+
+    setAvatarImage(avatarDiv);
+    setAvatarImage(modalAvatar);
+}
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+        background: ${type === 'success' ? '#1a7fff' : '#ef4444'};
+        color: white; padding: 12px 24px; border-radius: 40px;
+        font-family: sans-serif; font-size: 0.9rem; z-index: 20000;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3); animation: fadeInOut 3s forwards;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
 function calculateProfileCompletion() {
     let completed = 0;
     let total = 3;
@@ -2019,7 +2272,110 @@ function calculateProfileCompletion() {
     if (currentUserData.dob && currentUserData.dob.trim() !== '') completed++;
     return Math.round((completed / total) * 100);
 }
+document.getElementById('cancelCropBtn').addEventListener('click', () => {
+    const cropModal = document.getElementById('cropModal');
+    const cropImg = document.getElementById('cropImage');
+    if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+    if (cropImg.src && cropImg.src.startsWith('blob:')) URL.revokeObjectURL(cropImg.src);
+    cropImg.src = '';
+    cropModal.style.display = 'none';
+    avatarHiddenInput.value = ''; // clear so the same file can be re-selected
+});
 
+document.getElementById('confirmCropBtn').addEventListener('click', async () => {
+    if (!cropper) { showToast('Crop not ready, please try again.', 'error'); return; }
+
+    const confirmBtn = document.getElementById('confirmCropBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+    const canvas = cropper.getCroppedCanvas({ width: 300, height: 300, imageSmoothingQuality: 'high' });
+    if (!canvas) {
+        showToast('Could not get crop result. Please try again.', 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
+        return;
+    }
+
+    canvas.toBlob(async (blob) => {
+        const cropModal = document.getElementById('cropModal');
+        const cropImg = document.getElementById('cropImage');
+
+        // Hide crop modal
+        cropModal.style.display = 'none';
+        if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+        if (cropImg.src && cropImg.src.startsWith('blob:')) URL.revokeObjectURL(cropImg.src);
+        cropImg.src = '';
+
+        // Show loading on Change Picture button (if still visible in modal)
+        const editBtn = document.getElementById('editAvatarBtn');
+        const originalBtnHTML = editBtn ? editBtn.innerHTML : '';
+        if (editBtn) {
+            editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            editBtn.disabled = true;
+        }
+
+        try {
+            const userId = auth.currentUser.uid;
+            const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+            const downloadURL = await compressAndUpload(file, userId);
+
+            // Save to Firestore with serverTimestamp for cooldown accuracy
+            await setDoc(doc(db, 'users', userId), {
+                avatarURL: downloadURL,
+                lastAvatarUpdate: serverTimestamp()
+            }, { merge: true });
+
+            currentUserData.avatarURL = downloadURL;
+            updateProfileAvatar();
+            // Re-render modal to show new avatar (if modal is still open)
+            if (document.getElementById('profileModal').style.display !== 'none') {
+                renderProfileModal();
+                setTimeout(() => {
+                    updateProfileAvatar();
+                    updateChangePictureButton();
+                }, 80);
+            }
+            showToast('Profile picture updated! ✓', 'success');
+        } catch (error) {
+            console.error('Avatar upload error:', error);
+            showToast('Upload failed: ' + error.message, 'error');
+        } finally {
+            if (editBtn) {
+                editBtn.innerHTML = originalBtnHTML || '<i class="fas fa-pencil-alt" style="font-size:0.7rem;"></i> Change Picture';
+                editBtn.disabled = false;
+            }
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
+            avatarHiddenInput.value = ''; // allow re-selection
+        }
+    }, 'image/jpeg', 0.9);
+});
+async function updateChangePictureButton() {
+    const editBtn = document.getElementById('editAvatarBtn');
+    if (!editBtn) return;
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    const userDoc = await getDoc(doc(db, "users", userId));
+    const lastUpdate = userDoc.data()?.lastAvatarUpdate?.toDate();
+    if (lastUpdate) {
+        const now = new Date();
+        const diffHours = (now - lastUpdate) / (1000 * 60 * 60);
+        if (diffHours < 24) {
+            const remaining = 24 - diffHours;
+            const hours = Math.floor(remaining);
+            const minutes = Math.floor((remaining % 1) * 60);
+            editBtn.disabled = true;
+            editBtn.innerHTML = `<i class="fas fa-clock"></i> Change Picture (available in ${hours}h ${minutes}m)`;
+            editBtn.style.opacity = '0.6';
+            return;
+        }
+    }
+    // If no cooldown
+    editBtn.disabled = false;
+    editBtn.innerHTML = `<i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture`;
+    editBtn.style.opacity = '1';
+}
 function renderProfileModal() {
     const container = document.getElementById('profileContent');
     if (!container) return;
@@ -2032,17 +2388,24 @@ function renderProfileModal() {
 
     container.innerHTML = `
     <div class="profile-hero">
-        <div class="profile-avatar-large-wrap">
-            <div class="profile-avatar-ring"></div>
-            <div class="profile-avatar-ring-mask"></div>
-            <div class="profile-avatar-large" id="modalAvatar">${initial}</div>
-        </div>
-        <div class="profile-name">${escapeHtml(fullName)}</div>
-        <div class="profile-email">${escapeHtml(email)}</div>
-        <div class="profile-tier-badge">
-            <i class="fas fa-star"></i> Active Tenant
-        </div>
+    <div class="profile-avatar-large-wrap">
+        <div class="profile-avatar-ring"></div>
+        <div class="profile-avatar-ring-mask"></div>
+        <div class="profile-avatar-large" id="modalAvatar" style="${currentUserData.avatarURL ? `background-image: url('${currentUserData.avatarURL}'); background-size: cover; background-position: center;` : ''}">
+    ${currentUserData.avatarURL ? '' : initial}
+</div>
     </div>
+    <div class="profile-name">${escapeHtml(fullName)}</div>
+    <div class="profile-email">${escapeHtml(email)}</div>
+    <div class="profile-tier-badge">
+        <i class="fas fa-star"></i> Active Tenant
+    </div>
+    <!-- 👇 NEW: Edit picture button below the avatar -->
+    <button id="editAvatarBtn" class="edit-picture-btn" style="margin-top: 12px; background: rgba(0,212,255,0.1); border: 1px solid var(--cyan); border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; color: var(--cyan); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture
+    </button>
+</div>
+    <!-- No per-render file input; global avatarHiddenInput is used -->
 
     <div class="profile-fields-section">
         <div class="profile-field premium-field" id="field-firstName">
@@ -2080,91 +2443,18 @@ function renderProfileModal() {
         </div>
     </div>
     `;
-
-    // Animate progress bar
-    setTimeout(() => {
-        const fill = container.querySelector('.progress-fill');
-        if (fill) fill.style.width = completion + '%';
-    }, 100);
-
-    // Attach edit listeners
-    document.querySelectorAll('#profileContent .edit-field-btn').forEach(btn => {
-        btn.removeEventListener('click', handleEditClick);
-        btn.addEventListener('click', handleEditClick);
-    });
-}
-
-function handleEditClick(e) {
-    const btn = e.currentTarget;
-    const field = btn.dataset.field;
-    if (field) activateInlineEdit(field);
-}
-
-function activateInlineEdit(field) {
-    const fieldDiv = document.getElementById(`field-${field}`);
-    if (!fieldDiv) return;
-    const valueSpan = fieldDiv.querySelector('.field-value');
-    if (!valueSpan) return;
-    const currentValue = valueSpan.textContent === 'Not Added' ? '' : valueSpan.textContent.trim();
-    let inputHtml = '';
-    
-    if (field === 'firstName' || field === 'lastName') {
-        inputHtml = `<input type="text" class="edit-input" value="${escapeHtml(currentValue)}" id="inline-edit-${field}" autofocus>`;
-    } else if (field === 'dob') {
-        inputHtml = `<input type="date" class="edit-input" value="${currentValue !== 'Not Added' ? currentValue : ''}" id="inline-edit-${field}" autofocus>`;
-    }
-    
-    const saveHtml = `<button class="save-field-btn" data-field="${field}"><i class="fas fa-check-circle"></i><span>Save</span></button>`;
-    
-    const fieldTop = fieldDiv.querySelector('.field-top');
-    const fieldValueDiv = fieldDiv.querySelector('.field-value');
-    if (fieldTop) fieldTop.style.display = 'none';
-    if (fieldValueDiv) {
-        fieldValueDiv.innerHTML = `${inputHtml}<div style="display:flex; justify-content:flex-end; margin-top:0.4rem;">${saveHtml}</div>`;
-    }
-    
-    const saveBtn = fieldDiv.querySelector('.save-field-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', async () => {
-            const input = document.getElementById(`inline-edit-${field}`);
-            if (!input) return;
-            const newValue = input.value.trim();
-            if (field === 'firstName' && !newValue) {
-                alert('First name cannot be empty.');
-                return;
-            }
-            if (field === 'firstName') currentUserData.firstName = newValue;
-            if (field === 'lastName') currentUserData.lastName = newValue || null;
-            if (field === 'dob') currentUserData.dob = newValue || null;
-            const fullName = (currentUserData.firstName && currentUserData.lastName) 
-                ? `${currentUserData.firstName} ${currentUserData.lastName}` 
-                : (currentUserData.firstName || '');
-            currentUserData.fullName = fullName;
-            try {
-                const userId = auth.currentUser.uid;
-                await setDoc(doc(db, "users", userId), {
-                    firstName: currentUserData.firstName,
-                    lastName: currentUserData.lastName,
-                    fullName: fullName,
-                    dob: currentUserData.dob,
-                    email: auth.currentUser.email
-                }, { merge: true });
-                await updateProfile(auth.currentUser, { displayName: fullName });
-                const tenantRef = doc(db, "tenants", userId);
-                await setDoc(tenantRef, { name: fullName }, { merge: true });
-                const rentsQuery = query(collection(db, "rents"), where("uid", "==", userId));
-                const rentsSnap = await getDocs(rentsQuery);
-                const batch = writeBatch(db);
-                rentsSnap.forEach((rentDoc) => { batch.update(rentDoc.ref, { tenantName: fullName }); });
-                await batch.commit();
-                updateProfileAvatar();
-                renderProfileModal();
-                await loadTenantData(auth.currentUser);
-                alert('Profile updated successfully!');
-            } catch (error) {
-                console.error(error);
-                alert('Failed to save: ' + error.message);
-            }
+    // Connect the "Change Picture" button to the ONE global hidden input
+    const editAvatarBtn = document.getElementById('editAvatarBtn');
+    if (editAvatarBtn) {
+        // Clone to remove any previously attached listeners before adding fresh one
+        const freshBtn = editAvatarBtn.cloneNode(true);
+        editAvatarBtn.parentNode.replaceChild(freshBtn, editAvatarBtn);
+        freshBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Reset value first so 'change' fires even if same file is picked again
+            avatarHiddenInput.value = '';
+            avatarHiddenInput.click();
         });
     }
 }
@@ -2183,6 +2473,7 @@ function disableBodyScroll(disable) {
 
 function showProfileModal() {
     renderProfileModal();
+    updateChangePictureButton();
     document.getElementById('profileModal').style.display = 'flex';
     disableBodyScroll(true);
 }
@@ -2209,7 +2500,53 @@ function escapeHtml(str) {
         return m;
     });
 }
-
+// Compress image using canvas (max 150x150px, quality 0.7 JPEG)
+async function compressAndUpload(file, userId) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(img.src); // clean up
+            try {
+                const canvas = document.createElement('canvas');
+                let width = img.width, height = img.height;
+                const MAX_SIZE = 150;
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height = (MAX_SIZE * height) / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width = (MAX_SIZE * width) / height;
+                        height = MAX_SIZE;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        reject(new Error('Canvas toBlob failed'));
+                        return;
+                    }
+                    try {
+                        const storageRef = ref(storage, `avatars/${userId}`);
+                        await uploadBytes(storageRef, blob);
+                        const url = await getDownloadURL(storageRef);
+                        resolve(url);
+                    } catch (uploadErr) {
+                        reject(uploadErr);
+                    }
+                }, 'image/jpeg', 0.7);
+            } catch (canvasErr) {
+                reject(canvasErr);
+            }
+        };
+        img.onerror = (e) => reject(new Error('Image loading error'));
+        img.src = URL.createObjectURL(file);
+    });
+}
 function showSessionExpired() {
     document.getElementById("loadingMessage").style.display = "none";
     document.getElementById("content").style.display = "none";
