@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="logo.svg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -812,6 +814,60 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     #sessionExpiredMessage h2 { font-size: 1rem !important; }
     #redirectLoginBtn { padding: 0.6rem 1rem; font-size: 0.85rem; }
 }
+.profile-avatar.has-avatar::before,
+.profile-avatar.has-avatar::after {
+    display: none !important;
+}
+/* ===== CIRCULAR CROPPER OVERRIDES ===== */
+/* High-specificity selectors + !important to beat Cropper.js injected styles */
+.cropper-container .cropper-view-box,
+.cropper-view-box {
+    border-radius: 50% !important;
+    outline: 3px solid rgba(0, 212, 255, 0.9) !important;
+    outline-offset: 0 !important;
+}
+
+.cropper-container .cropper-face,
+.cropper-face {
+    border-radius: 50% !important;
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Hide inner grid lines — they look bad inside a circle */
+.cropper-container .cropper-dashed,
+.cropper-dashed {
+    display: none !important;
+}
+.cropper-container .cropper-line,
+.cropper-line {
+    opacity: 0 !important;
+}
+
+/* Rounded handles, touch-friendly */
+.cropper-container .cropper-point,
+.cropper-point {
+    border-radius: 50% !important;
+    background-color: var(--cyan) !important;
+    opacity: 0.9 !important;
+    width: 10px !important;
+    height: 10px !important;
+}
+
+.cropper-modal {
+    background: rgba(0, 0, 0, 0.78) !important;
+    opacity: 1 !important;
+}
+
+/* The image canvas itself should NOT be circular */
+.cropper-wrap-box,
+.cropper-canvas,
+.cropper-drag-box {
+    border-radius: 0 !important;
+}
+
+@media (max-width: 480px) {
+    .cropper-point { width: 14px !important; height: 14px !important; }
+}
 </style>
 </head>
 <body>
@@ -946,6 +1002,58 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     </div>
 </div>
 
+<!-- Crop Image Modal -->
+<div id="cropModal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 3, 14, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 20000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+">
+    <div style="
+        background: linear-gradient(160deg, rgba(6,14,32,0.98) 0%, rgba(3,8,20,0.99) 100%);
+        border: 1px solid rgba(0,212,255,0.22);
+        border-radius: 28px;
+        padding: 1.5rem;
+        width: min(95vw, 520px);
+        max-height: 92vh;
+        overflow-y: auto;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,212,255,0.15);
+        position: relative;
+    ">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.7),rgba(123,47,255,0.7),transparent);border-radius:28px 28px 0 0;"></div>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.2rem;">
+            <div style="width:34px;height:34px;border-radius:50%;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:0.9rem;flex-shrink:0;">
+                <i class="fas fa-crop-alt"></i>
+            </div>
+            <div>
+                <div style="font-family:'Poppins',sans-serif;font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--tMid);font-weight:600;">Crop Profile Picture</div>
+                <div style="font-size:0.72rem;color:rgba(127,184,216,0.6);margin-top:1px;">Drag to reposition · Pinch/scroll to zoom</div>
+            </div>
+        </div>
+        <div style="width:100%; max-height:55vh; overflow:hidden; border-radius:16px; border:1px solid rgba(0,212,255,0.12); background:#000; margin-bottom:1.2rem;">
+            <img id="cropImage" src="" alt="Crop preview" style="display:block;max-width:100%;">
+        </div>
+        <div style="font-size:0.72rem;color:rgba(127,184,216,0.65);text-align:center;margin-bottom:1rem;">
+            <i class="fas fa-info-circle" style="color:var(--cyan);margin-right:4px;"></i>
+            Profile picture can be changed once every 24 hours
+        </div>
+        <div style="display:flex;gap:0.8rem;">
+            <button id="cancelCropBtn" style="flex:1; padding:0.85rem 1rem; border-radius:14px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:var(--tHi); font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit;">
+                <i class="fas fa-times" style="margin-right:6px;"></i>Cancel
+            </button>
+            <button id="confirmCropBtn" style="flex:2; padding:0.85rem 1rem; border-radius:14px; border:none; background:linear-gradient(135deg, var(--cyan), var(--blue)); color:white; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 20px rgba(0,212,255,0.35); font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fas fa-check-circle"></i> Crop &amp; Upload
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Logout Confirmation Modal -->
 <div id="logoutModal" class="modal-overlay" style="display: none;">
     <div class="modal-container">
@@ -966,12 +1074,13 @@ tr:hover td { background: rgba(0,212,255,0.05); }
         getFirestore, doc, getDoc, collection, query, where,
         getDocs, updateDoc, addDoc, setDoc, deleteDoc, serverTimestamp, writeBatch
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB8FiQNgV8EqhMJEyA5A_ZfmFiZa1Iqm4U",
         authDomain: "rent-management-system-86ccc.firebaseapp.com",
         projectId: "rent-management-system-86ccc",
-        storageBucket: "rent-management-system-86ccc.appspot.com",
+        storageBucket: "rent-management-system-86ccc.firebasestorage.app",
         messagingSenderId: "676999561040",
         appId: "1:676999561040:web:f1166d818a33c5a008f655"
     };
@@ -979,6 +1088,185 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     const auth = getAuth(app);
     const db = getFirestore(app);
     let isGenerating = false;
+
+    let cropper = null;
+const storage = getStorage(app);
+
+// Hidden file input (global)
+const avatarHiddenInput = document.getElementById('globalAvatarFileInput') || (() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'globalAvatarFileInput';
+    input.accept = 'image/*';
+    // NOTE: No capture="user" — omitting capture lets iOS show "Take Photo / Choose from Library" sheet
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    return input;
+})();
+
+// Attach change handler
+avatarHiddenInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showMessage('Please select an image file (JPEG, PNG, WebP, etc.)', 'error');
+        avatarHiddenInput.value = '';
+        return;
+    }
+
+    const userId = auth.currentUser?.uid;
+    if (!userId) { showMessage('Please login again.', 'error'); return; }
+
+    // Rate limit check
+    try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        const lastUpdate = userDoc.data()?.lastAvatarUpdate?.toDate?.();
+        if (lastUpdate) {
+            const diffHours = (Date.now() - lastUpdate.getTime()) / 3600000;
+            if (diffHours < 24) {
+                const remaining = Math.ceil(24 - diffHours);
+                showMessage(`You can change picture again in ${remaining}h.`, 'error');
+                avatarHiddenInput.value = '';
+                return;
+            }
+        }
+    } catch (_) {}
+
+    const objectURL = URL.createObjectURL(file);
+    const cropImg = document.getElementById('cropImage');
+    cropImg.src = '';
+    if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+    const cropModal = document.getElementById('cropModal');
+    cropModal.style.display = 'flex';
+
+    cropImg.onload = () => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+                cropper = new Cropper(cropImg, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    responsive: true,
+                    restore: false,
+                    checkCrossOrigin: false,
+                });
+            });
+        });
+    };
+    cropImg.src = objectURL;
+}, { once: false });
+
+// Cancel crop
+document.getElementById('cancelCropBtn')?.addEventListener('click', () => {
+    const cropModal = document.getElementById('cropModal');
+    const cropImg = document.getElementById('cropImage');
+    if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+    if (cropImg.src && cropImg.src.startsWith('blob:')) URL.revokeObjectURL(cropImg.src);
+    cropImg.src = '';
+    cropModal.style.display = 'none';
+    avatarHiddenInput.value = '';
+});
+
+// Confirm crop and upload
+document.getElementById('confirmCropBtn')?.addEventListener('click', () => {
+    if (!cropper) { showMessage('Crop not ready, please try again.', 'error'); return; }
+
+    const confirmBtn = document.getElementById('confirmCropBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+    let canvas;
+    try {
+        canvas = cropper.getCroppedCanvas({ width: 300, height: 300, imageSmoothingQuality: 'high' });
+    } catch (e) {
+        console.error('getCroppedCanvas error:', e);
+    }
+
+    if (!canvas) {
+        showMessage('Could not get crop result. Please try again.', 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
+        return;
+    }
+
+    canvas.toBlob(async (blob) => {
+        // Reset confirm button first (modal may still be visible during upload)
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
+
+        if (!blob) {
+            showMessage('Failed to process image. Please try again.', 'error');
+            avatarHiddenInput.value = '';
+            return;
+        }
+
+        // Close crop modal and clean up cropper
+        const cropModal = document.getElementById('cropModal');
+        const cropImg = document.getElementById('cropImage');
+        cropModal.style.display = 'none';
+        if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
+        if (cropImg.src && cropImg.src.startsWith('blob:')) URL.revokeObjectURL(cropImg.src);
+        cropImg.src = '';
+
+        // Show uploading state on the edit button if it exists
+        const editBtn = document.getElementById('editAvatarBtn');
+        if (editBtn) {
+            editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            editBtn.disabled = true;
+        }
+
+        try {
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error('Not authenticated. Please log in again.');
+
+            console.log('[Avatar] Starting upload for user:', userId);
+
+            // Upload blob directly to Firebase Storage (skip re-encode)
+            const storageRef = ref(storage, `avatars/${userId}`);
+            console.log('[Avatar] Uploading blob, size:', blob.size);
+            await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+            console.log('[Avatar] Upload complete, fetching URL...');
+            const downloadURL = await getDownloadURL(storageRef);
+            console.log('[Avatar] Download URL:', downloadURL);
+
+            // Save to Firestore
+            await setDoc(doc(db, 'users', userId), {
+                avatarURL: downloadURL,
+                lastAvatarUpdate: serverTimestamp()
+            }, { merge: true });
+
+            // Update local state and UI
+            currentAdminData.avatarURL = downloadURL;
+            updateAdminAvatar();
+            if (document.getElementById('profileModal').style.display !== 'none') {
+                renderAdminProfileModal();
+                setTimeout(() => {
+                    updateAdminAvatar();
+                    updateAdminChangePictureButton();
+                }, 80);
+            }
+            showMessage('Profile picture updated! ✓', 'success');
+        } catch (error) {
+            console.error('[Avatar] Upload error:', error);
+            showMessage('Upload failed: ' + error.message, 'error');
+            // Re-enable edit button on failure
+            const editBtnRetry = document.getElementById('editAvatarBtn');
+            if (editBtnRetry) {
+                editBtnRetry.innerHTML = '<i class="fas fa-pencil-alt" style="font-size:0.7rem;"></i> Change Picture';
+                editBtnRetry.disabled = false;
+            }
+        }
+
+        avatarHiddenInput.value = '';
+    }, 'image/jpeg', 0.88);
+});
 
     function normalise(str) { return String(str).trim().toLowerCase(); }
 
@@ -1031,6 +1319,46 @@ tr:hover td { background: rgba(0,212,255,0.05); }
         if (!str) return '';
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
+
+    async function compressAndUpload(file, userId) {
+    return new Promise((resolve, reject) => {
+        const objectURL = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(objectURL); // revoke AFTER load
+            try {
+                const canvas = document.createElement('canvas');
+                let width = img.width, height = img.height;
+                const MAX_SIZE = 300;
+                if (width > height) {
+                    if (width > MAX_SIZE) { height = (MAX_SIZE * height) / width; width = MAX_SIZE; }
+                } else {
+                    if (height > MAX_SIZE) { width = (MAX_SIZE * width) / height; height = MAX_SIZE; }
+                }
+                canvas.width = Math.round(width);
+                canvas.height = Math.round(height);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(async (blob) => {
+                    if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+                    try {
+                        console.log('[compressAndUpload] Uploading blob, size:', blob.size);
+                        const storageRef = ref(storage, `avatars/${userId}`);
+                        await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+                        const url = await getDownloadURL(storageRef);
+                        console.log('[compressAndUpload] Done, URL:', url);
+                        resolve(url);
+                    } catch (uploadErr) {
+                        console.error('[compressAndUpload] Storage error:', uploadErr);
+                        reject(uploadErr);
+                    }
+                }, 'image/jpeg', 0.82);
+            } catch (canvasErr) { reject(canvasErr); }
+        };
+        img.onerror = () => { URL.revokeObjectURL(objectURL); reject(new Error('Image load failed')); };
+        img.src = objectURL;
+    });
+}
 
     async function loadTenants() {
         const tenantTable = document.getElementById("tenantTable");
@@ -1213,12 +1541,58 @@ tr:hover td { background: rgba(0,212,255,0.05); }
 
     function updateAdminAvatar() {
     const avatarDiv = document.getElementById('profileAvatar');
-    if (!avatarDiv) return;
-    let letter = 'A';
-    if (currentAdminData?.firstName?.length > 0) letter = currentAdminData.firstName.charAt(0).toUpperCase();
-    avatarDiv.textContent = letter;
     const modalAvatar = document.getElementById('modalAvatarLarge');
-    if (modalAvatar) modalAvatar.textContent = letter;
+    const avatarURL = currentAdminData?.avatarURL;
+    
+    const setAvatarImage = (el) => {
+        if (!el) return;
+        if (avatarURL) {
+            el.classList.add('has-avatar');
+            el.style.background = 'none';
+            el.style.backgroundImage = `url(${avatarURL})`;
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.style.backgroundRepeat = 'no-repeat';
+            el.textContent = '';
+        } else {
+            el.classList.remove('has-avatar');
+            el.style.background = '';
+            el.style.backgroundImage = '';
+            el.style.backgroundSize = '';
+            el.style.backgroundPosition = '';
+            el.style.backgroundRepeat = '';
+            const letter = (currentAdminData?.firstName?.[0] || 'A').toUpperCase();
+            el.textContent = letter;
+        }
+    };
+    
+    setAvatarImage(avatarDiv);
+    setAvatarImage(modalAvatar);
+}
+
+async function updateAdminChangePictureButton() {
+    const editBtn = document.getElementById('editAvatarBtn');
+    if (!editBtn) return;
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    const userDoc = await getDoc(doc(db, "users", userId));
+    const lastUpdate = userDoc.data()?.lastAvatarUpdate?.toDate();
+    if (lastUpdate) {
+        const now = new Date();
+        const diffHours = (now - lastUpdate) / (1000 * 60 * 60);
+        if (diffHours < 24) {
+            const remaining = 24 - diffHours;
+            const hours = Math.floor(remaining);
+            const minutes = Math.floor((remaining % 1) * 60);
+            editBtn.disabled = true;
+            editBtn.innerHTML = `<i class="fas fa-clock"></i> Change Picture (available in ${hours}h ${minutes}m)`;
+            editBtn.style.opacity = '0.6';
+            return;
+        }
+    }
+    editBtn.disabled = false;
+    editBtn.innerHTML = `<i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture`;
+    editBtn.style.opacity = '1';
 }
 
     function calculateAdminCompletion() {
@@ -1230,70 +1604,89 @@ tr:hover td { background: rgba(0,212,255,0.05); }
     }
 
     function renderAdminProfileModal() {
-        const container = document.getElementById('profileContent');
-        if (!container) return;
-        const email = currentAdminData.email || auth.currentUser?.email || '';
-        const completion = calculateAdminCompletion();
-        const firstName = currentAdminData.firstName || '';
-        const lastName = currentAdminData.lastName || '';
-        const fullName = `${firstName} ${lastName}`.trim() || 'Admin';
-        const initial = (firstName || email || 'A').charAt(0).toUpperCase();
+    const container = document.getElementById('profileContent');
+    if (!container) return;
+    const email = currentAdminData.email || auth.currentUser?.email || '';
+    const completion = calculateAdminCompletion();
+    const firstName = currentAdminData.firstName || '';
+    const lastName = currentAdminData.lastName || '';
+    const fullName = `${firstName} ${lastName}`.trim() || 'Admin';
+    const initial = (firstName || email || 'A').charAt(0).toUpperCase();
+    const avatarURL = currentAdminData?.avatarURL;
 
-        container.innerHTML = `
-        <div class="profile-hero">
-            <div class="profile-avatar-large-wrap">
-                <div class="profile-avatar-ring"></div>
-                <div class="profile-avatar-ring-mask"></div>
-                <div class="profile-avatar-large" id="modalAvatarLarge">${initial}</div>
-            </div>
-            <div class="profile-name">${escapeHtml(fullName)}</div>
-            <div class="profile-email">${escapeHtml(email)}</div>
-            <div class="profile-tier-badge"><i class="fas fa-crown"></i> Administrator</div>
-        </div>
-
-        <div class="profile-fields-section">
-            <div class="profile-field premium-field" id="field-firstName">
-                <div class="field-top">
-                    <div class="field-label"><i class="fas fa-user"></i> First Name</div>
-                    <button class="edit-field-btn" data-field="firstName"><i class="fas fa-pencil-alt"></i></button>
-                </div>
-                <div class="field-value">${escapeHtml(firstName || 'Not Added')}</div>
-            </div>
-            <div class="profile-field premium-field" id="field-lastName">
-                <div class="field-top">
-                    <div class="field-label"><i class="fas fa-user"></i> Last Name</div>
-                    <button class="edit-field-btn" data-field="lastName"><i class="fas fa-pencil-alt"></i></button>
-                </div>
-                <div class="field-value">${escapeHtml(lastName || 'Not Added')}</div>
-            </div>
-            <div class="profile-field premium-field" id="field-dob">
-                <div class="field-top">
-                    <div class="field-label"><i class="fas fa-calendar-alt"></i> Date of Birth</div>
-                    <button class="edit-field-btn" data-field="dob"><i class="fas fa-pencil-alt"></i></button>
-                </div>
-                <div class="field-value">${escapeHtml(currentAdminData.dob || 'Not Added')}</div>
+    container.innerHTML = `
+    <div class="profile-hero">
+        <div class="profile-avatar-large-wrap">
+            <div class="profile-avatar-ring"></div>
+            <div class="profile-avatar-ring-mask"></div>
+            <div class="profile-avatar-large" id="modalAvatarLarge" style="${avatarURL ? `background-image: url('${avatarURL}'); background-size: cover; background-position: center;` : ''}">
+                ${avatarURL ? '' : initial}
             </div>
         </div>
+        <div class="profile-name">${escapeHtml(fullName)}</div>
+        <div class="profile-email">${escapeHtml(email)}</div>
+        <div class="profile-tier-badge"><i class="fas fa-crown"></i> Administrator</div>
+        <button id="editAvatarBtn" class="edit-picture-btn" style="margin-top: 12px; background: rgba(0,212,255,0.1); border: 1px solid var(--cyan); border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; color: var(--cyan); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-pencil-alt" style="font-size: 0.7rem;"></i> Change Picture
+        </button>
+    </div>
 
-        <div class="profile-progress">
-            <div class="progress-header">
-                <span class="progress-text">Profile Completion</span>
-                <span class="progress-pct">${completion}%</span>
+    <div class="profile-fields-section">
+        <div class="profile-field premium-field" id="field-firstName">
+            <div class="field-top">
+                <div class="field-label"><i class="fas fa-user"></i> First Name</div>
+                <button class="edit-field-btn" data-field="firstName"><i class="fas fa-pencil-alt"></i></button>
             </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
-        </div>`;
+            <div class="field-value">${escapeHtml(firstName || 'Not Added')}</div>
+        </div>
+        <div class="profile-field premium-field" id="field-lastName">
+            <div class="field-top">
+                <div class="field-label"><i class="fas fa-user"></i> Last Name</div>
+                <button class="edit-field-btn" data-field="lastName"><i class="fas fa-pencil-alt"></i></button>
+            </div>
+            <div class="field-value">${escapeHtml(lastName || 'Not Added')}</div>
+        </div>
+        <div class="profile-field premium-field" id="field-dob">
+            <div class="field-top">
+                <div class="field-label"><i class="fas fa-calendar-alt"></i> Date of Birth</div>
+                <button class="edit-field-btn" data-field="dob"><i class="fas fa-pencil-alt"></i></button>
+            </div>
+            <div class="field-value">${escapeHtml(currentAdminData.dob || 'Not Added')}</div>
+        </div>
+    </div>
 
-        // Animate progress bar after DOM update
-requestAnimationFrame(() => {
-    const fill = document.querySelector('#profileContent .progress-fill');
-    if (fill) fill.style.width = completion + '%';
-});
+    <div class="profile-progress">
+        <div class="progress-header">
+            <span class="progress-text">Profile Completion</span>
+            <span class="progress-pct">${completion}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>`;
 
-        document.querySelectorAll('#profileContent .edit-field-btn').forEach(btn => {
-            btn.removeEventListener('click', handleAdminEditClick);
-            btn.addEventListener('click', handleAdminEditClick);
+    // Animate progress bar
+    requestAnimationFrame(() => {
+        const fill = document.querySelector('#profileContent .progress-fill');
+        if (fill) fill.style.width = completion + '%';
+    });
+
+    // Attach edit button listeners
+    document.querySelectorAll('#profileContent .edit-field-btn').forEach(btn => {
+        btn.removeEventListener('click', handleAdminEditClick);
+        btn.addEventListener('click', handleAdminEditClick);
+    });
+
+    // Change picture button
+    const editAvatarBtn = document.getElementById('editAvatarBtn');
+    if (editAvatarBtn) {
+        const freshBtn = editAvatarBtn.cloneNode(true);
+        editAvatarBtn.parentNode.replaceChild(freshBtn, editAvatarBtn);
+        freshBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            avatarHiddenInput.value = '';
+            avatarHiddenInput.click();
         });
     }
+}
 
     function handleAdminEditClick(e) {
         const field = e.currentTarget.dataset.field;
@@ -1370,10 +1763,11 @@ requestAnimationFrame(() => {
     }
 
     function showAdminProfileModal() {
-        renderAdminProfileModal();
-        document.getElementById('profileModal').style.display = 'flex';
-        disableBodyScroll(true);
-    }
+    renderAdminProfileModal();
+    updateAdminChangePictureButton();
+    document.getElementById('profileModal').style.display = 'flex';
+    disableBodyScroll(true);
+}
 
     document.getElementById('closeProfileModal').addEventListener('click', () => {
         document.getElementById('profileModal').style.display = 'none';
@@ -1440,15 +1834,7 @@ requestAnimationFrame(() => {
     inspectMessage.style.cssText = "position:fixed;z-index:999999;padding:18px 22px;border-radius:22px;background:rgba(18,25,45,0.92);backdrop-filter:blur(18px);border:1px solid rgba(0,183,255,0.25);box-shadow:0 10px 35px rgba(0,0,0,0.45),0 0 20px rgba(0,183,255,0.18);max-width:320px;opacity:0;pointer-events:none;transition:opacity 0.25s ease,transform 0.25s ease;transform:translateY(10px);display:none;";
     document.body.appendChild(inspectMessage);
 
-    document.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        inspectMessage.style.display = "block";
-        let x = e.clientX, y = e.clientY;
-        if (x + 320 > window.innerWidth) x = window.innerWidth - 340;
-        if (y + 120 > window.innerHeight) y = window.innerHeight - 140;
-        inspectMessage.style.left = x + "px"; inspectMessage.style.top = y + "px";
-        requestAnimationFrame(() => { inspectMessage.style.opacity = "1"; inspectMessage.style.transform = "translateY(0px)"; });
-    });
+    
     document.addEventListener("click", () => {
         inspectMessage.style.opacity = "0"; inspectMessage.style.transform = "translateY(10px)";
         setTimeout(() => { inspectMessage.style.display = "none"; }, 250);
