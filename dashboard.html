@@ -1908,21 +1908,34 @@ const avatarHiddenInput = document.getElementById('globalAvatarFileInput') || ((
     input.type = 'file';
     input.id = 'globalAvatarFileInput';
     input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+    // No capture attribute — allows iOS to show both camera and gallery
     input.style.display = 'none';
     document.body.appendChild(input);
     return input;
 })();
+// Ensure the input exists and has the correct attributes (no capture)
 avatarHiddenInput.type = 'file';
 avatarHiddenInput.id = 'globalAvatarFileInput';
 avatarHiddenInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
-avatarHiddenInput.setAttribute('capture', 'user'); // hints iOS to offer camera/library
+// Remove any existing capture attribute
+avatarHiddenInput.removeAttribute('capture');
 avatarHiddenInput.style.display = 'none';
-document.body.appendChild(avatarHiddenInput);
+// Only append if not already in DOM
+if (!document.getElementById('globalAvatarFileInput')) {
+    document.body.appendChild(avatarHiddenInput);
+}
 
 // Attach change handler ONCE — never re-attach
 avatarHiddenInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file (JPEG, PNG, WebP, etc.)', 'error');
+        avatarHiddenInput.value = '';
+        return;
+    }
 
     const userId = auth.currentUser?.uid;
     if (!userId) { showToast('Please login again.', 'error'); return; }
@@ -1940,33 +1953,24 @@ avatarHiddenInput.addEventListener('change', async (e) => {
                 return;
             }
         }
-    } catch (_) { /* if doc doesn't exist yet, proceed */ }
+    } catch (_) { /* proceed */ }
 
-    // Read file as object URL, show crop modal immediately
     const objectURL = URL.createObjectURL(file);
     const cropImg = document.getElementById('cropImage');
-
-    // Reset src first to force onload to fire even if same image
     cropImg.src = '';
-
-    // Destroy previous cropper instance if any
     if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
-
-    // Show crop modal BEFORE image loads (so it's visible on slow devices)
     const cropModal = document.getElementById('cropModal');
     cropModal.style.display = 'flex';
 
-    // Initialize cropper once image has loaded into the DOM
     cropImg.onload = () => {
-        // Small rAF delay ensures browser has painted the modal before Cropper.js measures
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
                 cropper = new Cropper(cropImg, {
-                    aspectRatio: 1,          // enforce 1:1 square → visually a circle
-                    viewMode: 1,             // restrict crop box inside canvas
-                    dragMode: 'move',        // default: drag moves the image
-                    autoCropArea: 0.8,       // crop box = 80% of the canvas
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
                     cropBoxMovable: true,
                     cropBoxResizable: true,
                     toggleDragModeOnDblclick: false,
@@ -1977,7 +1981,6 @@ avatarHiddenInput.addEventListener('change', async (e) => {
             });
         });
     };
-
     cropImg.src = objectURL;
 }, { once: false }); // single persistent listener
         const now = new Date();
@@ -2451,14 +2454,20 @@ document.getElementById('cancelCropBtn').addEventListener('click', () => {
     avatarHiddenInput.value = ''; // clear so the same file can be re-selected
 });
 
-document.getElementById('confirmCropBtn').addEventListener('click', async () => {
+document.getElementById('confirmCropBtn').addEventListener('click', () => {
     if (!cropper) { showToast('Crop not ready, please try again.', 'error'); return; }
 
     const confirmBtn = document.getElementById('confirmCropBtn');
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
-    const canvas = cropper.getCroppedCanvas({ width: 300, height: 300, imageSmoothingQuality: 'high' });
+    let canvas;
+    try {
+        canvas = cropper.getCroppedCanvas({ width: 300, height: 300, imageSmoothingQuality: 'high' });
+    } catch (e) {
+        console.error('getCroppedCanvas error:', e);
+    }
+
     if (!canvas) {
         showToast('Could not get crop result. Please try again.', 'error');
         confirmBtn.disabled = false;
@@ -2467,37 +2476,52 @@ document.getElementById('confirmCropBtn').addEventListener('click', async () => 
     }
 
     canvas.toBlob(async (blob) => {
+        // Reset confirm button state (modal may still be visible)
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
+
+        if (!blob) {
+            showToast('Failed to process image. Please try again.', 'error');
+            avatarHiddenInput.value = '';
+            return;
+        }
+
+        // Close crop modal and clean up cropper
         const cropModal = document.getElementById('cropModal');
         const cropImg = document.getElementById('cropImage');
-
-        // Hide crop modal
         cropModal.style.display = 'none';
         if (cropper) { try { cropper.destroy(); } catch (_) {} cropper = null; }
         if (cropImg.src && cropImg.src.startsWith('blob:')) URL.revokeObjectURL(cropImg.src);
         cropImg.src = '';
 
-        // Show loading on Change Picture button (if still visible in modal)
+        // Show loading on the edit button if it exists
         const editBtn = document.getElementById('editAvatarBtn');
-        const originalBtnHTML = editBtn ? editBtn.innerHTML : '';
         if (editBtn) {
             editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
             editBtn.disabled = true;
         }
 
         try {
-            const userId = auth.currentUser.uid;
-            const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
-            const downloadURL = await compressAndUpload(file, userId);
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error('Not authenticated. Please log in again.');
 
-            // Save to Firestore with serverTimestamp for cooldown accuracy
+            console.log('[Avatar] Starting upload for user:', userId);
+            const storageRef = ref(storage, `avatars/${userId}`);
+            console.log('[Avatar] Uploading blob, size:', blob.size);
+            await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+            console.log('[Avatar] Upload complete, fetching URL...');
+            const downloadURL = await getDownloadURL(storageRef);
+            console.log('[Avatar] Download URL:', downloadURL);
+
+            // Save to Firestore
             await setDoc(doc(db, 'users', userId), {
                 avatarURL: downloadURL,
                 lastAvatarUpdate: serverTimestamp()
             }, { merge: true });
 
+            // Update local state and UI
             currentUserData.avatarURL = downloadURL;
             updateProfileAvatar();
-            // Re-render modal to show new avatar (if modal is still open)
             if (document.getElementById('profileModal').style.display !== 'none') {
                 renderProfileModal();
                 setTimeout(() => {
@@ -2507,18 +2531,18 @@ document.getElementById('confirmCropBtn').addEventListener('click', async () => 
             }
             showToast('Profile picture updated! ✓', 'success');
         } catch (error) {
-            console.error('Avatar upload error:', error);
+            console.error('[Avatar] Upload error:', error);
             showToast('Upload failed: ' + error.message, 'error');
-        } finally {
-            if (editBtn) {
-                editBtn.innerHTML = originalBtnHTML || '<i class="fas fa-pencil-alt" style="font-size:0.7rem;"></i> Change Picture';
-                editBtn.disabled = false;
+            // Re-enable edit button on failure
+            const editBtnRetry = document.getElementById('editAvatarBtn');
+            if (editBtnRetry) {
+                editBtnRetry.innerHTML = '<i class="fas fa-pencil-alt" style="font-size:0.7rem;"></i> Change Picture';
+                editBtnRetry.disabled = false;
             }
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Crop &amp; Upload';
-            avatarHiddenInput.value = ''; // allow re-selection
         }
-    }, 'image/jpeg', 0.9);
+
+        avatarHiddenInput.value = '';
+    }, 'image/jpeg', 0.88);
 });
 async function updateChangePictureButton() {
     const editBtn = document.getElementById('editAvatarBtn');
