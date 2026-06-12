@@ -690,7 +690,16 @@ input[type="date"] {
   <button class="btn btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> Create Account</button>
 </div>
 
-<div class="divider"><div class="div-line"></div><span>or</span><div class="div-line"></div></div>
+<div class="divider">
+  <div class="div-line"></div>
+  <span>or</span>
+  <div class="div-line"></div>
+</div>
+
+<!-- Google Sign-In button -->
+<button class="btn btn-ghost" id="googleBtn">
+  <i class="fab fa-google"></i> Continue with Google
+</button>
 
 <a href="index.html" style="text-decoration:none;display:block">
   <button class="btn btn-ghost" id="homeBtn"><i class="fas fa-house"></i> Back to Home</button>
@@ -843,7 +852,7 @@ document.addEventListener('keydown',e=>{
 ═══════════════════════════════ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification,updateProfile}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification,updateProfile, GoogleAuthProvider, signInWithPopup}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const app=initializeApp({
@@ -858,11 +867,57 @@ const auth=getAuth(app),db=getFirestore(app);
 const msg=document.getElementById('msg');
 const lBtn=document.getElementById('loginBtn');
 const sBtn=document.getElementById('signupBtn');
+// Google Sign-In
+const googleProvider = new GoogleAuthProvider();
+const googleBtn = document.getElementById('googleBtn');
 
+googleBtn.addEventListener('click', async () => {
+    setMsg('⏳ Connecting to Google...', 'inf');
+    setLoad(true);
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDocRef = doc(db, 'users', user.uid);
+        let userSnap = await getDoc(userDocRef);
+        
+        if (!userSnap.exists()) {
+            // New user – create profile with data from Google
+            const firstName = user.displayName?.split(' ')[0] || '';
+            const lastName = user.displayName?.split(' ').slice(1).join(' ') || '';
+            await setDoc(userDocRef, {
+                email: user.email,
+                firstName: firstName,
+                lastName: lastName,
+                fullName: user.displayName,
+                emailVerified: user.emailVerified,
+                role: 'tenant',
+                avatarURL: user.photoURL || null,
+                createdAt: new Date().toISOString()
+            });
+            // Re‑fetch the snapshot to get the newly created role
+            userSnap = await getDoc(userDocRef);
+            setMsg('✅ Google account linked! Redirecting...', 'suc');
+        } else {
+            setMsg('✅ Google sign-in successful! Redirecting...', 'suc');
+        }
+        
+        // Determine role from the (updated) snapshot
+        const role = userSnap.data()?.role || 'tenant';
+        setTimeout(() => {
+            window.location.href = role === 'admin' ? 'admin.html' : 'dashboard.html';
+        }, 1500);
+    } catch (error) {
+        console.error('Google sign-in error:', error);
+        setMsg('❌ Google sign-in failed: ' + error.message, 'err');
+        setLoad(false);
+    }
+});
 function setMsg(txt,cls){msg.innerHTML=txt;msg.className=cls}
 function setLoad(v){
-  lBtn.disabled=v;sBtn.disabled=v;
-  lBtn.classList.toggle('loading',v);
+  lBtn.disabled = v;
+  sBtn.disabled = v;
+  if (googleBtn) googleBtn.disabled = v;
+  lBtn.classList.toggle('loading', v);
 }
 
 async function doAuth(email,pw,isUp){
